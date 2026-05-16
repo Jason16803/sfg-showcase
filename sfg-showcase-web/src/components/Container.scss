@@ -1,0 +1,15 @@
+@use '@/styles/variables' as *;
+
+.container-main {
+  max-width: 1280px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: $space-md;
+  padding-right: $space-md;
+  width: 100%;
+
+  @media (min-width: $breakpoint-lg) {
+    padding-left: $space-xl;
+    padding-right: $space-xl;
+  }
+}

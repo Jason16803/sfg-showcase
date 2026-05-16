@@ -1,15 +1,16 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { ProtectedRoute } from './ProtectedRoute'
 import { PublicLayout } from '@/layouts/PublicLayout'
 import { DashboardLayout } from '@/layouts/DashboardLayout'
+import { HomePage, LoginPage, DashboardPage } from '@/pages'
 
 export function AppRouter() {
   return (
     <BrowserRouter>
       <Routes>
         <Route element={<PublicLayout />}>
-          <Route path="/login" element={<div>Login Page (placeholder)</div>} />
-          <Route path="/" element={<div>Home Page (placeholder)</div>} />
+          <Route path="/" element={<HomePage />} />
+          <Route path="/login" element={<LoginPage />} />
         </Route>
 
         <Route
@@ -19,8 +20,10 @@ export function AppRouter() {
             </ProtectedRoute>
           }
         >
-          <Route path="/dashboard" element={<div>Dashboard Page (placeholder)</div>} />
+          <Route path="/dashboard" element={<DashboardPage />} />
         </Route>
+
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
   )

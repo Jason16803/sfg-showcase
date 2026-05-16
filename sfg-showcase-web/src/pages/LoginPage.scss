@@ -1,0 +1,89 @@
+@use '@/styles/variables' as *;
+
+.login-page {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: $space-md;
+}
+
+.login-page__content {
+  width: 100%;
+  max-width: 400px;
+}
+
+.login-page__card {
+  background-color: $color-surface-card;
+  border: 1px solid $color-border;
+}
+
+.login-page__header {
+  margin-bottom: $space-2xl;
+  text-align: center;
+
+  h1 {
+    font-size: $font-size-2xl;
+    margin-bottom: $space-md;
+  }
+
+  p {
+    color: $color-text-secondary;
+  }
+}
+
+.login-page__form {
+  display: flex;
+  flex-direction: column;
+  gap: $space-lg;
+}
+
+.login-page__field {
+  display: flex;
+  flex-direction: column;
+  gap: $space-sm;
+}
+
+.login-page__label {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+}
+
+.login-page__error {
+  font-size: $font-size-xs;
+  color: $color-error;
+}
+
+.login-page__submit {
+  width: 100%;
+  margin-top: $space-md;
+}
+
+.login-page__footer {
+  margin-top: $space-xl;
+  text-align: center;
+  font-size: $font-size-sm;
+
+  p {
+    color: $color-text-secondary;
+  }
+
+  a {
+    color: $color-primary;
+    font-weight: $font-weight-semibold;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+input.error {
+  border-color: $color-error;
+  background-color: rgba($color-error, 0.05);
+
+  &:focus {
+    border-color: $color-error;
+  }
+}

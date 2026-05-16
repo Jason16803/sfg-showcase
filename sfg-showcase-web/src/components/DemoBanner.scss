@@ -1,0 +1,77 @@
+@use '@/styles/variables' as *;
+
+.demo-banner {
+  padding: $space-3xl $space-md;
+  background: linear-gradient(
+    135deg,
+    rgba($color-primary, 0.05) 0%,
+    rgba(6, 182, 212, 0.05) 100%
+  );
+
+  @media (min-width: $breakpoint-lg) {
+    padding: $space-3xl $space-xl;
+  }
+}
+
+.demo-banner__content {
+  display: grid;
+  gap: $space-3xl;
+  align-items: center;
+  grid-template-columns: 1fr;
+
+  @media (min-width: $breakpoint-lg) {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.demo-banner__text {
+  display: flex;
+  flex-direction: column;
+  gap: $space-lg;
+}
+
+.demo-banner__title {
+  font-size: $font-size-3xl;
+  color: $color-text-primary;
+  font-weight: $font-weight-bold;
+  line-height: $line-height-tight;
+
+  @media (min-width: $breakpoint-md) {
+    font-size: $font-size-4xl;
+  }
+}
+
+.demo-banner__description {
+  font-size: $font-size-lg;
+  color: $color-text-secondary;
+  line-height: $line-height-relaxed;
+  max-width: 600px;
+}
+
+.demo-banner__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $space-md;
+  margin-top: $space-md;
+
+  @media (min-width: $breakpoint-md) {
+    gap: $space-lg;
+  }
+}
+
+.demo-banner__visual {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.demo-banner__placeholder {
+  width: 100%;
+  max-width: 500px;
+  aspect-ratio: 4 / 3;
+  border: 1px solid $color-border;
+  border-radius: $radius-lg;
+  overflow: hidden;
+  background-color: $color-surface-card;
+  box-shadow: $shadow-xl;
+}
