@@ -13,7 +13,8 @@ SFG Showcase Web authentication is handled by the SFO Core API. This document de
 ## Environment Setup
 
 1. Copy `.env.example` to `.env.local`
-2. Set `VITE_API_URL` to your SFO Core API base (e.g., `http://localhost:3000/api`)
+2. Set `VITE_API_URL` to your SFO Core API base including the `/api/v1` prefix
+   (e.g., `http://localhost:3001/api/v1`)
 3. `VITE_GOOGLE_CLIENT_ID` is a placeholder for future OAuth integration
 
 ## Current Implementation
@@ -47,22 +48,34 @@ Wrapper component to guard routes:
 ```
 POST /api/v1/auth/login
 Request:  { email, password }
-Response: { token, user }
+Response: { success, message, data: { accessToken, refreshToken, user } }
+
+user shape: { id, email, firstName, lastName, role, status, scope, tenantId, features }
 ```
+
+Note: the response envelope is always `{ success: boolean, message: string, data: T }`.
+All API clients must access `.data` to reach the payload.
 
 The frontend will:
 1. Call `apiClient.post('/auth/login', { email, password })`
-2. Receive JWT token and user profile
-3. Store token via `useAuthStore().setToken(token)`
-4. Navigate to dashboard
+2. Read `response.data.data.accessToken` and `response.data.data.user`
+3. Store token via `useAuthStore().setToken(accessToken)`
+4. Store user via `useAuthStore().setUser(user)`
+5. Navigate to dashboard
 
 ### User Profile Endpoint
 ```
 GET /api/v1/me
-Response: { user }
+Response: { success, message, data: { id, email, firstName, lastName, role, status, scope, tenantId } }
 ```
 
-Used to refresh user data and verify token validity on app load.
+Note: `/me` does not return `features` or tokens — only the user profile.
+
+### Refresh Token
+The backend generates a `refreshToken` on login (returned in the login response)
+and stores a `refreshAccessToken()` service method. However, **no `/api/v1/auth/refresh`
+route is currently mounted**. The frontend stores `refreshToken` in the auth response
+type for forward-compatibility but does not call a refresh endpoint yet.
 
 ### Google OAuth Flow (future)
 1. User initiates login via Google Identity SDK

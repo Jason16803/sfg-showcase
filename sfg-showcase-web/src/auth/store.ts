@@ -1,7 +1,8 @@
 import { create } from 'zustand'
 import type { User, AuthState } from './types'
 
-const STORAGE_KEY = import.meta.env.VITE_JWT_STORAGE_KEY || 'sfg_auth_token'
+const TOKEN_KEY = import.meta.env.VITE_JWT_STORAGE_KEY || 'sfg_auth_token'
+const USER_KEY = 'sfg_auth_user'
 
 interface AuthStore extends AuthState {
   setToken: (token: string | null) => void
@@ -22,13 +23,20 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
   setToken: (token) => {
     set({ token })
     if (token) {
-      localStorage.setItem(STORAGE_KEY, token)
+      localStorage.setItem(TOKEN_KEY, token)
     } else {
-      localStorage.removeItem(STORAGE_KEY)
+      localStorage.removeItem(TOKEN_KEY)
     }
   },
 
-  setUser: (user) => set({ user }),
+  setUser: (user) => {
+    set({ user })
+    if (user) {
+      localStorage.setItem(USER_KEY, JSON.stringify(user))
+    } else {
+      localStorage.removeItem(USER_KEY)
+    }
+  },
 
   setLoading: (isLoading) => set({ isLoading }),
 
@@ -38,13 +46,27 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
 
   logout: () => {
     set({ token: null, user: null, error: null })
-    localStorage.removeItem(STORAGE_KEY)
+    localStorage.removeItem(TOKEN_KEY)
+    localStorage.removeItem(USER_KEY)
   },
 
   hydrate: () => {
-    const storedToken = localStorage.getItem(STORAGE_KEY)
-    if (storedToken) {
-      set({ token: storedToken })
+    const storedToken = localStorage.getItem(TOKEN_KEY)
+    if (!storedToken) return
+
+    const storedUser = localStorage.getItem(USER_KEY)
+    let restoredUser: User | null = null
+
+    if (storedUser) {
+      try {
+        restoredUser = JSON.parse(storedUser) as User
+      } catch {
+        // Corrupted JSON — discard silently so startup never crashes.
+        localStorage.removeItem(USER_KEY)
+        restoredUser = null
+      }
     }
+
+    set({ token: storedToken, user: restoredUser })
   },
 }))
