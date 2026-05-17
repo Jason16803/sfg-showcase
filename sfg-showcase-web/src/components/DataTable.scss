@@ -1,0 +1,68 @@
+@use '@/styles/variables' as *;
+
+.data-table {
+  background-color: $color-surface-card;
+  border: 1px solid $color-border;
+  border-radius: $radius-lg;
+  overflow: hidden;
+}
+
+.data-table__title {
+  padding: $space-lg;
+  border-bottom: 1px solid $color-border;
+  font-size: $font-size-lg;
+  color: $color-text-primary;
+  font-weight: $font-weight-semibold;
+  margin: 0;
+}
+
+.data-table__wrapper {
+  overflow-x: auto;
+}
+
+.data-table__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: $font-size-sm;
+}
+
+.data-table__header-row {
+  background-color: $color-surface-elevated;
+  border-bottom: 1px solid $color-border;
+}
+
+.data-table__header-cell {
+  padding: $space-md $space-lg;
+  text-align: left;
+  font-weight: $font-weight-semibold;
+  color: $color-text-muted;
+  text-transform: uppercase;
+  font-size: $font-size-xs;
+  letter-spacing: 0.5px;
+}
+
+.data-table__row {
+  border-bottom: 1px solid $color-border;
+  transition: background-color $transition-base;
+
+  &:hover {
+    background-color: rgba($color-primary, 0.05);
+  }
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.data-table__cell {
+  padding: $space-md $space-lg;
+  color: $color-text-secondary;
+  vertical-align: middle;
+}
+
+.data-table__empty {
+  text-align: center;
+  padding: $space-xl;
+  color: $color-text-muted;
+  font-style: italic;
+}

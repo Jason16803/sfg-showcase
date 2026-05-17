@@ -25,30 +25,40 @@ export function DemoBanner() {
             </div>
           </div>
           <div className="demo-banner__visual">
-            <div className="demo-banner__placeholder">
-              <svg
-                viewBox="0 0 400 300"
-                xmlns="http://www.w3.org/2000/svg"
-                preserveAspectRatio="xMidYMid slice"
-              >
-                <rect width="400" height="300" fill="url(#gradient)" />
-                <defs>
-                  <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stopColor="#6366f1" stopOpacity="0.3" />
-                    <stop offset="100%" stopColor="#06b6d4" stopOpacity="0.3" />
-                  </linearGradient>
-                </defs>
-                <text
-                  x="200"
-                  y="150"
-                  textAnchor="middle"
-                  fill="#cbd5e1"
-                  fontSize="20"
-                  fontWeight="500"
-                >
-                  Dashboard Preview
-                </text>
-              </svg>
+            <div className="demo-banner__dashboard-preview">
+              <div className="demo-banner__preview-header">
+                <div className="demo-banner__preview-title">Dashboard</div>
+                <div className="demo-banner__preview-nav">
+                  <span className="demo-banner__preview-nav-item">Customers</span>
+                  <span className="demo-banner__preview-nav-item">Operations</span>
+                </div>
+              </div>
+              <div className="demo-banner__preview-metrics">
+                <div className="demo-banner__metric">
+                  <div className="demo-banner__metric-label">Revenue</div>
+                  <div className="demo-banner__metric-value">$42,850</div>
+                </div>
+                <div className="demo-banner__metric">
+                  <div className="demo-banner__metric-label">Active Jobs</div>
+                  <div className="demo-banner__metric-value">12</div>
+                </div>
+                <div className="demo-banner__metric">
+                  <div className="demo-banner__metric-label">Customers</div>
+                  <div className="demo-banner__metric-value">127</div>
+                </div>
+                <div className="demo-banner__metric">
+                  <div className="demo-banner__metric-label">On-Time Rate</div>
+                  <div className="demo-banner__metric-value">94%</div>
+                </div>
+              </div>
+              <div className="demo-banner__preview-chart">
+                <div className="demo-banner__chart-bar" style={{ height: '60%' }} />
+                <div className="demo-banner__chart-bar" style={{ height: '75%' }} />
+                <div className="demo-banner__chart-bar" style={{ height: '85%' }} />
+                <div className="demo-banner__chart-bar" style={{ height: '70%' }} />
+                <div className="demo-banner__chart-bar" style={{ height: '90%' }} />
+                <div className="demo-banner__chart-bar" style={{ height: '95%' }} />
+              </div>
             </div>
           </div>
         </div>

@@ -1,0 +1,35 @@
+@use '@/styles/variables' as *;
+
+.badge {
+  display: inline-block;
+  padding: $space-xs $space-md;
+  border-radius: $radius-md;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-semibold;
+  white-space: nowrap;
+
+  &--primary {
+    background-color: rgba($color-primary, 0.1);
+    color: $color-primary;
+  }
+
+  &--success {
+    background-color: rgba($color-success, 0.1);
+    color: $color-success;
+  }
+
+  &--warning {
+    background-color: rgba($color-warning, 0.1);
+    color: $color-warning;
+  }
+
+  &--error {
+    background-color: rgba($color-error, 0.1);
+    color: $color-error;
+  }
+
+  &--info {
+    background-color: rgba(#06b6d4, 0.1);
+    color: #06b6d4;
+  }
+}
