@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import { Button } from './Button'
 import { Container } from './Container'
 import './DemoBanner.scss'
@@ -16,9 +17,11 @@ export function DemoBanner() {
               our integrated platform. Built for scale, designed for simplicity.
             </p>
             <div className="demo-banner__actions">
-              <Button variant="primary" size="lg">
-                Start Demo
-              </Button>
+              <Link to="/showcase-dashboard">
+                <Button variant="primary" size="lg">
+                  View Dashboard Demo
+                </Button>
+              </Link>
               <Button variant="secondary" size="lg">
                 Learn More
               </Button>

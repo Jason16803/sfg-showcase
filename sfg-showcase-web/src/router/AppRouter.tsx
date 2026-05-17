@@ -2,7 +2,8 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { ProtectedRoute } from './ProtectedRoute'
 import { PublicLayout } from '@/layouts/PublicLayout'
 import { DashboardLayout } from '@/layouts/DashboardLayout'
-import { HomePage, LoginPage, DashboardPage } from '@/pages'
+import { HomePage, LoginPage, DashboardPage, ShowcaseDashboardPage } from '@/pages'
+import { Container } from '@/components'
 
 export function AppRouter() {
   return (
@@ -11,6 +12,14 @@ export function AppRouter() {
         <Route element={<PublicLayout />}>
           <Route path="/" element={<HomePage />} />
           <Route path="/login" element={<LoginPage />} />
+          <Route
+            path="/showcase-dashboard"
+            element={
+              <Container>
+                <ShowcaseDashboardPage />
+              </Container>
+            }
+          />
         </Route>
 
         <Route

@@ -18,6 +18,11 @@ export function PublicNav() {
           <li>
             <a href="#contact">Contact</a>
           </li>
+          <li>
+            <Link to="/showcase-dashboard" className="public-nav__preview-link">
+              View Dashboard Preview
+            </Link>
+          </li>
         </ul>
         <div className="public-nav__actions">
           <Link to="/login" className="public-nav__link">
