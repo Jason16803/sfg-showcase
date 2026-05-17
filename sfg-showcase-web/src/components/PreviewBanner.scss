@@ -1,0 +1,41 @@
+@use '@/styles/variables' as *;
+
+.preview-banner {
+  background: linear-gradient(
+    90deg,
+    rgba($color-warning, 0.1) 0%,
+    rgba($color-warning, 0.05) 100%
+  );
+  border-bottom: 1px solid $color-warning;
+  padding: $space-md;
+}
+
+.preview-banner__content {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 $space-md;
+  display: flex;
+  align-items: center;
+  gap: $space-md;
+
+  @media (min-width: $breakpoint-lg) {
+    padding: 0 $space-xl;
+  }
+}
+
+.preview-banner__badge {
+  display: inline-block;
+  background-color: $color-warning;
+  color: #ffffff;
+  padding: $space-xs $space-md;
+  border-radius: $radius-md;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-semibold;
+  white-space: nowrap;
+}
+
+.preview-banner__text {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  margin: 0;
+}

@@ -1,0 +1,132 @@
+@use '@/styles/variables' as *;
+
+.metric-card {
+  background-color: $color-surface-card;
+  border: 1px solid $color-border;
+  border-radius: $radius-lg;
+  padding: $space-lg;
+  transition: all $transition-base;
+  position: relative;
+  overflow: hidden;
+
+  &:hover {
+    border-color: $color-border-light;
+    box-shadow: $shadow-md;
+    transform: translateY(-2px);
+  }
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, $color-primary, $color-primary-light);
+    opacity: 0;
+    transition: opacity $transition-base;
+  }
+
+  &:hover::before {
+    opacity: 0.5;
+  }
+}
+
+.metric-card__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: $space-md;
+}
+
+.metric-card__title {
+  font-size: $font-size-sm;
+  color: $color-text-muted;
+  font-weight: $font-weight-semibold;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.metric-card__icon {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba($color-primary, 0.1);
+  border-radius: $radius-md;
+  color: $color-primary;
+  font-size: $font-size-2xl;
+}
+
+.metric-card__content {
+  display: flex;
+  flex-direction: column;
+  gap: $space-md;
+}
+
+.metric-card__value {
+  display: flex;
+  align-items: baseline;
+  gap: $space-sm;
+}
+
+.metric-card__number {
+  font-size: $font-size-4xl;
+  font-weight: $font-weight-bold;
+  color: $color-text-primary;
+}
+
+.metric-card__unit {
+  font-size: $font-size-sm;
+  color: $color-text-muted;
+  font-weight: $font-weight-semibold;
+}
+
+.metric-card__change {
+  display: flex;
+  align-items: center;
+  gap: $space-sm;
+  font-size: $font-size-xs;
+  padding: $space-sm;
+  border-radius: $radius-md;
+  background-color: rgba($color-text-muted, 0.05);
+
+  &--positive {
+    color: $color-success;
+    background-color: rgba($color-success, 0.05);
+  }
+
+  &--negative {
+    color: $color-error;
+    background-color: rgba($color-error, 0.05);
+  }
+}
+
+.metric-card__trend {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-bold;
+}
+
+.metric-card__trend-indicator {
+  margin-top: $space-md;
+}
+
+.metric-card__trend-bar {
+  height: 4px;
+  border-radius: $radius-sm;
+  overflow: hidden;
+  background-color: $color-border;
+
+  &--up {
+    background-color: $color-success;
+  }
+
+  &--down {
+    background-color: $color-error;
+  }
+
+  &--stable {
+    background-color: $color-warning;
+  }
+}

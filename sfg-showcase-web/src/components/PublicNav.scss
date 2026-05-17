@@ -1,0 +1,82 @@
+@use '@/styles/variables' as *;
+@use '@/styles/utilities' as *;
+
+.public-nav {
+  background-color: $color-surface-card;
+  border-bottom: 1px solid $color-border;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+
+  &__container {
+    @include container-width;
+    @include flex-between;
+    height: 70px;
+  }
+
+  &__logo {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    gap: $space-md;
+  }
+
+  &__logo-text {
+    font-size: $font-size-2xl;
+    font-weight: $font-weight-bold;
+    color: $color-primary;
+  }
+
+  &__links {
+    display: none;
+    list-style: none;
+    gap: $space-xl;
+    align-items: center;
+
+    @media (min-width: $breakpoint-md) {
+      display: flex;
+    }
+
+    a {
+      color: $color-text-secondary;
+      transition: color $transition-base;
+
+      &:hover {
+        color: $color-primary;
+      }
+    }
+  }
+
+  &__preview-link {
+    color: $color-primary;
+    font-weight: $font-weight-semibold;
+    padding: $space-xs $space-md;
+    border-radius: $radius-md;
+    background-color: rgba($color-primary, 0.1);
+    transition: all $transition-base;
+
+    &:hover {
+      background-color: rgba($color-primary, 0.2);
+      color: $color-primary-light;
+    }
+  }
+
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: $space-lg;
+  }
+
+  &__link {
+    color: $color-text-secondary;
+    font-size: $font-size-sm;
+    padding: $space-md $space-lg;
+    border-radius: $radius-md;
+    transition: all $transition-base;
+
+    &:hover {
+      color: $color-primary;
+      background-color: rgba($color-primary, 0.1);
+    }
+  }
+}

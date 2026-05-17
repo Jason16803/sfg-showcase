@@ -1,0 +1,27 @@
+@use '@/styles/variables' as *;
+
+.public-layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.public-layout__main {
+  flex: 1;
+}
+
+.public-layout__footer {
+  background-color: $color-surface-card;
+  border-top: 1px solid $color-border;
+  padding: $space-lg $space-md;
+  text-align: center;
+
+  @media (min-width: $breakpoint-lg) {
+    padding: $space-xl;
+  }
+
+  p {
+    font-size: $font-size-sm;
+    color: $color-text-muted;
+  }
+}

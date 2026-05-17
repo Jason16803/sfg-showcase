@@ -1,0 +1,108 @@
+@use '@/styles/variables' as *;
+
+.activity-feed {
+  background-color: $color-surface-card;
+  border: 1px solid $color-border;
+  border-radius: $radius-lg;
+  padding: $space-lg;
+}
+
+.activity-feed__title {
+  font-size: $font-size-lg;
+  color: $color-text-primary;
+  margin-bottom: $space-lg;
+  font-weight: $font-weight-semibold;
+}
+
+.activity-feed__list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: $space-md;
+}
+
+.activity-feed__item {
+  display: grid;
+  grid-template-columns: 44px 1fr;
+  gap: $space-md;
+  padding: $space-md;
+  border-radius: $radius-md;
+  transition: background-color $transition-base;
+  position: relative;
+
+  &:hover {
+    background-color: rgba($color-primary, 0.05);
+  }
+}
+
+.activity-feed__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: $radius-md;
+  font-size: $font-size-lg;
+  flex-shrink: 0;
+
+  &--primary {
+    background-color: rgba($color-primary, 0.1);
+    color: $color-primary;
+  }
+
+  &--success {
+    background-color: rgba($color-success, 0.1);
+    color: $color-success;
+  }
+
+  &--warning {
+    background-color: rgba($color-warning, 0.1);
+    color: $color-warning;
+  }
+
+  &--error {
+    background-color: rgba($color-error, 0.1);
+    color: $color-error;
+  }
+}
+
+.activity-feed__content {
+  display: flex;
+  flex-direction: column;
+  gap: $space-xs;
+  min-width: 0;
+}
+
+.activity-feed__activity-title {
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+  font-weight: $font-weight-semibold;
+  margin: 0;
+}
+
+.activity-feed__description {
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+  margin: 0;
+  line-height: $line-height-normal;
+}
+
+.activity-feed__time {
+  font-size: $font-size-xs;
+  color: $color-text-muted;
+  display: inline-block;
+  margin-top: $space-xs;
+}
+
+.activity-feed__connector {
+  position: absolute;
+  left: 21px;
+  top: 44px;
+  width: 2px;
+  height: calc(100% + #{$space-md});
+  background: linear-gradient(
+    to bottom,
+    $color-border,
+    transparent
+  );
+}
