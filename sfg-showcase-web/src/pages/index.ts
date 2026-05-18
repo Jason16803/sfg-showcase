@@ -1,5 +1,6 @@
 export { HomePage } from './HomePage'
 export { LoginPage } from './LoginPage'
 export { SignupPage } from './SignupPage'
+export { OAuthCallbackPage } from './OAuthCallbackPage'
 export { DashboardPage } from './DashboardPage'
 export { ShowcaseDashboardPage } from './ShowcaseDashboardPage'

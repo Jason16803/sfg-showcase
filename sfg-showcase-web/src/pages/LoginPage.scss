@@ -19,7 +19,7 @@
 }
 
 .login-page__header {
-  margin-bottom: $space-2xl;
+  margin-bottom: $space-xl;
   text-align: center;
 
   h1 {
@@ -31,6 +31,93 @@
     color: $color-text-secondary;
   }
 }
+
+// ---------------------------------------------------------------------------
+// OAuth section
+// ---------------------------------------------------------------------------
+
+.login-page__oauth {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $space-sm;
+  margin-bottom: $space-lg;
+}
+
+.login-page__google-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: $space-md;
+  padding: $space-md $space-lg;
+  background-color: #ffffff;
+  color: #3c4043;
+  border: 1px solid #dadce0;
+  border-radius: $radius-md;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  font-family: inherit;
+  cursor: not-allowed;
+  transition: background-color $transition-base, box-shadow $transition-base;
+  opacity: 0.55;
+  min-height: $size-md;
+
+  // Not disabled — would apply on activation
+  &:not(:disabled):hover {
+    background-color: #f8f9fa;
+    box-shadow: $shadow-sm;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $color-primary;
+    outline-offset: 2px;
+  }
+}
+
+.login-page__google-icon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+.login-page__google-note {
+  font-size: $font-size-xs;
+  color: $color-text-muted;
+  text-align: center;
+  margin: 0;
+}
+
+// ---------------------------------------------------------------------------
+// Divider
+// ---------------------------------------------------------------------------
+
+.login-page__divider {
+  display: flex;
+  align-items: center;
+  gap: $space-md;
+  margin-bottom: $space-lg;
+
+  &::before,
+  &::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background-color: $color-border;
+  }
+
+  span {
+    font-size: $font-size-xs;
+    color: $color-text-muted;
+    white-space: nowrap;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Form
+// ---------------------------------------------------------------------------
 
 .login-page__form {
   display: flex;
@@ -60,6 +147,10 @@
   margin-top: $space-md;
 }
 
+// ---------------------------------------------------------------------------
+// Footer
+// ---------------------------------------------------------------------------
+
 .login-page__footer {
   margin-top: $space-xl;
   text-align: center;
@@ -78,6 +169,10 @@
     }
   }
 }
+
+// ---------------------------------------------------------------------------
+// Input error state
+// ---------------------------------------------------------------------------
 
 input.error {
   border-color: $color-error;
