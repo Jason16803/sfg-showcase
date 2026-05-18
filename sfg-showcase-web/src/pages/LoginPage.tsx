@@ -3,7 +3,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { Container, Card, Button } from '@/components'
 import { useAuthStore } from '@/store/authStore'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import './LoginPage.scss'
 
 const loginSchema = z.object({
@@ -107,7 +107,7 @@ export function LoginPage() {
             <div className="login-page__footer">
               <p>
                 Don't have an account?{' '}
-                <a href="/signup">Create one here</a>
+                <Link to="/signup">Create one here</Link>
               </p>
             </div>
           </Card>
