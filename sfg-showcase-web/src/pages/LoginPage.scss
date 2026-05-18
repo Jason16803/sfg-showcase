@@ -63,7 +63,6 @@
   opacity: 0.55;
   min-height: $size-md;
 
-  // Not disabled — would apply on activation
   &:not(:disabled):hover {
     background-color: #f8f9fa;
     box-shadow: $shadow-sm;
@@ -113,6 +112,21 @@
     text-transform: uppercase;
     letter-spacing: 0.05em;
   }
+}
+
+// ---------------------------------------------------------------------------
+// Server auth error banner
+// ---------------------------------------------------------------------------
+
+.login-page__auth-error {
+  padding: $space-md;
+  border-radius: $radius-md;
+  background-color: rgba($color-error, 0.08);
+  border: 1px solid rgba($color-error, 0.25);
+  color: $color-error;
+  font-size: $font-size-sm;
+  line-height: $line-height-normal;
+  margin-bottom: $space-lg;
 }
 
 // ---------------------------------------------------------------------------

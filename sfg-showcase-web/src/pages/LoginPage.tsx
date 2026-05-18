@@ -1,10 +1,16 @@
+import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
+import type { AxiosError } from 'axios'
 import { Container, Card, Button } from '@/components'
-import { useAuthStore } from '@/store/authStore'
 import { Link, useNavigate } from 'react-router-dom'
+import { authService } from '@/auth/service'
 import './LoginPage.scss'
+
+// ---------------------------------------------------------------------------
+// Schema
+// ---------------------------------------------------------------------------
 
 const loginSchema = z.object({
   email: z.string().email('Invalid email address'),
@@ -13,11 +19,33 @@ const loginSchema = z.object({
 
 type LoginForm = z.infer<typeof loginSchema>
 
+// Backend error envelope shape — { success: false, message: string }
+interface ApiErrorBody {
+  success: boolean
+  message: string
+}
+
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+
 /**
- * Google "G" logo — inline SVG.
- * Used only as a visual indicator on the disabled OAuth button.
- * Replace with the real Google button library when OAuth is activated.
+ * Map SFO Core error messages to user-friendly copy.
+ * Keeps backend internals out of the UI.
  */
+function friendlyAuthError(serverMessage: string | undefined): string {
+  switch (serverMessage) {
+    case 'Invalid credentials':
+      return 'Incorrect email or password. Please try again.'
+    case 'Account is suspended':
+      return 'Your account has been suspended. Contact your administrator.'
+    case 'Account is not active':
+      return 'Your account is pending activation. Check your invite email.'
+    default:
+      return serverMessage ?? 'Sign-in failed. Please try again.'
+  }
+}
+
 function GoogleIcon() {
   return (
     <svg
@@ -47,7 +75,13 @@ function GoogleIcon() {
   )
 }
 
+// ---------------------------------------------------------------------------
+// Component
+// ---------------------------------------------------------------------------
+
 export function LoginPage() {
+  const [authError, setAuthError] = useState<string | null>(null)
+
   const {
     register,
     handleSubmit,
@@ -56,31 +90,17 @@ export function LoginPage() {
     resolver: zodResolver(loginSchema),
   })
 
-  const setToken = useAuthStore((state) => state.setToken)
-  const setUser = useAuthStore((state) => state.setUser)
   const navigate = useNavigate()
 
   const onSubmit = async (data: LoginForm) => {
+    setAuthError(null)
     try {
-      const response = await fetch(
-        `${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/auth/login`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(data),
-        }
-      )
-
-      if (!response.ok) {
-        throw new Error('Login failed')
-      }
-
-      const { token, user } = await response.json()
-      setToken(token)
-      setUser(user)
+      await authService.login(data.email, data.password)
+      // authService.login() stores token + user; navigate to protected dashboard
       navigate('/dashboard')
-    } catch (error) {
-      console.error('Login error:', error)
+    } catch (err) {
+      const axiosErr = err as AxiosError<ApiErrorBody>
+      setAuthError(friendlyAuthError(axiosErr.response?.data?.message))
     }
   }
 
@@ -95,14 +115,9 @@ export function LoginPage() {
             </div>
 
             {/*
-             * Google OAuth button — DISABLED (pending backend activation).
-             *
-             * TODO (Week 2): When POST /api/v1/auth/google is live on SFO Core:
-             *   1. Remove the `disabled` prop.
-             *   2. Replace the onClick with: window.location.href = buildGoogleAuthUrl()
-             *   3. Import buildGoogleAuthUrl from @/utils/oauth.utils.ts
-             *   4. Remove the .login-page__google-note element below.
-             * See docs/google-oauth-plan.md for the full checklist.
+             * Google OAuth — DISABLED (pending backend activation).
+             * Backend endpoint POST /api/v1/auth/google does not exist yet.
+             * TODO (Week 2): see docs/google-oauth-plan.md for activation checklist.
              */}
             <div className="login-page__oauth">
               <button
@@ -120,10 +135,16 @@ export function LoginPage() {
               </p>
             </div>
 
-            {/* Divider */}
             <div className="login-page__divider" aria-hidden="true">
               <span>or sign in with email</span>
             </div>
+
+            {/* Server-level auth error (wrong password, suspended, etc.) */}
+            {authError && (
+              <div className="login-page__auth-error" role="alert">
+                {authError}
+              </div>
+            )}
 
             <form onSubmit={handleSubmit(onSubmit)} className="login-page__form">
               <div className="login-page__field">
@@ -134,6 +155,7 @@ export function LoginPage() {
                   id="email"
                   type="email"
                   placeholder="you@example.com"
+                  autoComplete="email"
                   {...register('email')}
                   className={errors.email ? 'error' : ''}
                 />
@@ -150,6 +172,7 @@ export function LoginPage() {
                   id="password"
                   type="password"
                   placeholder="••••••••"
+                  autoComplete="current-password"
                   {...register('password')}
                   className={errors.password ? 'error' : ''}
                 />
@@ -165,7 +188,7 @@ export function LoginPage() {
                 disabled={isSubmitting}
                 className="login-page__submit"
               >
-                {isSubmitting ? 'Signing in...' : 'Sign In'}
+                {isSubmitting ? 'Signing in…' : 'Sign In'}
               </Button>
             </form>
 
