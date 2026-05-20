@@ -3,16 +3,20 @@
  *
  * Zustand auth store for SFG Showcase Web.
  *
- * User type verified against SFO Core API responses:
- *   POST /api/v1/auth/login → { id, email, firstName, lastName, role, status, tenantId, features }
- *   GET  /api/v1/me         → { id, email, firstName, lastName, role, status, scope, tenantId }
+ * User type verified against SFO Core API (sfo-core-contract-agent):
+ *   POST /api/v1/auth/login → user: { id, email, firstName, lastName, role, status, tenantId, features }
+ *   GET  /api/v1/me         → data: { id, email, firstName, lastName, role, status, scope, tenantId }
  *
  * scope and features are optional because they come from different endpoints.
+ *
+ * TOKEN_KEY reads VITE_JWT_STORAGE_KEY from env for environment portability.
+ * Defaults to 'auth_token' if the env var is not set.
  */
 
 import { create } from 'zustand'
 
-const TOKEN_KEY = 'auth_token'
+export const TOKEN_KEY =
+  (import.meta.env.VITE_JWT_STORAGE_KEY as string | undefined) || 'auth_token'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -35,7 +39,12 @@ export interface User {
 export interface AuthState {
   user: User | null
   token: string | null
-  /** True while hydrateAuth() is in flight. ProtectedRoute waits on this. */
+  /**
+   * True while hydrateAuth() is in flight.
+   * Initialised to true when a stored token exists so ProtectedRoute
+   * holds at a spinner until the /me verification resolves.
+   * False immediately when no token is stored.
+   */
   isLoading: boolean
   isAuthenticated: boolean
   setUser: (user: User | null) => void
@@ -53,12 +62,7 @@ const storedToken = localStorage.getItem(TOKEN_KEY)
 export const useAuthStore = create<AuthState>((set) => ({
   user: null,
   token: storedToken,
-
-  // isLoading starts true when a token is stored so ProtectedRoute waits for
-  // hydrateAuth() to verify it before deciding to render or redirect.
-  // If no token: false (nothing to hydrate; route decision is immediate).
   isLoading: !!storedToken,
-
   isAuthenticated: !!storedToken,
 
   setUser: (user) => set({ user }),
@@ -75,8 +79,10 @@ export const useAuthStore = create<AuthState>((set) => ({
   setIsLoading: (isLoading) => set({ isLoading }),
 
   /**
-   * logout — clears all auth state and removes token from localStorage.
-   * Called by authService.logout() and hydrateAuth() on 401/403.
+   * logout
+   * Clears all auth state and removes token from localStorage.
+   * Called directly by authService.logout() and by the api/client 401 interceptor.
+   * Also called by hydrateAuth() on 401/403 from /me.
    */
   logout: () => {
     localStorage.removeItem(TOKEN_KEY)

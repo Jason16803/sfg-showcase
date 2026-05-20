@@ -5,46 +5,28 @@ import { z } from 'zod'
 import type { AxiosError } from 'axios'
 import { Container, Card, Button } from '@/components'
 import { Link, useNavigate } from 'react-router-dom'
-import { authService } from '@/auth/service'
+import { authService, friendlyAuthError } from '@/auth/service'
 import './LoginPage.scss'
 
 // ---------------------------------------------------------------------------
-// Schema
+// Schema — min 8 chars matches SFO Core's password validation
 // ---------------------------------------------------------------------------
 
 const loginSchema = z.object({
   email: z.string().email('Invalid email address'),
-  password: z.string().min(6, 'Password must be at least 6 characters'),
+  password: z.string().min(8, 'Password must be at least 8 characters'),
 })
 
 type LoginForm = z.infer<typeof loginSchema>
 
-// Backend error envelope shape — { success: false, message: string }
 interface ApiErrorBody {
   success: boolean
   message: string
 }
 
 // ---------------------------------------------------------------------------
-// Helpers
+// Google icon — inline SVG, visual indicator for the disabled OAuth button
 // ---------------------------------------------------------------------------
-
-/**
- * Map SFO Core error messages to user-friendly copy.
- * Keeps backend internals out of the UI.
- */
-function friendlyAuthError(serverMessage: string | undefined): string {
-  switch (serverMessage) {
-    case 'Invalid credentials':
-      return 'Incorrect email or password. Please try again.'
-    case 'Account is suspended':
-      return 'Your account has been suspended. Contact your administrator.'
-    case 'Account is not active':
-      return 'Your account is pending activation. Check your invite email.'
-    default:
-      return serverMessage ?? 'Sign-in failed. Please try again.'
-  }
-}
 
 function GoogleIcon() {
   return (
@@ -96,7 +78,6 @@ export function LoginPage() {
     setAuthError(null)
     try {
       await authService.login(data.email, data.password)
-      // authService.login() stores token + user; navigate to protected dashboard
       navigate('/dashboard')
     } catch (err) {
       const axiosErr = err as AxiosError<ApiErrorBody>
@@ -116,8 +97,8 @@ export function LoginPage() {
 
             {/*
              * Google OAuth — DISABLED (pending backend activation).
-             * Backend endpoint POST /api/v1/auth/google does not exist yet.
-             * TODO (Week 2): see docs/google-oauth-plan.md for activation checklist.
+             * POST /api/v1/auth/google does not exist in SFO Core yet.
+             * TODO (Week 3 → 4): see docs/google-oauth-plan.md
              */}
             <div className="login-page__oauth">
               <button
@@ -139,7 +120,6 @@ export function LoginPage() {
               <span>or sign in with email</span>
             </div>
 
-            {/* Server-level auth error (wrong password, suspended, etc.) */}
             {authError && (
               <div className="login-page__auth-error" role="alert">
                 {authError}
