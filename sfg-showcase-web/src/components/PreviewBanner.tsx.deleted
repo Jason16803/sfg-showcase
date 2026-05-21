@@ -1,0 +1,28 @@
+import './PreviewBanner.scss'
+
+/**
+ * PreviewBanner
+ *
+ * Persistent banner shown on /showcase-dashboard (public demo route).
+ * Communicates to visitors that this is a demo environment using mock data,
+ * not a live tenant workspace.
+ *
+ * Phase 3 note: real JWT auth IS implemented — /dashboard is fully protected.
+ * This banner is only shown on the intentionally public /showcase-dashboard route.
+ */
+export function PreviewBanner() {
+  return (
+    <div className="preview-banner" role="status">
+      <div className="preview-banner__content">
+        <span className="preview-banner__badge">Demo Preview</span>
+        <p className="preview-banner__text">
+          This is a public preview of the SFG service dashboard using sample data.
+          Real data and full features are available after signing in.
+        </p>
+        <a href="/login" className="preview-banner__cta">
+          Sign in to your workspace →
+        </a>
+      </div>
+    </div>
+  )
+}

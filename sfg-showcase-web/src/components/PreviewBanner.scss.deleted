@@ -1,0 +1,58 @@
+@use '@/styles/variables' as *;
+
+.preview-banner {
+  background: linear-gradient(
+    90deg,
+    rgba($color-primary, 0.08) 0%,
+    rgba($color-primary, 0.03) 100%
+  );
+  border-bottom: 1px solid rgba($color-primary, 0.2);
+  padding: $space-sm $space-md;
+}
+
+.preview-banner__content {
+  max-width: 1280px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: $space-md;
+  flex-wrap: wrap;
+
+  @media (min-width: $breakpoint-lg) {
+    padding: 0 $space-xl;
+  }
+}
+
+.preview-banner__badge {
+  display: inline-flex;
+  align-items: center;
+  background-color: rgba($color-primary, 0.15);
+  border: 1px solid rgba($color-primary, 0.3);
+  color: $color-primary-light;
+  padding: 2px $space-md;
+  border-radius: 999px;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-semibold;
+  white-space: nowrap;
+  letter-spacing: 0.04em;
+}
+
+.preview-banner__text {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  margin: 0;
+  flex: 1;
+}
+
+.preview-banner__cta {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  color: $color-primary;
+  text-decoration: none;
+  white-space: nowrap;
+
+  &:hover {
+    text-decoration: underline;
+    color: $color-primary-light;
+  }
+}

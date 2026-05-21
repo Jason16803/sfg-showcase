@@ -1,0 +1,82 @@
+@use '@/styles/variables' as *;
+
+.jobs-page {
+  flex: 1;
+  padding: $space-lg $space-md;
+
+  @media (min-width: $breakpoint-lg) { padding: $space-xl; }
+}
+
+.jobs-page__header {
+  margin-bottom: $space-xl;
+
+  h1 { font-size: $font-size-3xl; margin-bottom: $space-sm; }
+
+  p {
+    font-size: $font-size-sm;
+    color: $color-text-secondary;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: $space-sm;
+  }
+}
+
+.jobs-page__demo-badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-semibold;
+  color: $color-warning;
+  background-color: rgba($color-warning, 0.1);
+  border: 1px solid rgba($color-warning, 0.25);
+  border-radius: 999px;
+  padding: 1px 8px;
+}
+
+// Status filter tab bar
+.jobs-page__filters {
+  display: flex;
+  gap: $space-sm;
+  margin-bottom: $space-xl;
+  flex-wrap: wrap;
+}
+
+.jobs-page__filter-btn {
+  padding: $space-xs $space-md;
+  border-radius: 999px;
+  border: 1px solid $color-border;
+  background-color: transparent;
+  color: $color-text-secondary;
+  font-size: $font-size-sm;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all $transition-base;
+  white-space: nowrap;
+
+  &:hover {
+    background-color: $color-surface-elevated;
+    color: $color-text-primary;
+  }
+
+  &--active {
+    background-color: rgba($color-primary, 0.12);
+    border-color: rgba($color-primary, 0.4);
+    color: $color-primary-light;
+    font-weight: $font-weight-semibold;
+  }
+}
+
+.jobs-page__table {
+  background-color: $color-surface-card;
+  border: 1px solid $color-border;
+  border-radius: $radius-lg;
+  overflow: hidden;
+}
+
+.jobs-page__count {
+  font-size: $font-size-sm;
+  color: $color-text-muted;
+  margin-top: $space-md;
+  text-align: right;
+}

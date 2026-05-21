@@ -1,0 +1,71 @@
+@use '@/styles/variables' as *;
+
+.customers-page {
+  flex: 1;
+  padding: $space-lg $space-md;
+
+  @media (min-width: $breakpoint-lg) { padding: $space-xl; }
+}
+
+.customers-page__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: $space-xl;
+
+  h1 { font-size: $font-size-3xl; margin-bottom: $space-sm; }
+
+  p {
+    font-size: $font-size-sm;
+    color: $color-text-secondary;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: $space-sm;
+  }
+}
+
+.customers-page__demo-badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-semibold;
+  color: $color-warning;
+  background-color: rgba($color-warning, 0.1);
+  border: 1px solid rgba($color-warning, 0.25);
+  border-radius: 999px;
+  padding: 1px 8px;
+}
+
+.customers-page__filters {
+  display: flex;
+  gap: $space-md;
+  margin-bottom: $space-xl;
+  flex-wrap: wrap;
+
+  @media (min-width: $breakpoint-md) { flex-wrap: nowrap; }
+}
+
+.customers-page__search {
+  flex: 1;
+  min-width: 200px;
+}
+
+.customers-page__status-filter {
+  width: 160px;
+  flex-shrink: 0;
+}
+
+.customers-page__table {
+  background-color: $color-surface-card;
+  border: 1px solid $color-border;
+  border-radius: $radius-lg;
+  overflow: hidden;
+}
+
+.customers-page__count {
+  font-size: $font-size-sm;
+  color: $color-text-muted;
+  margin-top: $space-md;
+  text-align: right;
+}

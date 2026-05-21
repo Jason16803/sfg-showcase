@@ -8,10 +8,10 @@
 }
 
 .activity-feed__title {
-  font-size: $font-size-lg;
+  font-size: $font-size-base;
+  font-weight: $font-weight-semibold;
   color: $color-text-primary;
   margin-bottom: $space-lg;
-  font-weight: $font-weight-semibold;
 }
 
 .activity-feed__list {
@@ -45,25 +45,10 @@
   font-size: $font-size-lg;
   flex-shrink: 0;
 
-  &--primary {
-    background-color: rgba($color-primary, 0.1);
-    color: $color-primary;
-  }
-
-  &--success {
-    background-color: rgba($color-success, 0.1);
-    color: $color-success;
-  }
-
-  &--warning {
-    background-color: rgba($color-warning, 0.1);
-    color: $color-warning;
-  }
-
-  &--error {
-    background-color: rgba($color-error, 0.1);
-    color: $color-error;
-  }
+  &--primary { background-color: rgba($color-primary, 0.1); color: $color-primary; }
+  &--success { background-color: rgba($color-success, 0.1); color: $color-success; }
+  &--warning { background-color: rgba($color-warning, 0.1); color: $color-warning; }
+  &--error   { background-color: rgba($color-error,   0.1); color: $color-error;   }
 }
 
 .activity-feed__content {
@@ -100,9 +85,58 @@
   top: 44px;
   width: 2px;
   height: calc(100% + #{$space-md});
-  background: linear-gradient(
-    to bottom,
-    $color-border,
-    transparent
-  );
+  background: linear-gradient(to bottom, $color-border, transparent);
+}
+
+// ---------------------------------------------------------------------------
+// Empty state
+// ---------------------------------------------------------------------------
+
+.activity-feed__empty {
+  padding: $space-xl $space-md;
+  text-align: center;
+
+  p {
+    font-size: $font-size-sm;
+    color: $color-text-muted;
+    margin: 0;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Loading skeleton
+// ---------------------------------------------------------------------------
+
+@keyframes activity-feed-pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.45; }
+}
+
+.activity-feed__item--skeleton {
+  animation: activity-feed-pulse 1.6s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.activity-feed__skeleton-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: $radius-md;
+  background-color: $color-surface-elevated;
+  flex-shrink: 0;
+}
+
+.activity-feed__skeleton-content {
+  display: flex;
+  flex-direction: column;
+  gap: $space-sm;
+  padding-top: $space-xs;
+}
+
+.activity-feed__skeleton-line {
+  border-radius: $radius-sm;
+  background-color: $color-surface-elevated;
+
+  &--title { height: 12px; width: 50%; }
+  &--desc  { height: 10px; width: 85%; }
+  &--time  { height: 9px;  width: 30%; }
 }

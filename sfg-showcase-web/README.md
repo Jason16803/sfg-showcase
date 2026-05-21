@@ -63,9 +63,9 @@ SFG Showcase Web is a frontend-only React application that consumes the existing
 
 This repository does **not** contain any backend code. The backend is a separate, independently hosted Node.js/Express/MongoDB service. The frontend communicates with it exclusively through the `VITE_API_URL` environment variable.
 
-### Dashboard Preview
+### Dashboard
 
-The `/showcase-dashboard` route renders a publicly accessible preview of the SFG service-vertical dashboard. It demonstrates the layout, components, metrics, and data table patterns a real tenant would see after logging in. This route does not require authentication and is intentionally public so reviewers and prospective clients can evaluate the UI without credentials.
+The `/dashboard` route is the protected service-vertical dashboard. It requires authentication via `POST /api/v1/auth/login`. After signing in, users see real tenant data from SFO Core (or mock fallback data if the API is unavailable). The dashboard includes an overview page, jobs, customers, team, settings, and reports — all gated by `ProtectedRoute` and role-based sidebar navigation.
 
 ### Login and Signup UI
 
@@ -103,7 +103,7 @@ Before running this project locally, ensure you have the following installed:
 | **npm** | 9.x or later | Bundled with Node. Check with `npm -v`. |
 | **Git** | Any modern version | For cloning and branch management. |
 | **Modern browser** | Chrome, Firefox, Edge, or Safari | For local dev and testing. |
-| **SFO Core API access** | Running locally or remote | Required for real auth testing. Without it, `/login` will fail gracefully; `/showcase-dashboard` and `/signup` work without it. |
+| **SFO Core API access** | Running locally or remote | Required for auth, dashboard data, and protected routes. Without it, the app redirects to `/login` on any protected route visit. |
 
 ---
 
@@ -175,9 +175,9 @@ A complete `.env.example` file is included in the repository root. Copy it to `.
 | URL | Description |
 |---|---|
 | `http://localhost:5173/` | Home / public marketing page |
-| `http://localhost:5173/showcase-dashboard` | Public dashboard preview (no auth required) |
 | `http://localhost:5173/login` | Login page |
 | `http://localhost:5173/signup` | Signup / Request Access page |
+| `http://localhost:5173/dashboard` | Protected dashboard (requires login) |
 | `https://github.com/YOUR_ORG/sfg-showcase-web` | GitHub repository *(placeholder — update when confirmed)* |
 | `https://sfg-showcase.vercel.app` | Vercel deployment *(placeholder — update after first deploy)* |
 | `https://your-sfo-core-api.fly.dev/health` | SFO Core API health check *(placeholder — update when confirmed)* |

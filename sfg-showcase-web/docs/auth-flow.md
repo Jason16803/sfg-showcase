@@ -259,9 +259,10 @@ With SFO Core API running locally at `http://localhost:3001`:
    - While logged out, navigate directly to `http://localhost:5173/dashboard`
    - Expect: immediate redirect to `/login`
 
-7. **Showcase stays public**
-   - While logged out, navigate to `http://localhost:5173/showcase-dashboard`
-   - Expect: page loads without redirect
+7. **Showcase removed (Week 3)**
+   - `/showcase-dashboard` was removed after Week 3 beta wiring
+   - `DashboardPage` now only mounts behind `ProtectedRoute`
+   - Navigate directly to `http://localhost:5173/dashboard` after logging in
 
 8. **Expired token on reload**
    - Manually set a past-expiry JWT in localStorage under `auth_token`

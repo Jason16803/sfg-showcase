@@ -1,0 +1,88 @@
+@use '@/styles/variables' as *;
+
+.reports-page {
+  flex: 1;
+  padding: $space-lg $space-md;
+
+  @media (min-width: $breakpoint-lg) { padding: $space-xl; }
+}
+
+.reports-page__header {
+  margin-bottom: $space-2xl;
+  h1 { font-size: $font-size-3xl; margin-bottom: $space-sm; }
+  p  { font-size: $font-size-sm; color: $color-text-secondary; margin: 0; }
+}
+
+.reports-page__coming-soon {
+  background-color: $color-surface-card;
+  border: 1px solid $color-border;
+  border-radius: $radius-lg;
+  padding: $space-2xl $space-xl;
+  text-align: center;
+  margin-bottom: $space-2xl;
+
+  h2 { font-size: $font-size-2xl; margin-bottom: $space-md; }
+  p  { font-size: $font-size-base; color: $color-text-secondary; max-width: 480px; margin: 0 auto; line-height: $line-height-relaxed; }
+}
+
+.reports-page__icon {
+  font-size: 3rem;
+  margin-bottom: $space-lg;
+  display: block;
+}
+
+.reports-page__planned {
+  h3 {
+    font-size: $font-size-lg;
+    color: $color-text-secondary;
+    margin-bottom: $space-lg;
+    font-weight: $font-weight-semibold;
+  }
+}
+
+.reports-page__planned-list {
+  list-style: none;
+  display: grid;
+  gap: $space-md;
+  grid-template-columns: 1fr;
+
+  @media (min-width: $breakpoint-md) { grid-template-columns: repeat(2, 1fr); }
+}
+
+.reports-page__planned-item {
+  display: flex;
+  align-items: flex-start;
+  gap: $space-md;
+  padding: $space-lg;
+  background-color: $color-surface-card;
+  border: 1px dashed $color-border;
+  border-radius: $radius-lg;
+  opacity: 0.8;
+}
+
+.reports-page__planned-icon {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.reports-page__planned-title {
+  font-size: $font-size-base;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  margin: 0 0 $space-xs;
+}
+
+.reports-page__planned-desc {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  margin: 0 0 $space-xs;
+  line-height: $line-height-relaxed;
+}
+
+.reports-page__planned-source {
+  font-size: $font-size-xs;
+  color: $color-text-muted;
+  font-family: 'SFMono-Regular', 'Consolas', 'Liberation Mono', monospace;
+  margin: 0;
+}

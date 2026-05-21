@@ -1,0 +1,218 @@
+/**
+ * ShowcaseDashboardPage.tsx
+ *
+ * Public-facing showcase of the SFG service dashboard.
+ * Always renders static mock data — no hooks, no API calls.
+ *
+ * IMPORTANT: This component must NEVER import or render DashboardPage.
+ *
+ * Why: DashboardPage mounts 4 data hooks that fire API requests on mount.
+ * On a public route these requests have no token, return 401, and can
+ * interfere with the auth interceptor's session management. The static
+ * showcase renders the same visual result without any side effects.
+ *
+ * If you need to update the showcase layout, update this file directly
+ * rather than pulling in the real DashboardPage.
+ */
+
+import { PreviewBanner, DashboardMetricCard, Badge, RevenueChart, JobCompletionChart, CustomerGrowthChart } from '@/components'
+import { getMockOverview, getMockActivities, MOCK_CUSTOMERS, MOCK_JOBS } from '@/features/dashboard/dashboard.mock'
+import './ShowcaseDashboardPage.scss'
+
+// Pre-computed mock data — no hooks, no effects, no API calls
+const overview   = getMockOverview()
+const activities = getMockActivities()
+
+// ---------------------------------------------------------------------------
+// Static activity feed (no ActivityFeed component dependency on isLoading)
+// ---------------------------------------------------------------------------
+
+function ShowcaseActivityFeed() {
+  const formatTime = (date: Date) => {
+    const diffMs    = Date.now() - date.getTime()
+    const diffHours = Math.floor(diffMs / 3_600_000)
+    const diffDays  = Math.floor(diffMs / 86_400_000)
+    if (diffHours < 1)  return 'Just now'
+    if (diffHours < 24) return `${diffHours}h ago`
+    if (diffDays  < 7)  return `${diffDays}d ago`
+    return date.toLocaleDateString()
+  }
+
+  return (
+    <div className="showcase-activity">
+      <h3 className="showcase-activity__title">Recent Activity</h3>
+      <ul className="showcase-activity__list">
+        {activities.map((a, i) => (
+          <li key={a.id} className="showcase-activity__item">
+            <div className={`showcase-activity__icon showcase-activity__icon--${a.color}`}>
+              {a.icon}
+            </div>
+            <div className="showcase-activity__content">
+              <p className="showcase-activity__label">{a.title}</p>
+              <p className="showcase-activity__desc">{a.description}</p>
+              <span className="showcase-activity__time">{formatTime(a.timestamp)}</span>
+            </div>
+            {i < activities.length - 1 && (
+              <div className="showcase-activity__connector" />
+            )}
+          </li>
+        ))}
+      </ul>
+    </div>
+  )
+}
+
+// ---------------------------------------------------------------------------
+// Main component
+// ---------------------------------------------------------------------------
+
+export function ShowcaseDashboardPage() {
+  return (
+    <div className="showcase-dashboard">
+      <PreviewBanner />
+
+      <div className="showcase-dashboard__content">
+        {/* Header */}
+        <div className="showcase-dashboard__header">
+          <h1>Dashboard</h1>
+          <p>
+            Service workspace overview
+            <span className="showcase-dashboard__demo-badge">Demo data</span>
+          </p>
+        </div>
+
+        {/* Metric cards — static mock values */}
+        <div className="showcase-dashboard__metrics">
+          <DashboardMetricCard
+            title="Total Revenue"
+            value="$42,850"
+            unit="this month"
+            change={{ value: 12, isPositive: true }}
+            trend="up"
+            icon="💰"
+          />
+          <DashboardMetricCard
+            title="Active Jobs"
+            value={overview.jobs.open}
+            unit="open"
+            change={{ value: 3, isPositive: true }}
+            trend="up"
+            icon="📋"
+          />
+          <DashboardMetricCard
+            title="Active Customers"
+            value={overview.customers.active}
+            unit="total"
+            change={{ value: 8, isPositive: true }}
+            trend="up"
+            icon="👥"
+          />
+          <DashboardMetricCard
+            title="Scheduled Today"
+            value={overview.jobs.scheduledToday}
+            unit="jobs"
+            change={{ value: 0, isPositive: true }}
+            trend="stable"
+            icon="📅"
+          />
+        </div>
+
+        {/* Charts — always mock */}
+        <div className="showcase-dashboard__charts">
+          <div className="showcase-dashboard__chart-card">
+            <h3>Revenue Trend</h3>
+            <RevenueChart />
+          </div>
+          <div className="showcase-dashboard__chart-card">
+            <h3>Job Completion Status</h3>
+            <JobCompletionChart />
+          </div>
+          <div className="showcase-dashboard__chart-card">
+            <h3>Customer Growth</h3>
+            <CustomerGrowthChart />
+          </div>
+        </div>
+
+        {/* Jobs + Activity */}
+        <div className="showcase-dashboard__grid">
+          <div className="showcase-dashboard__jobs">
+            <div className="showcase-dashboard__table-header">
+              <h3>Recent Jobs</h3>
+            </div>
+            <div className="showcase-dashboard__table">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Job Title</th>
+                    <th>Customer</th>
+                    <th>Status</th>
+                    <th>Assignee</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {MOCK_JOBS.map((job) => {
+                    let variant: 'success' | 'warning' | 'error' | 'primary' = 'primary'
+                    if (job.status === 'Completed' || job.status === 'Closed')         variant = 'success'
+                    else if (job.status === 'InProgress' || job.status === 'Scheduled') variant = 'primary'
+                    else if (job.status === 'New')                                      variant = 'warning'
+                    else if (job.status === 'Canceled' || job.status === 'Archived')   variant = 'error'
+                    return (
+                      <tr key={job.id}>
+                        <td>{job.title}</td>
+                        <td>{job.customer}</td>
+                        <td>
+                          <Badge variant={variant}>
+                            {job.status.replace(/([a-z])([A-Z])/g, '$1 $2')}
+                          </Badge>
+                        </td>
+                        <td>{job.assignee}</td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <ShowcaseActivityFeed />
+        </div>
+
+        {/* Customer table */}
+        <div className="showcase-dashboard__customers">
+          <div className="showcase-dashboard__table-header">
+            <h3>Top Customers</h3>
+          </div>
+          <div className="showcase-dashboard__table">
+            <table>
+              <thead>
+                <tr>
+                  <th>Customer Name</th>
+                  <th>Email</th>
+                  <th>Status</th>
+                  <th>Joined</th>
+                </tr>
+              </thead>
+              <tbody>
+                {MOCK_CUSTOMERS.map((c) => {
+                  const variant = c.status === 'active' ? 'success' : c.status === 'inactive' ? 'error' : 'warning'
+                  return (
+                    <tr key={c.id}>
+                      <td>{c.name}</td>
+                      <td>{c.email}</td>
+                      <td>
+                        <Badge variant={variant}>
+                          {c.status.charAt(0).toUpperCase() + c.status.slice(1)}
+                        </Badge>
+                      </td>
+                      <td>{c.joinDate}</td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}

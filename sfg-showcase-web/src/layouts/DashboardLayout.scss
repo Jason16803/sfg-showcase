@@ -11,6 +11,10 @@
   }
 }
 
+// ---------------------------------------------------------------------------
+// Sidebar
+// ---------------------------------------------------------------------------
+
 .dashboard-layout__sidebar {
   background-color: $color-surface-card;
   border-right: 1px solid $color-border;
@@ -20,6 +24,7 @@
   position: sticky;
   top: 0;
   height: 100vh;
+  overflow-y: auto;
 
   @media (max-width: $breakpoint-md) {
     display: none;
@@ -31,13 +36,24 @@
   display: flex;
   flex-direction: column;
   gap: $space-md;
+}
 
-  h2 {
-    font-size: $font-size-2xl;
-    color: $color-primary;
-    margin: 0;
+// Wordmark — standalone link, no underline
+.dashboard-layout__wordmark {
+  font-size: $font-size-2xl;
+  font-weight: $font-weight-bold;
+  color: $color-primary;
+  text-decoration: none;
+  line-height: 1;
+
+  &:hover {
+    color: $color-primary-light;
   }
 }
+
+// ---------------------------------------------------------------------------
+// Nav
+// ---------------------------------------------------------------------------
 
 .dashboard-layout__nav {
   flex: 1;
@@ -47,24 +63,29 @@
     list-style: none;
     display: flex;
     flex-direction: column;
-    gap: $space-sm;
+    gap: $space-xs;
   }
 }
 
 .dashboard-layout__nav-link {
-  display: block;
-  padding: $space-md;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: $space-sm $space-md;
   border-radius: $radius-md;
   color: $color-text-secondary;
   transition: all $transition-base;
   text-decoration: none;
+  font-size: $font-size-sm;
   position: relative;
+  cursor: pointer;
 
   &:hover {
     background-color: $color-surface-elevated;
-    color: $color-primary;
+    color: $color-text-primary;
   }
 
+  // Active state — implemented route the user is on
   &--active {
     background-color: rgba($color-primary, 0.1);
     color: $color-primary;
@@ -81,7 +102,36 @@
       border-radius: 0 $radius-md $radius-md 0;
     }
   }
+
+  // Pending state — route not yet implemented
+  &--pending {
+    color: $color-text-muted;
+    cursor: default;
+
+    &:hover {
+      background-color: transparent;
+      color: $color-text-muted;
+    }
+  }
 }
+
+// "Soon" badge on pending nav items
+.dashboard-layout__nav-soon {
+  font-size: $font-size-xs;
+  font-weight: $font-weight-semibold;
+  color: $color-text-muted;
+  background-color: $color-surface-elevated;
+  border: 1px solid $color-border;
+  border-radius: $radius-sm;
+  padding: 1px 5px;
+  line-height: 1.4;
+  letter-spacing: 0.02em;
+  flex-shrink: 0;
+}
+
+// ---------------------------------------------------------------------------
+// Sidebar footer
+// ---------------------------------------------------------------------------
 
 .dashboard-layout__sidebar-footer {
   border-top: 1px solid $color-border;
@@ -99,27 +149,45 @@
   transition: all $transition-base;
   font-size: $font-size-sm;
   font-weight: $font-weight-semibold;
+  font-family: inherit;
 
   &:hover {
-    background-color: rgba($color-error, 0.1);
-    border-color: $color-error;
+    background-color: rgba($color-error, 0.08);
+    border-color: rgba($color-error, 0.4);
     color: $color-error;
   }
+
+  &:focus-visible {
+    outline: 2px solid $color-primary;
+    outline-offset: 2px;
+  }
 }
+
+// ---------------------------------------------------------------------------
+// Main wrapper
+// ---------------------------------------------------------------------------
 
 .dashboard-layout__main-wrapper {
   display: flex;
   flex-direction: column;
   background-color: $color-surface-bg;
+  min-width: 0; // prevent overflow in grid
 }
+
+// ---------------------------------------------------------------------------
+// Header
+// ---------------------------------------------------------------------------
 
 .dashboard-layout__header {
   background-color: $color-surface-card;
   border-bottom: 1px solid $color-border;
   padding: $space-lg $space-md;
+  position: sticky;
+  top: 0;
+  z-index: 10;
 
   @media (min-width: $breakpoint-lg) {
-    padding: $space-xl;
+    padding: $space-lg $space-xl;
   }
 }
 
@@ -134,15 +202,20 @@
 
 .dashboard-layout__header-text {
   flex: 1;
+  min-width: 0;
 
   h1 {
-    font-size: $font-size-2xl;
-    margin-bottom: $space-sm;
+    font-size: $font-size-xl;
+    margin-bottom: $space-xs;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   p {
     font-size: $font-size-sm;
     color: $color-text-muted;
+    margin: 0;
   }
 }
 
@@ -152,19 +225,22 @@
   gap: $space-md;
   padding-left: $space-lg;
   border-left: 1px solid $color-border;
+  flex-shrink: 0;
 }
 
 .dashboard-layout__user-avatar {
-  width: 40px;
-  height: 40px;
+  width: 38px;
+  height: 38px;
   border-radius: $radius-md;
   background: linear-gradient(135deg, $color-primary, $color-primary-light);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: $font-weight-semibold;
+  font-weight: $font-weight-bold;
   color: #ffffff;
-  font-size: $font-size-sm;
+  font-size: $font-size-xs;
+  flex-shrink: 0;
+  user-select: none;
 }
 
 .dashboard-layout__user-name {
@@ -172,14 +248,21 @@
   color: $color-text-primary;
   font-weight: $font-weight-semibold;
   margin: 0;
+  white-space: nowrap;
 }
 
 .dashboard-layout__user-role {
   font-size: $font-size-xs;
   color: $color-text-muted;
   margin: 0;
+  white-space: nowrap;
 }
+
+// ---------------------------------------------------------------------------
+// Main content area
+// ---------------------------------------------------------------------------
 
 .dashboard-layout__main {
   flex: 1;
+  min-width: 0; // prevent overflow in flex column
 }

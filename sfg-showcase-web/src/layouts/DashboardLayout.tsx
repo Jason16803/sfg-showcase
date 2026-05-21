@@ -1,41 +1,50 @@
-import { Outlet, useNavigate } from 'react-router-dom'
+import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom'
 import { useAuthStore } from '@/store/authStore'
 import { Badge } from '@/components'
 import { rolePermissions } from '@/data/mockData'
 import { authService } from '@/auth/service'
 import './DashboardLayout.scss'
 
+// ---------------------------------------------------------------------------
+// Sections with wired routes in Week 3.
+// A section NOT in this set renders as a non-interactive "Soon" label.
+// Update this set as new routes/pages are added.
+// ---------------------------------------------------------------------------
+const IMPLEMENTED_ROUTES = new Set([
+  'Dashboard',
+  'Jobs',
+  'Customers',
+  'Team',
+  'Settings',
+  'Reports',
+])
+
 /**
  * DashboardLayout
  *
- * Sidebar navigation is role-aware: sections shown are determined by the
- * authenticated user's role from the Zustand store.
+ * Sidebar nav is role-aware via rolePermissions[user.role].sections.
+ * Active state driven by useLocation() (not window.location.pathname).
+ * Nav uses <Link to=""> for SPA navigation — no full-page reloads.
  *
- * Frontend role-gating controls UI visibility only.
- * All access control enforcement happens on the backend via requireRole().
+ * Sections in IMPLEMENTED_ROUTES → real <Link>.
+ * Sections not in the set → non-interactive <span> with "Soon" badge.
+ *
+ * Frontend role-gating controls nav visibility only.
+ * All access control is enforced on the backend via requireRole().
  */
 export function DashboardLayout() {
   const { user } = useAuthStore()
+  const location = useLocation()
   const navigate = useNavigate()
 
-  // Resolve role from store; fall back to 'employee' (most restricted) if somehow
-  // the user object is missing — ProtectedRoute should prevent this in practice.
-  const userRole = (user?.role ?? 'employee') as keyof typeof rolePermissions
-
-  // Guard: if role is not in the permission map, fall back to employee
-  const roleConfig =
-    rolePermissions[userRole] ?? rolePermissions['employee']
-
-  // Derive display name and initials from store user
-  const displayName = user
-    ? `${user.firstName} ${user.lastName}`.trim()
-    : 'User'
-  const initials = user
+  const userRole    = (user?.role ?? 'employee') as keyof typeof rolePermissions
+  const roleConfig  = rolePermissions[userRole] ?? rolePermissions['employee']
+  const displayName = user ? `${user.firstName} ${user.lastName}`.trim() : 'User'
+  const initials    = user
     ? `${user.firstName?.[0] ?? ''}${user.lastName?.[0] ?? ''}`.toUpperCase()
     : '??'
 
   const handleLogout = async () => {
-    // authService.logout() clears backend refresh token + local store
     await authService.logout()
     navigate('/login')
   }
@@ -44,30 +53,39 @@ export function DashboardLayout() {
     <div className="dashboard-layout">
       <aside className="dashboard-layout__sidebar">
         <div className="dashboard-layout__sidebar-header">
-          <h2>SFG</h2>
+          <Link to="/dashboard" className="dashboard-layout__wordmark">SFG</Link>
           <Badge variant="primary">{roleConfig.label}</Badge>
         </div>
 
-        <nav className="dashboard-layout__nav">
+        <nav className="dashboard-layout__nav" aria-label="Dashboard navigation">
           <ul>
             {roleConfig.sections.map((section) => {
-              const href = `/${section.toLowerCase().replace(/\s+/g, '-')}`
-              const isActive =
-                section === 'Dashboard' &&
-                window.location.pathname === '/dashboard'
+              const path     = `/${section.toLowerCase().replace(/\s+/g, '-')}`
+              const isActive = location.pathname.startsWith(path) &&
+                               (path === '/dashboard' ? location.pathname === '/dashboard' : true)
+              const isReady  = IMPLEMENTED_ROUTES.has(section)
+
               return (
                 <li key={section}>
-                  <a
-                    href={href}
-                    className={[
-                      'dashboard-layout__nav-link',
-                      isActive ? 'dashboard-layout__nav-link--active' : '',
-                    ]
-                      .filter(Boolean)
-                      .join(' ')}
-                  >
-                    {section}
-                  </a>
+                  {isReady ? (
+                    <Link
+                      to={path}
+                      className={[
+                        'dashboard-layout__nav-link',
+                        isActive ? 'dashboard-layout__nav-link--active' : '',
+                      ].filter(Boolean).join(' ')}
+                    >
+                      {section}
+                    </Link>
+                  ) : (
+                    <span
+                      className="dashboard-layout__nav-link dashboard-layout__nav-link--pending"
+                      title={`${section} — coming in a future release`}
+                    >
+                      {section}
+                      <span className="dashboard-layout__nav-soon">Soon</span>
+                    </span>
+                  )}
                 </li>
               )
             })}
@@ -75,12 +93,7 @@ export function DashboardLayout() {
         </nav>
 
         <div className="dashboard-layout__sidebar-footer">
-          {/* BACKEND ENFORCEMENT REQUIRED: logout clears refresh token via
-              POST /api/v1/auth/logout. Client state is always cleared even
-              if the server call fails. */}
-          <button className="dashboard-layout__logout" onClick={handleLogout}>
-            Sign Out
-          </button>
+          <button className="dashboard-layout__logout" onClick={handleLogout}>Sign Out</button>
         </div>
       </aside>
 
@@ -89,18 +102,10 @@ export function DashboardLayout() {
           <div className="dashboard-layout__header-content">
             <div className="dashboard-layout__header-text">
               <h1>Welcome back{user?.firstName ? `, ${user.firstName}` : ''}</h1>
-              <p>
-                {new Date().toLocaleDateString('en-US', {
-                  weekday: 'long',
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric',
-                })}
-              </p>
+              <p>{new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
             </div>
-
             <div className="dashboard-layout__header-user">
-              <div className="dashboard-layout__user-avatar">{initials}</div>
+              <div className="dashboard-layout__user-avatar" aria-hidden="true">{initials}</div>
               <div>
                 <p className="dashboard-layout__user-name">{displayName}</p>
                 <p className="dashboard-layout__user-role">{roleConfig.label}</p>
@@ -108,10 +113,7 @@ export function DashboardLayout() {
             </div>
           </div>
         </header>
-
-        <main className="dashboard-layout__main">
-          <Outlet />
-        </main>
+        <main className="dashboard-layout__main"><Outlet /></main>
       </div>
     </div>
   )

@@ -1,42 +1,35 @@
 /**
  * dashboard.types.ts
  *
- * Types matching the verified SFO Core API response shapes.
- * All endpoint shapes confirmed by inspection of:
+ * Types matching verified SFO Core API response shapes.
+ * All endpoint shapes confirmed by direct source inspection of:
  *   /mnt/d/sfg-api/apps/sfo-core-api/src/routes/
- *     dashboard.routes.js
- *     customers.routes.js
- *     jobs.routes.js
  */
 
 // ---------------------------------------------------------------------------
-// API response types
+// Envelope
 // ---------------------------------------------------------------------------
 
-/**
- * GET /api/v1/dashboard/overview
- * Wrapped in { success, message, data: DashboardOverview }
- */
-export interface DashboardOverview {
-  customers: {
-    total: number
-    active: number
-  }
-  jobs: {
-    total: number
-    open: number          // New + Scheduled + InProgress
-    scheduledToday: number
-    byStatus: Record<string, number>
-  }
-  intake: {
-    new: number
-  }
+export interface ApiEnvelope<T> {
+  success: boolean
+  message: string
+  data: T
 }
 
-/**
- * Raw activity item from GET /api/v1/dashboard/recent-activity
- * Wrapped in { success, message, data: { activities: RawActivityItem[] } }
- */
+// ---------------------------------------------------------------------------
+// Dashboard overview  (GET /api/v1/dashboard/overview)
+// ---------------------------------------------------------------------------
+
+export interface DashboardOverview {
+  customers: { total: number; active: number }
+  jobs: { total: number; open: number; scheduledToday: number; byStatus: Record<string, number> }
+  intake: { new: number }
+}
+
+// ---------------------------------------------------------------------------
+// Recent activity  (GET /api/v1/dashboard/recent-activity)
+// ---------------------------------------------------------------------------
+
 export interface RawActivityItem {
   type: 'customer' | 'job' | 'intake'
   id: string
@@ -46,10 +39,6 @@ export interface RawActivityItem {
   createdAt: string
 }
 
-/**
- * Normalised activity item — matches ActivityFeed component's Activity type.
- * Derived from RawActivityItem with title, icon, color added.
- */
 export interface DashboardActivity {
   id: string
   type: 'job' | 'customer' | 'team' | 'system'
@@ -60,45 +49,37 @@ export interface DashboardActivity {
   color: 'primary' | 'success' | 'warning' | 'error'
 }
 
-/**
- * Normalised customer row for DataTable.
- * Derived from GET /api/v1/customers list items.
- * `name` = firstName + lastName (backend stores them separately).
- * `joinDate` = createdAt (formatted for display).
- *
- * NOTE: totalSpent is NOT available — Floe owns financial data.
- * The revenue column is omitted from the real-data table.
- */
+// ---------------------------------------------------------------------------
+// Customers  (GET /api/v1/customers — assistant_manager+)
+// ---------------------------------------------------------------------------
+
 export interface DashboardCustomer {
   id: string
-  name: string
+  name: string       // firstName + lastName (backend stores separately)
   email: string
   status: string
-  joinDate: string
+  joinDate: string   // formatted from createdAt
 }
 
-/**
- * Normalised job row for DataTable.
- * Derived from GET /api/v1/jobs list items (with populated customerId + assignedTo).
- *
- * Real status values from SFO Core (JOB_STATUS constants):
- *   'New' | 'Scheduled' | 'InProgress' | 'Completed' | 'Closed' | 'Canceled' | 'Archived'
- */
+// ---------------------------------------------------------------------------
+// Jobs  (GET /api/v1/jobs — all roles)
+// SFO Core job status values: 'New' | 'Scheduled' | 'InProgress' | 'Completed' | 'Closed' | 'Canceled' | 'Archived'
+// ---------------------------------------------------------------------------
+
 export interface DashboardJob {
   id: string
   title: string
   status: string
-  customer: string   // derived: customerId.firstName + lastName
-  assignee: string   // derived: assignedTo?.firstName + lastName or 'Unassigned'
+  customer: string        // derived: customerId.firstName + lastName
+  assignee: string        // derived: assignedTo?.firstName + lastName | 'Unassigned'
   scheduledDate: string | null
 }
 
-/**
- * GET /api/v1/jobs/stats
- * Wrapped in { success, message, data: JobStats }
- *
- * NOTE: status keys use SFO Core naming conventions (mixed case / hyphenated).
- */
+// ---------------------------------------------------------------------------
+// Jobs stats  (GET /api/v1/jobs/stats — all roles)
+// Keys match JOB_STATUS constants in sfo-core-api/src/constants/statuses.js
+// ---------------------------------------------------------------------------
+
 export interface JobStats {
   created: number
   estimate: number
@@ -109,6 +90,23 @@ export interface JobStats {
   canceled: number
   archived: number
   total: number
+}
+
+// ---------------------------------------------------------------------------
+// Team  (GET /api/v1/team — general_manager+)
+// Returns plain array (not paginated).
+// Backend selects: _id firstName lastName email role status lastLogin createdAt
+// ---------------------------------------------------------------------------
+
+export interface TeamMember {
+  id: string
+  firstName: string
+  lastName: string
+  email: string
+  role: 'owner' | 'general_manager' | 'assistant_manager' | 'employee'
+  status: 'active' | 'invited' | 'suspended'
+  lastLogin: string | null
+  joinDate: string   // formatted from createdAt
 }
 
 // ---------------------------------------------------------------------------
@@ -126,10 +124,7 @@ export interface PaginationMeta {
 // Hook return shapes
 // ---------------------------------------------------------------------------
 
-/**
- * Generic single-value hook result.
- * isMock: true when API is unavailable and fallback mock data is active.
- */
+/** Single-value hook result. isMock: true when fallback mock data is active. */
 export interface UseDataResult<T> {
   data: T | null
   isLoading: boolean
@@ -137,9 +132,7 @@ export interface UseDataResult<T> {
   isMock: boolean
 }
 
-/**
- * Generic list hook result with pagination.
- */
+/** Paginated list hook result. */
 export interface UseListResult<T> {
   items: T[]
   pagination: PaginationMeta | null

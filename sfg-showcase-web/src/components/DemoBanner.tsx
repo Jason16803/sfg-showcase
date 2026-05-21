@@ -17,9 +17,9 @@ export function DemoBanner() {
               our integrated platform. Built for scale, designed for simplicity.
             </p>
             <div className="demo-banner__actions">
-              <Link to="/showcase-dashboard">
+              <Link to="/login">
                 <Button variant="primary" size="lg">
-                  View Dashboard Demo
+                  Sign In to Dashboard
                 </Button>
               </Link>
               <Button variant="secondary" size="lg">
@@ -33,7 +33,7 @@ export function DemoBanner() {
                 <div className="demo-banner__preview-title">Dashboard</div>
                 <div className="demo-banner__preview-nav">
                   <span className="demo-banner__preview-nav-item">Customers</span>
-                  <span className="demo-banner__preview-nav-item">Operations</span>
+                  <span className="demo-banner__preview-nav-item">Jobs</span>
                 </div>
               </div>
               <div className="demo-banner__preview-metrics">
