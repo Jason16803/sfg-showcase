@@ -1,5 +1,6 @@
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom'
 import { useAuthStore } from '@/store/authStore'
+import { useDemoStore } from '@/store/demoStore'
 import { Badge } from '@/components'
 import { rolePermissions } from '@/data/mockData'
 import { authService } from '@/auth/service'
@@ -34,6 +35,7 @@ const IMPLEMENTED_ROUTES = new Set([
  */
 export function DashboardLayout() {
   const { user } = useAuthStore()
+  const { hasLocalChanges, resetLocalChanges } = useDemoStore()
   const location = useLocation()
   const navigate = useNavigate()
 
@@ -49,8 +51,31 @@ export function DashboardLayout() {
     navigate('/login')
   }
 
+  const handleResetDemo = () => {
+    if (!window.confirm('Reset all local demo changes? Jobs and customers will revert to the seeded baseline.')) return
+    resetLocalChanges()
+  }
+
   return (
     <div className="dashboard-layout">
+      {/* ── Demo mode strip ────────────────────────────────────── */}
+      <div className="dashboard-layout__demo-strip">
+        <span className="dashboard-layout__demo-label">DEMO</span>
+        <span className="dashboard-layout__demo-info">
+          Tenant&nbsp;
+          <code>{user?.tenantId ?? '—'}</code>
+          &nbsp;&middot;&nbsp;Writes are local only
+        </span>
+        {hasLocalChanges && (
+          <button
+            className="dashboard-layout__demo-reset"
+            onClick={handleResetDemo}
+            title="Reset local demo changes"
+          >
+            ↺ Reset changes
+          </button>
+        )}
+      </div>
       <aside className="dashboard-layout__sidebar">
         <div className="dashboard-layout__sidebar-header">
           <Link to="/dashboard" className="dashboard-layout__wordmark">SFG</Link>

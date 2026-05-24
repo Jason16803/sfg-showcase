@@ -85,3 +85,24 @@ export const rolePermissions = {
     sections: ['Dashboard', 'Jobs'],
   },
 }
+
+// ---------------------------------------------------------------------------
+// Demo credentials — Week 3 demo session
+// These correspond to the seeded sfg-showcase-demo tenant (TNT_SFG_DEMO).
+// Backend prerequisite: node src/scripts/seedDemoTenant.js in sfo-core-api
+// ---------------------------------------------------------------------------
+
+export type DemoRole = 'owner' | 'assistant_manager' | 'employee'
+
+export interface DemoAccount {
+  label: string
+  role: DemoRole
+  email: string
+  password: string
+}
+
+export const DEMO_ACCOUNTS: DemoAccount[] = [
+  { label: 'Owner',                  role: 'owner',             email: 'demo-owner@sfg-showcase.dev',    password: 'DemoOwner123!'   },
+  { label: 'Supervisor (Asst. Mgr)', role: 'assistant_manager', email: 'demo-manager@sfg-showcase.dev',  password: 'DemoManager123!' },
+  { label: 'Employee',               role: 'employee',          email: 'demo-employee@sfg-showcase.dev', password: 'DemoEmployee123!'},
+]

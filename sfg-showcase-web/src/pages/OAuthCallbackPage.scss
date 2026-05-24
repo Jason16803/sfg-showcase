@@ -19,16 +19,22 @@
   align-items: center;
   text-align: center;
   gap: $space-lg;
-  max-width: 400px;
+  max-width: 420px;
   width: 100%;
   background-color: $color-surface-card;
   border: 1px solid $color-border;
   border-radius: $radius-lg;
   padding: $space-2xl $space-xl;
+  transition: border-color $transition-base;
+
+  // Error variant — amber border to distinguish from normal loading state
+  &--error {
+    border-color: rgba($color-warning, 0.35);
+  }
 }
 
 // ---------------------------------------------------------------------------
-// Spinner
+// Processing — spinner
 // ---------------------------------------------------------------------------
 
 .oauth-callback__spinner {
@@ -55,6 +61,23 @@
 }
 
 // ---------------------------------------------------------------------------
+// Error icon
+// ---------------------------------------------------------------------------
+
+.oauth-callback__error-icon {
+  color: $color-warning;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.oauth-callback__error-svg {
+  width: 48px;
+  height: 48px;
+  flex-shrink: 0;
+}
+
+// ---------------------------------------------------------------------------
 // Text
 // ---------------------------------------------------------------------------
 
@@ -63,6 +86,7 @@
   font-weight: $font-weight-semibold;
   color: $color-text-primary;
   margin: 0;
+  line-height: $line-height-tight;
 }
 
 .oauth-callback__body {
@@ -70,7 +94,63 @@
   color: $color-text-secondary;
   line-height: $line-height-relaxed;
   margin: 0;
+  max-width: 340px;
 }
+
+// ---------------------------------------------------------------------------
+// Actions
+// ---------------------------------------------------------------------------
+
+.oauth-callback__actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $space-md;
+  margin-top: $space-sm;
+}
+
+.oauth-callback__back {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  color: $color-primary;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $color-primary;
+    outline-offset: 2px;
+    border-radius: $radius-sm;
+  }
+}
+
+.oauth-callback__signup-link {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  color: $color-text-secondary;
+  text-decoration: none;
+  padding: $space-xs $space-md;
+  border: 1px solid $color-border;
+  border-radius: $radius-md;
+  transition: all $transition-base;
+
+  &:hover {
+    color: $color-text-primary;
+    border-color: $color-border-light;
+    background-color: $color-surface-elevated;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $color-primary;
+    outline-offset: 2px;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Legacy — keep for any existing note references
+// ---------------------------------------------------------------------------
 
 .oauth-callback__note {
   font-size: $font-size-xs;
@@ -86,21 +166,5 @@
     border-radius: $radius-sm;
     padding: 1px 5px;
     color: $color-primary-light;
-  }
-}
-
-// ---------------------------------------------------------------------------
-// Back link
-// ---------------------------------------------------------------------------
-
-.oauth-callback__back {
-  font-size: $font-size-sm;
-  font-weight: $font-weight-semibold;
-  color: $color-primary;
-  text-decoration: none;
-  margin-top: $space-sm;
-
-  &:hover {
-    text-decoration: underline;
   }
 }

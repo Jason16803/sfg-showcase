@@ -1,8 +1,8 @@
 # Auth Flow — SFG Showcase Web
 
-**Week 3 status:** Email/password JWT login fully wired to SFO Core API.  
+**Week 3 status:** JWT login + refresh token wired. Platform-scope guard active. Demo accounts seeded.  
 **Backend:** SFO Core API (`/mnt/d/sfg-api/apps/sfo-core-api`)  
-**Frontend:** SFG Showcase Web (`sfg-showcase-web`)
+**Frontend:** SFG Showcase Web (`/mnt/d/TWG-Projects/sfg-showcase/sfg-showcase-web`)
 
 ---
 
@@ -26,7 +26,7 @@ SFG platform. It issues its own JWTs and handles all session persistence.
 
 ---
 
-## Verified Backend Endpoints (Phase 3)
+## Verified Backend Endpoints
 
 All shapes confirmed by direct file inspection of SFO Core source.
 
@@ -41,8 +41,8 @@ Success 200:
     success: true,
     message: 'Login successful',
     data: {
-      accessToken: string,     ← JWT, signed with server secret
-      refreshToken: string,    ← stored on User document in MongoDB
+      accessToken:  string,    ← JWT, signed with server secret (short-lived)
+      refreshToken: string,    ← stored on User document in MongoDB (longer-lived)
       user: {
         id: string,
         email: string,
@@ -111,67 +111,167 @@ Effect: clears refreshToken field on User document in MongoDB.
 Frontend always clears local auth state regardless of server response.
 ```
 
+### POST /api/v1/auth/refresh  ← BACKEND PREREQUISITE: not yet mounted
+
+```
+Public route — no auth middleware. Reads refreshToken from request body.
+The Authorization header (expired access token) is present due to the
+request interceptor but is ignored by the backend.
+
+Request body:
+  { refreshToken: string }
+
+Success 200:
+  {
+    success: true,
+    message: 'Token refreshed',
+    data: { accessToken: string }   ← new short-lived access token
+  }
+
+Error responses:
+  400 { success: false, message: 'Refresh token required' }
+  401 { success: false, message: 'Invalid or expired refresh token' }
+
+Backend service method: authService.refreshAccessToken() — exists but
+the route is not yet mounted in SFO Core. Until it is, POST /auth/refresh
+returns 404. The frontend interceptor treats 404 as a refresh failure
+and triggers logout cleanly — no crash, no loop.
+```
+
+---
+
+## Token Storage
+
+| Token | localStorage key | env var | Default |
+|---|---|---|---|
+| Access token | `sfg_access_token` | `VITE_JWT_STORAGE_KEY` | `auth_token` |
+| Refresh token | `sfg_access_token_refresh` | `VITE_JWT_REFRESH_KEY` | `${TOKEN_KEY}_refresh` |
+
+Both keys are cleared on logout. The refresh token is sent only in the body
+of POST `/api/v1/auth/refresh` — never in an `Authorization` header.
+
 ---
 
 ## JWT Behavior
 
 - **Payload:** `{ userId }` — role and tenantId are NOT embedded in the token
 - **Verification:** every request through `requireAuth` middleware fetches the
-  full User document from MongoDB, so status changes take effect immediately
-  without waiting for token expiry
+  full User document from MongoDB, so status/role changes take effect immediately
 - **Access token expiry:** controlled by `config.jwt.accessExpiry` on SFO Core
-- **Refresh token:** stored on the User document; `authService.refreshAccessToken()`
-  exists on the backend but **no `/api/v1/auth/refresh` route is mounted yet**
+- **Refresh token:** stored on the User document in MongoDB and in the frontend's
+  localStorage under `REFRESH_TOKEN_KEY`
 
 ---
 
-## Refresh Token — Current Status
+## Refresh Token Flow
 
-The SFO Core auth service has `refreshAccessToken()` implemented but it is
-not exposed via any HTTP route. The frontend cannot request a new access token
-when the current one expires.
+### Mid-session (axios interceptor)
 
-**Current behavior on expiry:** the expired JWT causes the next authenticated
-request to return `401 'Token has expired'`. The `api/client.ts` response
-interceptor catches this 401, calls `useAuthStore.getState().logout()`, and
-the user is redirected to `/login`.
-
-**Planned behavior (when backend route is added):**
 ```
-accessToken expires
-  → request returns 401 'Token has expired'
-  → client intercepts 401
-  → POST /api/v1/auth/refresh with refreshToken from localStorage
-  → receives new accessToken
-  → retries original request transparently
+Protected request (e.g. GET /jobs) returns 401
+  │
+  ├─ G1: URL is /me?         → skip (hydrateAuth owns /me 401s)
+  ├─ G2: URL is /auth/refresh? → logout, reject (refresh token invalid)
+  ├─ G3: No auth header?     → skip (unauthenticated call by design)
+  ├─ G4: Store not authed?   → skip (stale pre-login request)
+  ├─ G5: Already retried?    → logout, reject (token still rejected after refresh)
+  │
+  └─ Attempt refresh: POST /api/v1/auth/refresh { refreshToken }
+      │
+      ├─ 200 OK
+      │    → store.setToken(newAccessToken)
+      │    → patch original request header: Authorization: Bearer <newToken>
+      │    → retry original request ONCE
+      │    → return retried response to original caller (transparent to page hooks)
+      │
+      └─ Any failure (401, 400, 404, network)
+           → store.logout()   ← clears both tokens
+           → ProtectedRoute sees isAuthenticated: false
+           → redirect to /login
 ```
-This will be implemented when SFO Core exposes the refresh route.
+
+### On app startup (hydrateAuth)
+
+```
+App mounts → hydrateAuth() called
+  │
+  ├─ No stored access token → return immediately (isLoading: false)
+  │
+  └─ Stored access token found (isLoading: true optimistically)
+       │
+       └─ GET /api/v1/me
+           │
+           ├─ 200, tenant user  → setUser(), proceed
+           │
+           ├─ 200, platform user → clearStore(), setScopeError()
+           │                        LoginPage shows amber warning
+           │
+           ├─ 401 (expired)
+           │    └─ POST /api/v1/auth/refresh { refreshToken }
+           │        │
+           │        ├─ 200 OK
+           │        │    → setToken(newAccessToken)
+           │        │    → retry GET /api/v1/me
+           │        │        ├─ 200, tenant user  → setUser(), proceed ✓
+           │        │        ├─ 200, platform user → clearStore(), scopeError
+           │        │        └─ failure           → clearStore()
+           │        │
+           │        └─ failure (404 not mounted, 401 invalid, network)
+           │             → clearStore()   ← user must re-login
+           │
+           ├─ 403 (suspended / not activated) → clearStore()
+           │
+           └─ Network / 5xx → preserve token (optimistic), isLoading: false
+                               page-level API calls surface errors contextually
+       │
+       └─ finally: setIsLoading(false) → ProtectedRoute renders or redirects
+```
+
+---
+
+## Platform Scope Guard
+
+SFO Core has two user scopes:
+- `scope: "tenant"` + `tenantId: "TNT_..."` — normal dashboard user
+- `scope: "platform"` + `tenantId: null` — SFG platform admin
+
+Platform users pass `requireAuth` but fail `requireTenant` (null `tenantId`).
+Without the guard, this caused an infinite redirect loop.
+
+### Fix: two-checkpoint guard
+
+**Checkpoint 1 — login:**
+```
+POST /api/v1/auth/login → user returned
+  → if user.tenantId === null:
+      setScopeError('Platform accounts cannot access...')
+      throw new Error('platform_scope')   ← neither token is stored
+  → else: setToken(), setRefreshToken(), setUser()
+```
+
+**Checkpoint 2 — hydration / refresh retry:**
+```
+GET /api/v1/me → user returned
+  → if user.scope === 'platform' || user.tenantId === null:
+      clearStore()              ← both tokens cleared
+      setScopeError(msg)
+      return                    ← isAuthenticated: false → redirect to /login
+```
 
 ---
 
 ## Google OAuth — Current Status (Planned)
 
-**Status:** Frontend placeholder present. Backend endpoint missing.
-
-The "Continue with Google" button on `/login` is rendered but disabled.
-`POST /api/v1/auth/google` does not exist in SFO Core yet.
+Frontend placeholder present. `POST /api/v1/auth/google` not yet implemented.
+The "Continue with Google" button on `/login` is disabled.
 
 **Planned flow when backend is ready:**
 1. User clicks "Continue with Google"
-2. Frontend builds Google OAuth URL with `VITE_GOOGLE_CLIENT_ID` and
-   `redirect_uri = FRONTEND_URL/oauth/callback`
-3. User approves Google consent screen
-4. Google redirects to `/oauth/callback?code=AUTH_CODE`
-5. `OAuthCallbackPage` POSTs `{ code, redirectUri }` to SFO Core
-6. SFO Core exchanges code with Google, resolves or rejects user
-7. SFO Core returns `{ accessToken, refreshToken, user }` (same shape as login)
-8. Frontend stores token + user, navigates to `/dashboard`
-
-**Google credential handling:**
-- Client ID → `VITE_GOOGLE_CLIENT_ID` (browser-safe, in `.env.example`)
-- Client Secret → SFO Core API environment only (Fly.io secrets, never frontend)
-
-See `docs/google-oauth-plan.md` for the full activation checklist.
+2. Frontend builds OAuth URL with `VITE_GOOGLE_CLIENT_ID` and `redirect_uri = FRONTEND_URL/oauth/callback`
+3. User approves Google consent screen → Google redirects to `/oauth/callback?code=AUTH_CODE`
+4. `OAuthCallbackPage` POSTs `{ code, redirectUri }` to SFO Core
+5. SFO Core exchanges code, resolves user, returns `{ accessToken, refreshToken, user }` (same shape as login)
+6. Frontend stores both tokens, navigates to `/dashboard`
 
 ---
 
@@ -181,39 +281,42 @@ See `docs/google-oauth-plan.md` for the full activation checklist.
 
 | File | Role |
 |---|---|
-| `src/api/client.ts` | Axios instance; attaches Bearer token; 401 response interceptor → auto-logout |
-| `src/store/authStore.ts` | Zustand store; `user`, `token`, `isLoading`, `isAuthenticated` |
-| `src/auth/service.ts` | `authService.login()`, `authService.hydrateMe()`, `authService.logout()`; `hydrateAuth()` startup function; `friendlyAuthError()` helper |
+| `src/api/client.ts` | Axios instance; attaches Bearer token; 401 → refresh-then-retry interceptor |
+| `src/store/authStore.ts` | Zustand store; `user`, `token`, `refreshToken`, `isLoading`, `isAuthenticated`, `scopeError` |
+| `src/auth/service.ts` | `authService.login()`, `hydrateMe()`, `refreshAccessToken()`, `logout()`; `hydrateAuth()` startup function |
 | `src/router/ProtectedRoute.tsx` | Route guard; holds at spinner while `isLoading`; redirects to `/login` if not authenticated |
-| `src/App.tsx` | Calls `hydrateAuth()` on mount via `useEffect` |
+| `src/App.tsx` | Calls `hydrateAuth()` on mount |
 
 ### Auth store state machine
 
 ```
 App mounts
   │
-  ├─ No stored token
+  ├─ No stored access token
   │    isLoading: false, isAuthenticated: false
   │    → ProtectedRoute immediately redirects to /login
   │
-  └─ Stored token found
+  └─ Stored access token found
        isLoading: true, isAuthenticated: true (optimistic)
        → ProtectedRoute shows spinner
        → hydrateAuth() calls GET /api/v1/me
            │
-           ├─ 200 OK   → setUser(), setIsLoading(false) → dashboard renders
-           ├─ 401/403  → logout() → isAuthenticated: false → redirect to /login
-           └─ Network  → setIsLoading(false) → dashboard renders (token preserved)
+           ├─ 200 OK, tenant   → setUser(), setIsLoading(false) → dashboard renders
+           ├─ 200 OK, platform → clearStore(), scopeError → /login
+           ├─ 401 (expired)    → try refresh → retry /me (see above)
+           ├─ 401/403 (other)  → clearStore() → /login
+           └─ Network/5xx      → setIsLoading(false) → dashboard renders (token preserved)
 ```
 
 ### localStorage keys
 
-| Key | Value | Set by |
+| Key (example) | Value | Set by |
 |---|---|---|
-| `auth_token` (or `VITE_JWT_STORAGE_KEY`) | JWT access token string | `authStore.setToken()` |
+| `sfg_access_token` | JWT access token | `authStore.setToken()` |
+| `sfg_access_token_refresh` | Refresh token | `authStore.setRefreshToken()` |
 
-The refresh token is NOT stored in localStorage — it lives only on the
-User document in MongoDB Atlas (managed by SFO Core).
+Both keys are cleared by `authStore.logout()`.
+The refresh token is sent only in `POST /api/v1/auth/refresh` request body.
 
 ---
 
@@ -222,49 +325,47 @@ User document in MongoDB Atlas (managed by SFO Core).
 | Variable | Required | Notes |
 |---|---|---|
 | `VITE_API_URL` | Yes | SFO Core base URL with `/api/v1` prefix |
+| `VITE_JWT_STORAGE_KEY` | No | Access token localStorage key; default `auth_token` |
+| `VITE_JWT_REFRESH_KEY` | No | Refresh token localStorage key; default `${TOKEN_KEY}_refresh` |
 | `VITE_GOOGLE_CLIENT_ID` | Planned | Public OAuth client ID — safe in browser |
-| `VITE_JWT_STORAGE_KEY` | No | localStorage key; defaults to `auth_token` |
 
 Copy `.env.example` to `.env.local` to configure locally.
-Never commit `.env.local`. Never put `GOOGLE_CLIENT_SECRET` here.
 
 ---
 
 ## Manual Test Steps
 
-With SFO Core API running locally at `http://localhost:3001`:
+With SFO Core API running locally at `VITE_API_URL`:
 
-1. **Login with valid credentials**
-   - Navigate to `http://localhost:5173/login`
-   - Enter a valid email + password for a seeded tenant user
-   - Expect: redirect to `/dashboard`, user name visible in sidebar header
+1. **Login with demo credentials**
+   - Navigate to `/login`, click a demo quick-login button
+   - Open DevTools → Application → Local Storage
+   - Expect: `sfg_access_token` AND `sfg_access_token_refresh` both present
 
-2. **Login with wrong password**
-   - Enter valid email, wrong password
-   - Expect: "Incorrect email or password. Please try again." banner
+2. **Expired access token (mid-session)**
+   - While logged in, open DevTools → Application → Local Storage
+   - Replace `sfg_access_token` value with an expired JWT
+   - Navigate to `/jobs` (triggers GET /jobs)
+   - Expect (when `/auth/refresh` route is live): seamless reload with new token
+   - Expect (before route is live): logout → redirect to `/login`
 
-3. **Login with suspended account**
-   - Use a user with `status: 'suspended'`
-   - Expect: "Your account has been suspended." banner
+3. **Invalid refresh token**
+   - Replace `sfg_access_token_refresh` with `invalid_token`
+   - Replace `sfg_access_token` with an expired JWT
+   - Reload the page (triggers hydrateAuth → /me → refresh attempt)
+   - Expect: redirect to `/login`, both localStorage keys cleared
 
-4. **Session persistence on reload**
-   - Log in, then hard-refresh the page (`Cmd+Shift+R`)
-   - Expect: spinner briefly shown, then dashboard renders (not redirected to login)
+4. **Platform account login**
+   - Enter `jason@thewebsmithagency.com` credentials
+   - Expect: amber warning on `/login` — "Platform accounts cannot access..."
+   - Expect: neither token stored in localStorage
 
-5. **Session cleared on logout**
-   - Click "Sign Out" in sidebar
-   - Expect: redirect to `/login`, localStorage `auth_token` key removed
+5. **Logout clears both tokens**
+   - Click "Sign Out"
+   - Check DevTools localStorage
+   - Expect: both `sfg_access_token` and `sfg_access_token_refresh` removed
 
-6. **Protected route redirect**
-   - While logged out, navigate directly to `http://localhost:5173/dashboard`
-   - Expect: immediate redirect to `/login`
-
-7. **Showcase removed (Week 3)**
-   - `/showcase-dashboard` was removed after Week 3 beta wiring
-   - `DashboardPage` now only mounts behind `ProtectedRoute`
-   - Navigate directly to `http://localhost:5173/dashboard` after logging in
-
-8. **Expired token on reload**
-   - Manually set a past-expiry JWT in localStorage under `auth_token`
-   - Reload the app and navigate to `/dashboard`
-   - Expect: spinner → 401 from `/me` → logout → redirect to `/login`
+6. **No redirect loop**
+   - Log in as platform user, confirm warning
+   - Log in as employee demo user — expect clean `/dashboard` load
+   - Verify no repeated network calls in DevTools Network tab

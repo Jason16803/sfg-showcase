@@ -1,7 +1,7 @@
 # Google OAuth Integration Plan
 
-**Status:** Architectural planning complete. Implementation pending backend endpoint.  
-**Last updated:** Week 2  
+**Status:** Frontend implementation complete. Backend endpoint required to activate.  
+**Last updated:** Week 3 — OAuth wired  
 **Scope:** SFG Showcase Web (frontend) + SFO Core API (backend)
 
 ---
@@ -10,56 +10,65 @@
 
 | Layer | Status | Notes |
 |---|---|---|
-| Frontend — Google button UI | ✅ Present | Rendered on `/login`, disabled with pending note |
-| Frontend — `/oauth/callback` route | ✅ Present | Loading placeholder, no live API calls |
-| Frontend — Zustand auth store | ✅ Ready | `setToken` / `setUser` / `logout` all wired |
-| Frontend — `VITE_GOOGLE_CLIENT_ID` | ⏳ Pending | Env var defined in `.env.example`, no value yet |
-| Backend — `POST /api/v1/auth/google` | ❌ Missing | Does not exist in SFO Core auth routes |
-| Backend — `googleId` on User model | ❌ Missing | User model has no OAuth identity field |
+| Frontend — Google button UI | ✅ Active | Enabled, wired to `GET ${VITE_API_URL}/auth/google` |
+| Frontend — `/oauth/callback` route | ✅ Implemented | Reads tokens, stores them, calls `/me`, scope-guards, navigates to `/dashboard` |
+| Frontend — Zustand auth store | ✅ Ready | `setToken`, `setRefreshToken`, `setUser`, `logout`, `setScopeError` all wired |
+| Frontend — `VITE_GOOGLE_CLIENT_ID` | ✅ Set | Present in `.env`; used by Google Cloud Console, not directly by frontend code |
+| Frontend — `src/utils/oauth.utils.ts` | ✅ New | Token extraction, error mapping |
+| Backend — `GET /api/v1/auth/google` | ❌ Missing | Must redirect browser to Google consent screen |
+| Backend — `GET /api/v1/auth/google/callback` | ❌ Missing | Must exchange code, issue JWT, redirect to frontend |
+| Backend — `googleId` on User model | ❌ Missing | User model needs OAuth identity field |
 | Backend — `google-auth-library` | ❌ Missing | Not installed in SFO Core |
-| Google Cloud Console project | ⏳ Pending | OAuth app not yet created |
-
-**The OAuth flow cannot be activated until the backend endpoint is built.**  
-The frontend is fully structured to receive and store tokens once it exists.
+| Google Cloud Console — redirect URI | ⚠ Verify | `http://localhost:PORT/oauth/callback` must be in Authorized redirect URIs |
 
 ---
 
-## Planned OAuth Flow (Authorization Code — PKCE not required, server-side exchange)
+## OAuth Flow — Server-Side (Backend-Initiated)
+
+This project uses **server-side OAuth** — the backend orchestrates the entire
+Google exchange. The frontend never handles the authorization code directly.
 
 ```
 User clicks "Continue with Google"
         │
         ▼
-Frontend builds Google OAuth URL
-  • https://accounts.google.com/o/oauth2/v2/auth
-  • params: client_id, redirect_uri, response_type=code, scope=openid email profile
-  • redirect_uri = FRONTEND_URL/oauth/callback
+window.location.href = `${VITE_API_URL}/auth/google`
+  ↳ GET https://sfo-core-api.fly.dev/api/v1/auth/google
         │
         ▼
-Browser redirects to Google consent screen
-        │
-        ▼ (user approves)
-Google redirects to: /oauth/callback?code=AUTH_CODE&state=...
-        │
-        ▼
-OAuthCallbackPage mounts
-  • Reads `code` from URL search params
-  • POSTs { code, redirectUri } to SFO Core: POST /api/v1/auth/google
+SFO Core builds Google OAuth consent URL and redirects:
+  https://accounts.google.com/o/oauth2/v2/auth
+    ?client_id=GOOGLE_CLIENT_ID           ← backend env var only
+    &redirect_uri=BACKEND_CALLBACK_URL    ← points to SFO Core, not frontend
+    &response_type=code
+    &scope=openid email profile
         │
         ▼
-SFO Core backend (POST /api/v1/auth/google)
-  • Exchanges code with Google → gets id_token + access_token
-  • Verifies id_token with google-auth-library
-  • Extracts: googleId, email, firstName, lastName, picture
-  • Looks up User by googleId OR email
-    ├─ Found → update lastLogin, issue JWT
-    └─ Not found → reject (SFG is invite-only; no auto-provisioning via OAuth)
-  • Returns: { accessToken, refreshToken, user }
+Browser loads Google consent screen — user approves
         │
         ▼
-OAuthCallbackPage receives response
-  • Calls useAuthStore: setToken(accessToken), setUser(user)
-  • Redirects to /dashboard
+Google redirects to SFO Core's backend callback:
+  GET ${BACKEND_URL}/api/v1/auth/google/callback?code=AUTH_CODE&state=...
+        │
+        ▼
+SFO Core backend callback handler:
+  1. Exchanges code with Google → id_token + access_token
+  2. Verifies id_token with google-auth-library
+  3. Extracts: googleId, email, firstName, lastName
+  4. Looks up User by googleId OR email
+     ├─ Found, active tenant user → issue JWT pair
+     └─ Not found / suspended / platform → redirect with error param
+  5. Redirects browser to frontend:
+     ${FRONTEND_ORIGIN}/oauth/callback?accessToken=xxx&refreshToken=yyy
+        │
+        ▼
+OAuthCallbackPage mounts at /oauth/callback
+  1. parseOAuthCallback() reads tokens from URL query params
+  2. Stores accessToken + refreshToken via authStore
+  3. window.history.replaceState → cleans tokens from URL bar
+  4. GET /api/v1/me → verify session, get user profile (scope, tenantId)
+  5. Platform scope guard — clears tokens if platform user
+  6. navigate('/dashboard', { replace: true })
         │
         ▼
 ProtectedRoute allows access → Dashboard renders
@@ -67,167 +76,196 @@ ProtectedRoute allows access → Dashboard renders
 
 ---
 
-## Required Frontend Routes
+## Token Delivery from Backend
 
-| Route | Component | Purpose |
-|---|---|---|
-| `/login` | `LoginPage` | Entry point; houses Google button and email/password form |
-| `/oauth/callback` | `OAuthCallbackPage` | Handles Google redirect; exchanges code; stores JWT |
+The backend redirect to the frontend should carry tokens as **URL query params**:
 
-Both routes are public (no auth required to reach them). `/oauth/callback` self-redirects to `/dashboard` after successful token exchange, or back to `/login` on error.
+```
+${FRONTEND_ORIGIN}/oauth/callback?accessToken=<JWT>&refreshToken=<token>
+```
+
+`parseOAuthCallback()` in `src/utils/oauth.utils.ts` also checks:
+- Snake_case variants: `access_token`, `refresh_token`
+- URL hash fragment (fallback): `#accessToken=xxx&refreshToken=yyy`
 
 ---
 
-## Required Frontend State
+## Error Delivery from Backend or Google
 
-All state lives in the existing Zustand `authStore`. No new state fields are needed.
+The backend should redirect with an `?error=` param on failure:
 
-| Action | Store method | Trigger |
+| Condition | Redirect | Page message |
 |---|---|---|
-| Store JWT after OAuth | `setToken(accessToken)` | `OAuthCallbackPage` on success |
-| Store user profile | `setUser(user)` | `OAuthCallbackPage` on success |
-| Handle loading during exchange | `setIsLoading(true/false)` | `OAuthCallbackPage` during fetch |
-| Clear session on logout | `logout()` | Sidebar / header logout button |
+| User cancels Google consent | `?error=access_denied` | "Sign-in cancelled" |
+| No SFG account for Google identity | `?error=unauthorized` | "No account found" |
+| Account suspended | `?error=suspended` | "Account suspended" |
+| Platform account | `?error=platform_scope` | "Platform account" |
+| Exchange failure | `?error=server_error&message=...` | Generic message |
 
-### State shape expected from backend (matches existing `AuthResponse` type)
+Frontend also handles:
+- Empty callback (no tokens, no error) → "No credentials received"
+- `/me` failure after storing tokens → "Session verification failed"
+- `/me` returns platform user → scope guard clears tokens, shows message
 
-```typescript
-// No changes to authStore.ts required.
-// OAuthCallbackPage will call the same store methods as the login form.
-{
-  accessToken: string       // stored via setToken()
-  refreshToken: string      // not stored in frontend currently — future use
-  user: {
-    id: string
-    email: string
-    firstName: string
-    lastName: string
-    role: 'owner' | 'general_manager' | 'assistant_manager' | 'employee'
-    status: 'active' | 'invited' | 'suspended'
-    tenantId: string | null
-  }
-}
-```
+---
+
+## Frontend File Map
+
+| File | Role |
+|---|---|
+| `src/pages/LoginPage.tsx` | Google button with `onClick` → `window.location.href` |
+| `src/pages/OAuthCallbackPage.tsx` | Token processing, /me verification, navigate to /dashboard |
+| `src/utils/oauth.utils.ts` | `parseOAuthCallback()`, `oauthErrorInfo()` |
+| `src/auth/service.ts` | `authService.hydrateMe()` — called by OAuthCallbackPage |
+| `src/store/authStore.ts` | `setToken()`, `setRefreshToken()`, `logout()`, `setScopeError()` |
+
+---
+
+## Environment Variables
+
+| Variable | Location | Notes |
+|---|---|---|
+| `VITE_API_URL` | Frontend `.env` | Used for the Google button redirect + all API calls |
+| `VITE_GOOGLE_CLIENT_ID` | Frontend `.env` | Present; not used in frontend code (backend-initiated flow) |
+| `GOOGLE_CLIENT_ID` | SFO Core `.env` | **Backend only** — used when building the Google consent URL |
+| `GOOGLE_CLIENT_SECRET` | SFO Core `.env` | **Backend only** — used for code exchange. **Never in frontend.** |
+
+> `VITE_GOOGLE_CLIENT_ID` is present in the frontend for potential future use
+> (e.g., adding a `state` CSRF parameter or displaying the client ID in UI).
+> In the current backend-initiated flow, the backend uses its own `GOOGLE_CLIENT_ID`.
 
 ---
 
 ## Required Backend Work (SFO Core API)
 
-These items do not exist yet and must be built before OAuth can be activated.
-
 ### 1. Install `google-auth-library`
 
 ```bash
-# In /mnt/d/sfg-api/apps/sfo-core-api
+cd /mnt/d/sfg-api/apps/sfo-core-api
 npm install google-auth-library
 ```
 
 ### 2. Add environment variables to SFO Core
 
 ```env
-# .env in sfo-core-api — NEVER commit these values
+# .env in sfo-core-api — NEVER commit these
 GOOGLE_CLIENT_ID=your_google_client_id
 GOOGLE_CLIENT_SECRET=your_google_client_secret
+FRONTEND_ORIGIN=http://localhost:5173          # local dev
+# FRONTEND_ORIGIN=https://sfg-showcase.vercel.app  # production
 ```
-
-> The `GOOGLE_CLIENT_SECRET` must live on the backend **only**. It must never appear in this frontend repository or in any `VITE_*` variable.
 
 ### 3. Add `googleId` to User model
 
 ```javascript
-// In src/models/User.js — add to schema
+// src/models/User.js
 googleId: {
-  type: String,
-  sparse: true,   // allows null + unique index without conflicts
+  type:   String,
+  sparse: true,   // null values don't conflict with the unique index
   unique: true,
-  index: true,
+  index:  true,
 },
 ```
 
-### 4. Add `googleLogin` to `auth.service.js`
-
-```javascript
-async googleLogin({ code, redirectUri }) {
-  // Exchange authorization code for tokens with Google
-  // Verify id_token with google-auth-library OAuth2Client
-  // Extract googleId, email, firstName, lastName from payload
-  // Look up user by googleId OR email
-  // If not found: throw 'Account not provisioned' (no auto-create)
-  // If suspended: throw 'Account is suspended'
-  // Issue accessToken + refreshToken, update lastLogin
-  // Return { user, accessToken, refreshToken }
-}
-```
-
-### 5. Add route to `auth.routes.js`
+### 4. Add routes to `auth.routes.js`
 
 ```javascript
 /**
- * POST /api/v1/auth/google
- * Exchange Google authorization code for SFG JWT
+ * GET /api/v1/auth/google
+ * Initiates Google OAuth — redirects browser to Google consent screen.
  */
-router.post('/google', async (req, res) => {
+router.get('/google', (req, res) => {
+  const params = new URLSearchParams({
+    client_id:     process.env.GOOGLE_CLIENT_ID,
+    redirect_uri:  `${process.env.API_URL}/auth/google/callback`,
+    response_type: 'code',
+    scope:         'openid email profile',
+    access_type:   'offline',
+    prompt:        'consent',
+  })
+  res.redirect(`https://accounts.google.com/o/oauth2/v2/auth?${params}`)
+})
+
+/**
+ * GET /api/v1/auth/google/callback
+ * Receives authorization code from Google, exchanges it, issues JWT,
+ * then redirects browser to frontend /oauth/callback with tokens.
+ */
+router.get('/google/callback', async (req, res) => {
   try {
-    validateRequired(['code', 'redirectUri'], req.body);
-    const { code, redirectUri } = req.body;
-    const { user, accessToken, refreshToken } = await authService.googleLogin({ code, redirectUri });
-    // ... build response DTO same shape as /login
-    return successResponse(res, { accessToken, refreshToken, user }, 'Login successful');
+    const { code } = req.query
+    const { user, accessToken, refreshToken } = await authService.googleLogin({
+      code,
+      redirectUri: `${process.env.API_URL}/auth/google/callback`,
+    })
+    const params = new URLSearchParams({ accessToken, refreshToken })
+    res.redirect(`${process.env.FRONTEND_ORIGIN}/oauth/callback?${params}`)
   } catch (error) {
-    return errorResponse(res, error.message, mapAuthErrorToStatus(error.message));
+    const params = new URLSearchParams({ error: error.message ?? 'server_error' })
+    res.redirect(`${process.env.FRONTEND_ORIGIN}/oauth/callback?${params}`)
   }
-});
+})
+```
+
+### 5. Add `googleLogin` to `auth.service.js`
+
+```javascript
+async googleLogin({ code, redirectUri }) {
+  const { OAuth2Client } = require('google-auth-library')
+  const client = new OAuth2Client(
+    process.env.GOOGLE_CLIENT_ID,
+    process.env.GOOGLE_CLIENT_SECRET,
+    redirectUri
+  )
+
+  const { tokens } = await client.getToken(code)
+  const ticket = await client.verifyIdToken({
+    idToken:  tokens.id_token,
+    audience: process.env.GOOGLE_CLIENT_ID,
+  })
+  const payload = ticket.getPayload()
+
+  const googleId  = payload.sub
+  const email     = payload.email
+  const firstName = payload.given_name  ?? ''
+  const lastName  = payload.family_name ?? ''
+
+  // Look up user — no auto-provisioning; SFG is invite-only
+  let user = await User.findOne({
+    $or: [{ googleId }, { email }],
+    status: 'active',
+  })
+
+  if (!user)       throw new Error('unauthorized')
+  if (user.scope === 'platform') throw new Error('platform_scope')
+
+  // Link googleId if not already linked
+  if (!user.googleId) {
+    user.googleId = googleId
+    await user.save()
+  }
+
+  user.lastLogin = new Date()
+  await user.save()
+
+  return authService.issueTokens(user)  // returns { accessToken, refreshToken, user }
+}
 ```
 
 ---
 
-## Required Google Cloud Console Settings
+## Google Cloud Console Setup
 
-1. **Create a new project** (or use an existing one) at https://console.cloud.google.com
-2. Enable the **Google Identity** API (People API or just OAuth 2.0 — no extra APIs needed for basic sign-in)
-3. Create **OAuth 2.0 credentials** (Web application type):
-   - **Authorized JavaScript origins:**
-     - `http://localhost:5173` (local dev)
-     - `https://sfg-showcase.vercel.app` (production — update when Vercel URL confirmed)
-   - **Authorized redirect URIs:**
-     - `http://localhost:5173/oauth/callback` (local dev)
-     - `https://sfg-showcase.vercel.app/oauth/callback` (production)
-4. Copy the **Client ID** → `VITE_GOOGLE_CLIENT_ID` in frontend `.env.local` and Vercel env settings
-5. Copy the **Client Secret** → `GOOGLE_CLIENT_SECRET` in SFO Core API environment **only** (Fly.io secrets)
+1. Go to https://console.cloud.google.com → APIs & Services → Credentials
+2. Create OAuth 2.0 Client ID (Web application)
+3. **Authorized redirect URIs** — add ALL of:
+   - `http://localhost:5000/api/v1/auth/google/callback` (local backend)
+   - `https://sfo-core-api.fly.dev/api/v1/auth/google/callback` (production backend)
+4. Copy Client ID → backend `GOOGLE_CLIENT_ID` + frontend `VITE_GOOGLE_CLIENT_ID`
+5. Copy Client Secret → backend `GOOGLE_CLIENT_SECRET` only (**never in frontend**)
 
-> **Never put the Client Secret in this repository.** It goes on the backend server as an environment secret, not in any frontend env file.
-
----
-
-## Frontend Implementation Checklist (when backend is ready)
-
-- [ ] Set `VITE_GOOGLE_CLIENT_ID` in `.env.local` with real value from Google Cloud Console
-- [ ] Set `VITE_GOOGLE_CLIENT_ID` in Vercel environment settings
-- [ ] Enable the Google button on `LoginPage` (remove `disabled`, wire click handler)
-- [ ] Implement `buildGoogleAuthUrl()` utility:
-  ```typescript
-  // src/utils/oauth.utils.ts
-  export function buildGoogleAuthUrl(): string {
-    const params = new URLSearchParams({
-      client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
-      redirect_uri: `${window.location.origin}/oauth/callback`,
-      response_type: 'code',
-      scope: 'openid email profile',
-      access_type: 'offline',
-    })
-    return `https://accounts.google.com/o/oauth2/v2/auth?${params}`
-  }
-  ```
-- [ ] Wire Google button `onClick` to `window.location.href = buildGoogleAuthUrl()`
-- [ ] Implement token exchange in `OAuthCallbackPage`:
-  ```typescript
-  // Read `code` from URL: new URLSearchParams(window.location.search).get('code')
-  // POST to: ${VITE_API_URL}/auth/google with { code, redirectUri }
-  // On success: setToken(), setUser(), navigate('/dashboard')
-  // On error: navigate('/login?error=oauth_failed')
-  ```
-- [ ] Test full round-trip: Google consent → callback → JWT stored → dashboard
-- [ ] Update `docs/auth-flow.md` with completed OAuth flow
+> Note: The redirect URI points to the **backend callback**, not the frontend.
+> The backend then redirects to the frontend after token exchange.
 
 ---
 
@@ -235,20 +273,28 @@ router.post('/google', async (req, res) => {
 
 | Concern | Handling |
 |---|---|
-| Client Secret exposure | Secret lives on SFO Core backend only. Frontend only has `VITE_GOOGLE_CLIENT_ID` (public identifier). |
-| `state` parameter (CSRF) | Optional enhancement — generate a random nonce, store in sessionStorage, verify on callback. Add in Week 2 implementation if time allows. |
-| JWT storage | `localStorage` — acceptable for this demo showcase. Production recommendation: `httpOnly` cookie via SFO Core. |
-| Token on redirect | Authorization `code` is in the URL only briefly; the frontend exchanges it immediately for a JWT. The code itself is single-use. |
-| Auto-provisioning | Disabled by design. Google OAuth resolves to an **existing** provisioned SFG user only. Unknown Google accounts receive a 403. |
+| Client Secret | Backend only (`GOOGLE_CLIENT_SECRET`). Never in any `VITE_*` variable. |
+| Tokens in URL | Cleared from URL bar by `window.history.replaceState` after storage. |
+| Platform scope | `/me` response `scope` field triggers guard; tokens cleared if platform user. |
+| State / CSRF | Not implemented — low risk for demo. Add random nonce → sessionStorage verification in production. |
+| JWT storage | `localStorage` — acceptable for demo. Production: `httpOnly` cookie via SFO Core. |
+| Auto-provisioning | Disabled. Google OAuth resolves to an existing provisioned SFG user only. |
 
 ---
 
-## Error States (`/oauth/callback` must handle)
+## Frontend Implementation Checklist
 
-| Scenario | Google returns | Frontend behavior |
-|---|---|---|
-| User denies consent | `?error=access_denied` | Show "Sign-in cancelled" message, link to `/login` |
-| Invalid/expired code | Backend 400 | Show "Sign-in failed" message, link to `/login` |
-| Account not provisioned | Backend 403 | Show "No account found. Request access below." link to `/signup` |
-| Account suspended | Backend 403 | Show "Account suspended. Contact your administrator." |
-| Network error | fetch throws | Show generic error, link to `/login` |
+- [x] `VITE_GOOGLE_CLIENT_ID` set in `.env`
+- [x] Google button enabled — `onClick` wires to `window.location.href = \`${VITE_API_URL}/auth/google\``
+- [x] `OAuthCallbackPage.tsx` — reads tokens, stores them, calls `/me`, scope-guards, navigates
+- [x] `src/utils/oauth.utils.ts` — `parseOAuthCallback()`, `oauthErrorInfo()`
+- [x] Error states: access_denied, unauthorized, suspended, platform_scope, missing tokens, /me failure
+- [x] Tokens cleaned from URL bar after storage
+- [x] React 18 StrictMode double-invoke guard (`useRef(false)`)
+- [ ] Backend `GET /api/v1/auth/google` — redirects to Google
+- [ ] Backend `GET /api/v1/auth/google/callback` — exchanges code, redirects to frontend
+- [ ] Backend: `google-auth-library` installed
+- [ ] Backend: `googleId` field on User model
+- [ ] Backend: `googleLogin()` in auth.service.js
+- [ ] Google Cloud Console: Authorized redirect URIs include backend callback URL
+- [ ] End-to-end test: Google button → consent → /oauth/callback → /dashboard

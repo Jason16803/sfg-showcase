@@ -58,12 +58,11 @@
   font-size: $font-size-sm;
   font-weight: $font-weight-semibold;
   font-family: inherit;
-  cursor: not-allowed;
+  cursor: pointer;
   transition: background-color $transition-base, box-shadow $transition-base;
-  opacity: 0.55;
   min-height: $size-md;
 
-  &:not(:disabled):hover {
+  &:hover {
     background-color: #f8f9fa;
     box-shadow: $shadow-sm;
   }
@@ -71,6 +70,14 @@
   &:focus-visible {
     outline: 2px solid $color-primary;
     outline-offset: 2px;
+  }
+
+  // Disabled state preserved for cases where the button may be conditionally
+  // disabled (e.g. while a form submission is in progress)
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+    pointer-events: none;
   }
 }
 
@@ -195,4 +202,97 @@ input.error {
   &:focus {
     border-color: $color-error;
   }
+}
+
+// ---------------------------------------------------------------------------
+// Scope error variant (platform account blocked)
+// ---------------------------------------------------------------------------
+
+.login-page__scope-error {
+  background-color: rgba($color-warning, 0.08);
+  border-color: rgba($color-warning, 0.3);
+  color: $color-warning;
+}
+
+// ---------------------------------------------------------------------------
+// Demo credentials section
+// ---------------------------------------------------------------------------
+
+.login-page__demo {
+  margin-top: $space-xl;
+  padding-top: $space-xl;
+  border-top: 1px solid $color-border;
+}
+
+.login-page__demo-label {
+  font-size: $font-size-xs;
+  font-weight: $font-weight-semibold;
+  color: $color-text-muted;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  text-align: center;
+  margin-bottom: $space-xs;
+}
+
+.login-page__demo-hint {
+  font-size: $font-size-xs;
+  color: $color-text-muted;
+  text-align: center;
+  margin-bottom: $space-md;
+
+  code {
+    font-family: 'Courier New', monospace;
+    background-color: $color-surface-elevated;
+    border-radius: $radius-sm;
+    padding: 1px 4px;
+    font-size: 0.85em;
+  }
+}
+
+.login-page__demo-grid {
+  display: flex;
+  flex-direction: column;
+  gap: $space-sm;
+}
+
+.login-page__demo-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: $space-sm $space-md;
+  background-color: $color-surface-bg;
+  border: 1px solid $color-border;
+  border-radius: $radius-md;
+  cursor: pointer;
+  transition: all $transition-base;
+  font-family: inherit;
+  text-align: left;
+
+  &:hover:not(:disabled) {
+    border-color: rgba($color-primary, 0.5);
+    background-color: rgba($color-primary, 0.06);
+  }
+
+  &:focus-visible {
+    outline: 2px solid $color-primary;
+    outline-offset: 2px;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.login-page__demo-role {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+}
+
+.login-page__demo-email {
+  font-size: $font-size-xs;
+  color: $color-text-muted;
+  font-family: 'Courier New', monospace;
 }

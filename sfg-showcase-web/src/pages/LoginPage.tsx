@@ -6,6 +6,9 @@ import type { AxiosError } from 'axios'
 import { Container, Card, Button } from '@/components'
 import { Link, useNavigate } from 'react-router-dom'
 import { authService, friendlyAuthError } from '@/auth/service'
+import { useAuthStore } from '@/store/authStore'
+import { DEMO_ACCOUNTS } from '@/data/mockData'
+import type { DemoAccount } from '@/data/mockData'
 import './LoginPage.scss'
 
 // ---------------------------------------------------------------------------
@@ -63,6 +66,19 @@ function GoogleIcon() {
 
 export function LoginPage() {
   const [authError, setAuthError] = useState<string | null>(null)
+  const [quickLoading, setQuickLoading] = useState(false)
+
+  // Platform scope guard message — set by authService.login() or hydrateAuth()
+  const scopeError = useAuthStore((s) => s.scopeError)
+
+  // Google OAuth — backend-initiated, server-side flow.
+  // Redirecting to VITE_API_URL/auth/google triggers:
+  //   SFO Core → Google consent screen → SFO Core callback → /oauth/callback
+  // The frontend never handles the authorization code directly.
+  const handleGoogleSignIn = () => {
+    const apiUrl = import.meta.env.VITE_API_URL as string
+    window.location.href = `${apiUrl}/auth/google`
+  }
 
   const {
     register,
@@ -81,7 +97,29 @@ export function LoginPage() {
       navigate('/dashboard')
     } catch (err) {
       const axiosErr = err as AxiosError<ApiErrorBody>
-      setAuthError(friendlyAuthError(axiosErr.response?.data?.message))
+      const errMsg = (err as Error).message === 'platform_scope'
+        ? 'platform_scope'
+        : axiosErr.response?.data?.message
+      setAuthError(friendlyAuthError(errMsg))
+    }
+  }
+
+  // Quick-login: bypasses form validation, calls authService.login() directly.
+  // Intended for the three seeded demo accounts only.
+  const handleQuickLogin = async (acc: DemoAccount) => {
+    setAuthError(null)
+    setQuickLoading(true)
+    try {
+      await authService.login(acc.email, acc.password)
+      navigate('/dashboard')
+    } catch (err) {
+      const axiosErr = err as AxiosError<ApiErrorBody>
+      const errMsg = (err as Error).message === 'platform_scope'
+        ? 'platform_scope'
+        : axiosErr.response?.data?.message
+      setAuthError(friendlyAuthError(errMsg))
+    } finally {
+      setQuickLoading(false)
     }
   }
 
@@ -104,21 +142,23 @@ export function LoginPage() {
               <button
                 type="button"
                 className="login-page__google-btn"
-                disabled
-                aria-disabled="true"
-                title="Google sign-in requires backend activation — see docs/google-oauth-plan.md"
+                onClick={handleGoogleSignIn}
               >
                 <GoogleIcon />
                 <span>Continue with Google</span>
               </button>
-              <p className="login-page__google-note">
-                Google sign-in is pending backend activation.
-              </p>
             </div>
 
             <div className="login-page__divider" aria-hidden="true">
               <span>or sign in with email</span>
             </div>
+
+            {/* Scope error — platform account blocked. Displayed without redirect. */}
+            {scopeError && (
+              <div className="login-page__auth-error login-page__scope-error" role="alert">
+                {scopeError}
+              </div>
+            )}
 
             {authError && (
               <div className="login-page__auth-error" role="alert">
@@ -177,6 +217,29 @@ export function LoginPage() {
                 Don't have an account?{' '}
                 <Link to="/signup">Create one here</Link>
               </p>
+            </div>
+
+            {/* ── Demo quick-login ─────────────────────────────────── */}
+            <div className="login-page__demo">
+              <p className="login-page__demo-label">Demo Credentials</p>
+              <p className="login-page__demo-hint">
+                Tenant: <code>TNT_SFG_DEMO</code> &mdash; requires backend seed
+              </p>
+              <div className="login-page__demo-grid">
+                {DEMO_ACCOUNTS.map((acc) => (
+                  <button
+                    key={acc.role}
+                    type="button"
+                    className="login-page__demo-btn"
+                    onClick={() => handleQuickLogin(acc)}
+                    disabled={isSubmitting || quickLoading}
+                    title={acc.email}
+                  >
+                    <span className="login-page__demo-role">{acc.label}</span>
+                    <span className="login-page__demo-email">{acc.email}</span>
+                  </button>
+                ))}
+              </div>
             </div>
           </Card>
         </div>
