@@ -10,9 +10,8 @@ export function PublicLayout() {
         <Outlet />
       </main>
       <footer className="public-layout__footer">
-        <p>&copy; 2024 SFG Showcase. All rights reserved.</p>
+        <p>&copy; {new Date().getFullYear()} SFG Showcase. All rights reserved.</p>
       </footer>
     </div>
   )
 }
-

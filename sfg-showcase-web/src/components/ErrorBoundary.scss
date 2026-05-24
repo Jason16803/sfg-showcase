@@ -1,0 +1,105 @@
+@use '@/styles/variables' as *;
+
+.error-boundary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: $space-xl $space-md;
+  background-color: $color-surface-bg;
+}
+
+.error-boundary__card {
+  max-width: 480px;
+  width: 100%;
+  background-color: $color-surface-card;
+  border: 1px solid rgba($color-error, 0.3);
+  border-radius: $radius-lg;
+  padding: $space-2xl $space-xl;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $space-lg;
+}
+
+.error-boundary__icon {
+  font-size: 3rem;
+  line-height: 1;
+}
+
+.error-boundary__title {
+  font-size: $font-size-2xl;
+  font-weight: $font-weight-bold;
+  color: $color-text-primary;
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+.error-boundary__body {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  line-height: $line-height-relaxed;
+  margin: 0;
+  max-width: 360px;
+}
+
+.error-boundary__detail {
+  font-family: 'SFMono-Regular', 'Consolas', 'Liberation Mono', monospace;
+  font-size: $font-size-xs;
+  color: $color-error;
+  background-color: rgba($color-error, 0.06);
+  border: 1px solid rgba($color-error, 0.18);
+  border-radius: $radius-md;
+  padding: $space-md;
+  text-align: left;
+  overflow-x: auto;
+  width: 100%;
+  white-space: pre-wrap;
+  word-break: break-word;
+  margin: 0;
+}
+
+.error-boundary__actions {
+  display: flex;
+  gap: $space-md;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.error-boundary__reload-btn {
+  padding: $space-sm $space-xl;
+  background-color: $color-primary;
+  color: #ffffff;
+  border: none;
+  border-radius: $radius-md;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background-color $transition-base;
+
+  &:hover { background-color: $color-primary-dark; }
+  &:focus-visible { outline: 2px solid $color-primary; outline-offset: 2px; }
+}
+
+.error-boundary__reset-btn {
+  padding: $space-sm $space-lg;
+  background-color: transparent;
+  color: $color-text-secondary;
+  border: 1px solid $color-border;
+  border-radius: $radius-md;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all $transition-base;
+
+  &:hover {
+    background-color: $color-surface-elevated;
+    border-color: $color-border-light;
+    color: $color-text-primary;
+  }
+
+  &:focus-visible { outline: 2px solid $color-primary; outline-offset: 2px; }
+}

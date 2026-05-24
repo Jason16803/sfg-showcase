@@ -68,10 +68,9 @@
 }
 
 .jobs-page__table {
-  background-color: $color-surface-card;
-  border: 1px solid $color-border;
-  border-radius: $radius-lg;
-  overflow: hidden;
+  // DataTable renders its own border, radius, and overflow.
+  // This wrapper is kept for margin/spacing purposes only.
+  margin-bottom: $space-sm;
 }
 
 .jobs-page__count {
@@ -153,6 +152,34 @@
   text-decoration: underline;
 
   &:hover { color: $color-primary; }
+}
+
+.jobs-page__inline-confirm {
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+}
+
+.jobs-page__inline-confirm-btn {
+  font: inherit;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-semibold;
+  padding: 0 6px;
+  border-radius: $radius-sm;
+  cursor: pointer;
+  border: 1px solid $color-border;
+  background: none;
+  color: $color-text-secondary;
+  margin: 0 1px;
+  transition: all $transition-fast;
+
+  &:hover { color: $color-text-primary; border-color: $color-border-light; }
+
+  &--yes {
+    color: $color-warning;
+    border-color: rgba($color-warning, 0.4);
+    background: rgba($color-warning, 0.08);
+    &:hover { background: rgba($color-warning, 0.18); }
+  }
 }
 
 // ---------------------------------------------------------------------------

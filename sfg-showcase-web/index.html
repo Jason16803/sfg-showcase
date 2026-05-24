@@ -2,9 +2,65 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>sfg-showcase-web</title>
+
+    <!-- ── Favicon ───────────────────────────────────────────────── -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/favicon.svg" />
+
+    <!-- ── Primary meta ──────────────────────────────────────────── -->
+    <title>SmithForgd — Service Operations Platform</title>
+    <meta
+      name="description"
+      content="SmithForgd is a multi-tenant service operations platform for field teams and service businesses — jobs, customers, invoicing, and team management in one dashboard."
+    />
+    <meta name="theme-color" content="#0f172a" />
+    <meta name="color-scheme" content="dark" />
+
+    <!-- ── Open Graph ────────────────────────────────────────────── -->
+    <meta property="og:type"        content="website" />
+    <meta property="og:title"       content="SmithForgd — Service Operations Platform" />
+    <meta property="og:description" content="Multi-tenant service operations dashboard. Jobs, customers, team management, and real-time analytics — built for field teams." />
+    <meta property="og:image"       content="/og-image.png" />
+
+    <!-- ── Twitter / X Card ──────────────────────────────────────── -->
+    <meta name="twitter:card"        content="summary_large_image" />
+    <meta name="twitter:title"       content="SmithForgd — Service Operations Platform" />
+    <meta name="twitter:description" content="Multi-tenant service operations dashboard for field teams." />
+
+    <!-- ── Pre-hydration loading state ───────────────────────────────
+         This CSS spinner renders before React hydrates (no JS needed).
+         The :empty pseudo-class applies while #root has no children.
+         Once React mounts, it inserts children → :empty stops matching
+         → spinner disappears automatically with no React involvement.
+    ─────────────────────────────────────────────────────────────── -->
+    <style>
+      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+      html, body { height: 100%; }
+      body { background-color: #0f172a; }
+
+      #root:empty {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+      }
+
+      #root:empty::after {
+        content: '';
+        width: 40px;
+        height: 40px;
+        border: 3px solid #334155;
+        border-top-color: #6366f1;
+        border-radius: 50%;
+        animation: sfg-init-spin 0.85s linear infinite;
+        flex-shrink: 0;
+      }
+
+      @keyframes sfg-init-spin {
+        to { transform: rotate(360deg); }
+      }
+    </style>
   </head>
   <body>
     <div id="root"></div>

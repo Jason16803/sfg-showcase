@@ -1,8 +1,72 @@
 @use '@/styles/variables' as *;
 
-/* Recharts styling */
-.recharts-text,
-.recharts-label {
+// ---------------------------------------------------------------------------
+// Custom tooltip component
+// ---------------------------------------------------------------------------
+
+.chart-tooltip {
+  background-color: $color-surface-elevated;
+  border: 1px solid $color-border-light;
+  border-radius: $radius-md;
+  padding: $space-sm $space-md;
+  box-shadow: $shadow-lg;
+  font-size: $font-size-xs;
+  min-width: 140px;
+}
+
+.chart-tooltip__label {
+  font-size: $font-size-xs;
+  font-weight: $font-weight-semibold;
+  color: $color-text-muted;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: $space-sm;
+  padding-bottom: $space-xs;
+  border-bottom: 1px solid $color-border;
+}
+
+.chart-tooltip__row {
+  display: flex;
+  align-items: center;
+  gap: $space-sm;
+  padding: 2px 0;
+}
+
+.chart-tooltip__dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.chart-tooltip__name {
+  flex: 1;
+  color: $color-text-secondary;
+  font-size: 11px;
+}
+
+.chart-tooltip__value {
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  font-size: $font-size-xs;
+  letter-spacing: -0.01em;
+}
+
+// ---------------------------------------------------------------------------
+// Recharts global overrides
+// ---------------------------------------------------------------------------
+
+.recharts-text {
+  fill: $color-text-muted;
+}
+
+.recharts-cartesian-axis-tick-value {
+  fill: $color-text-muted;
+  font-size: 11px;
+}
+
+.recharts-legend-wrapper {
+  font-size: $font-size-xs;
   color: $color-text-secondary;
 }
 
@@ -10,9 +74,6 @@
   outline: none;
 }
 
-.recharts-default-tooltip {
-  background-color: $color-surface-card !important;
-  border: 1px solid $color-border !important;
-  border-radius: $radius-md !important;
-  box-shadow: $shadow-lg;
+.recharts-surface {
+  overflow: visible;
 }

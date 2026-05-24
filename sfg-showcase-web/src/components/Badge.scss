@@ -1,35 +1,44 @@
 @use '@/styles/variables' as *;
 
 .badge {
-  display: inline-block;
-  padding: $space-xs $space-md;
-  border-radius: $radius-md;
+  display: inline-flex;
+  align-items: center;
+  padding: 2px $space-sm;
+  border-radius: 999px;          // pill shape — was $radius-md (square)
   font-size: $font-size-xs;
   font-weight: $font-weight-semibold;
   white-space: nowrap;
+  letter-spacing: 0.02em;
+  line-height: 1.5;
+  border: 1px solid transparent; // layout-stable; overridden per variant
 
   &--primary {
-    background-color: rgba($color-primary, 0.1);
+    background-color: rgba($color-primary, 0.12);
     color: $color-primary;
+    border-color: rgba($color-primary, 0.2);
   }
 
   &--success {
-    background-color: rgba($color-success, 0.1);
+    background-color: rgba($color-success, 0.12);
     color: $color-success;
+    border-color: rgba($color-success, 0.2);
   }
 
   &--warning {
-    background-color: rgba($color-warning, 0.1);
-    color: $color-warning;
+    background-color: rgba($color-warning, 0.14);
+    color: #d97706; // amber-600, replaces darken($color-warning, 5%)
+    border-color: rgba($color-warning, 0.25);
   }
 
   &--error {
     background-color: rgba($color-error, 0.1);
     color: $color-error;
+    border-color: rgba($color-error, 0.18);
   }
 
   &--info {
     background-color: rgba(#06b6d4, 0.1);
     color: #06b6d4;
+    border-color: rgba(#06b6d4, 0.18);
   }
 }

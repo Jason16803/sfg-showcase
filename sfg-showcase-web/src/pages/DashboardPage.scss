@@ -1,6 +1,27 @@
 @use '@/styles/variables' as *;
 
 // ---------------------------------------------------------------------------
+// Shimmer animation — used by multiple skeleton types on this page
+// ---------------------------------------------------------------------------
+
+@keyframes shimmer {
+  0%   { background-position: -600px 0; }
+  100% { background-position:  600px 0; }
+}
+
+@mixin shimmer-base {
+  background: linear-gradient(
+    90deg,
+    $color-surface-elevated 25%,
+    $color-border           50%,
+    $color-surface-elevated 75%
+  );
+  background-size: 600px 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+  border-radius: $radius-sm;
+}
+
+// ---------------------------------------------------------------------------
 // Page wrapper
 // ---------------------------------------------------------------------------
 
@@ -14,25 +35,66 @@
 }
 
 // ---------------------------------------------------------------------------
-// Header
+// Section structure
 // ---------------------------------------------------------------------------
 
-.dashboard-page__header {
+.dashboard-page__section {
   margin-bottom: $space-2xl;
 
-  h1 {
-    font-size: $font-size-3xl;
-    margin-bottom: $space-sm;
-  }
-
-  p {
-    color: $color-text-secondary;
-    font-size: $font-size-sm;
-    margin: 0;
+  &--last {
+    margin-bottom: 0;
+    padding-bottom: $space-2xl;
   }
 }
 
-// Inline badge shown when dashboard is running on mock data (no auth/API)
+.dashboard-page__section-title {
+  font-size: $font-size-base;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  margin-bottom: $space-md;
+  display: flex;
+  align-items: baseline;
+  gap: $space-md;
+}
+
+.dashboard-page__section-sub {
+  font-size: $font-size-xs;
+  font-weight: $font-weight-regular;
+  color: $color-text-muted;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+// ---------------------------------------------------------------------------
+// Page header
+// ---------------------------------------------------------------------------
+
+.dashboard-page__header {
+  margin-bottom: $space-xl;
+
+  h1 {
+    font-size: $font-size-2xl;
+    font-weight: $font-weight-bold;
+    color: $color-text-primary;
+    margin-bottom: $space-xs;
+    letter-spacing: -0.02em;
+
+    @media (min-width: $breakpoint-lg) {
+      font-size: $font-size-3xl;
+    }
+  }
+
+  p {
+    color: $color-text-muted;
+    font-size: $font-size-sm;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: $space-sm;
+    flex-wrap: wrap;
+  }
+}
+
 .dashboard-page__demo-badge {
   display: inline-flex;
   align-items: center;
@@ -42,10 +104,8 @@
   background-color: rgba($color-warning, 0.1);
   border: 1px solid rgba($color-warning, 0.25);
   border-radius: 999px;
-  padding: 1px 8px;
-  margin-left: $space-sm;
-  letter-spacing: 0.02em;
-  vertical-align: middle;
+  padding: 2px 8px;
+  letter-spacing: 0.03em;
 }
 
 // ---------------------------------------------------------------------------
@@ -54,57 +114,87 @@
 
 .dashboard-page__metrics {
   display: grid;
-  gap: $space-lg;
-  grid-template-columns: 1fr;
-  margin-bottom: $space-2xl;
-
-  @media (min-width: $breakpoint-md) {
-    grid-template-columns: repeat(2, 1fr);
-  }
+  gap: $space-md;
+  grid-template-columns: 1fr 1fr;
+  margin-bottom: $space-xl;
 
   @media (min-width: $breakpoint-lg) {
     grid-template-columns: repeat(4, 1fr);
+    gap: $space-lg;
   }
 }
 
 // ---------------------------------------------------------------------------
-// Skeleton loading pulse (used while hooks are fetching)
+// Status strip — compact job distribution bar
 // ---------------------------------------------------------------------------
 
-@keyframes dashboard-skeleton-pulse {
-  0%, 100% { opacity: 1; }
-  50%       { opacity: 0.4; }
-}
-
-.dashboard-page__skeleton-card {
-  background-color: $color-surface-card;
-  border: 1px solid $color-border;
-  border-radius: $radius-lg;
-  padding: $space-lg;
+.status-strip {
   display: flex;
-  flex-direction: column;
-  gap: $space-md;
-  animation: dashboard-skeleton-pulse 1.6s ease-in-out infinite;
+  gap: $space-sm;
+  margin-bottom: $space-xl;
+  flex-wrap: wrap;
+  align-items: center;
 }
 
-.dashboard-page__skeleton-line {
-  border-radius: $radius-sm;
-  background-color: $color-surface-elevated;
+.status-strip__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-semibold;
+  border: 1px solid transparent;
+  transition: all $transition-fast;
+  cursor: default;
 
-  &--title {
-    height: 12px;
-    width: 55%;
+  &:hover {
+    filter: brightness(1.1);
+    transform: translateY(-1px);
   }
 
-  &--value {
-    height: 28px;
-    width: 70%;
+  &--inprogress {
+    background: rgba($color-primary, 0.12);
+    color: $color-primary;
+    border-color: rgba($color-primary, 0.2);
   }
 
-  &--sub {
-    height: 10px;
-    width: 40%;
+  &--scheduled {
+    background: rgba(#06b6d4, 0.1);
+    color: #06b6d4;
+    border-color: rgba(#06b6d4, 0.2);
   }
+
+  &--new {
+    background: rgba($color-warning, 0.1);
+    color: #d97706; // amber-600, replaces darken($color-warning, 5%)
+    border-color: rgba($color-warning, 0.2);
+  }
+
+  &--completed {
+    background: rgba($color-success, 0.1);
+    color: $color-success;
+    border-color: rgba($color-success, 0.2);
+  }
+
+  &--canceled {
+    background: rgba($color-error, 0.08);
+    color: $color-error;
+    border-color: rgba($color-error, 0.15);
+  }
+}
+
+.status-strip__count {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-bold;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+.status-strip__label {
+  font-size: $font-size-xs;
+  font-weight: $font-weight-medium;
+  opacity: 0.85;
 }
 
 // ---------------------------------------------------------------------------
@@ -115,10 +205,15 @@
   display: grid;
   gap: $space-lg;
   grid-template-columns: 1fr;
-  margin-bottom: $space-2xl;
+  margin-bottom: 0;
 
-  @media (min-width: $breakpoint-lg) {
-    grid-template-columns: repeat(3, 1fr);
+  @media (min-width: $breakpoint-md) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (min-width: $breakpoint-xl) {
+    // Revenue dominant at 2fr, two smaller charts at 1fr each
+    grid-template-columns: 2fr 1fr 1fr;
   }
 }
 
@@ -129,46 +224,78 @@
   padding: $space-lg;
   transition: border-color $transition-base, box-shadow $transition-base;
 
-  h3 {
-    font-size: $font-size-base;
-    font-weight: $font-weight-semibold;
-    margin-bottom: $space-lg;
-    color: $color-text-primary;
-  }
-
   &:hover {
     border-color: $color-border-light;
     box-shadow: $shadow-md;
   }
+
+  h3 {
+    font-size: $font-size-sm;
+    font-weight: $font-weight-semibold;
+    color: $color-text-primary;
+    margin-bottom: 2px;
+  }
+
+  // Primary chart spans both columns on 2-col layout (< 1280px)
+  @media (min-width: $breakpoint-md) and (max-width: 1279px) {
+    &--primary {
+      grid-column: span 2;
+    }
+  }
+}
+
+.dashboard-page__chart-sub {
+  font-size: $font-size-xs;
+  color: $color-text-muted;
+  margin: 0 0 $space-md;
 }
 
 // ---------------------------------------------------------------------------
-// Content grid: tables + activity feed
+// Skeleton loading
+// ---------------------------------------------------------------------------
+
+.dashboard-page__skeleton-card {
+  background-color: $color-surface-card;
+  border: 1px solid $color-border;
+  border-radius: $radius-lg;
+  padding: $space-lg;
+  display: flex;
+  flex-direction: column;
+  gap: $space-md;
+  min-height: 110px;
+}
+
+.dashboard-page__skeleton-chart {
+  @include shimmer-base;
+  height: 240px;
+  width: 100%;
+  margin-top: $space-sm;
+  border-radius: $radius-md;
+}
+
+.dashboard-page__skeleton-line {
+  @include shimmer-base;
+
+  &--title       { height: 11px; width: 50%; }
+  &--value       { height: 32px; width: 60%; }
+  &--sub         { height: 9px;  width: 35%; }
+  &--chart-title { height: 12px; width: 45%; margin-bottom: $space-xs; }
+}
+
+// ---------------------------------------------------------------------------
+// Content grid: jobs + activity
 // ---------------------------------------------------------------------------
 
 .dashboard-page__content {
   display: grid;
   gap: $space-lg;
   grid-template-columns: 1fr;
-  margin-bottom: $space-2xl;
 
   @media (min-width: $breakpoint-lg) {
     grid-template-columns: 2fr 1fr;
+    align-items: start;
   }
 }
 
-.dashboard-page__main {
-  min-width: 0;
-}
-
-.dashboard-page__sidebar {
-  min-width: 0;
-}
-
-// ---------------------------------------------------------------------------
-// Footer: customer table
-// ---------------------------------------------------------------------------
-
-.dashboard-page__footer {
-  margin-bottom: $space-2xl;
-}
+.dashboard-page__main    { min-width: 0; }
+.dashboard-page__sidebar { min-width: 0; }

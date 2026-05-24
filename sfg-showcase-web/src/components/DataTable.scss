@@ -1,23 +1,59 @@
 @use '@/styles/variables' as *;
 
+// ---------------------------------------------------------------------------
+// Container
+// ---------------------------------------------------------------------------
+
 .data-table {
   background-color: $color-surface-card;
   border: 1px solid $color-border;
   border-radius: $radius-lg;
   overflow: hidden;
+  animation: data-table-in 0.3s ease both;
+}
+
+@keyframes data-table-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+// ---------------------------------------------------------------------------
+// Header row (title + count badge)
+// ---------------------------------------------------------------------------
+
+.data-table__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $space-sm;
+  padding: $space-md $space-lg;
+  border-bottom: 1px solid $color-border;
 }
 
 .data-table__title {
-  padding: $space-lg;
-  border-bottom: 1px solid $color-border;
-  font-size: $font-size-lg;
-  color: $color-text-primary;
+  font-size: $font-size-sm;
   font-weight: $font-weight-semibold;
+  color: $color-text-primary;
   margin: 0;
 }
 
+.data-table__count {
+  font-size: $font-size-xs;
+  color: $color-text-muted;
+  background: $color-surface-elevated;
+  border: 1px solid $color-border;
+  border-radius: 999px;
+  padding: 1px 8px;
+  font-weight: $font-weight-medium;
+}
+
+// ---------------------------------------------------------------------------
+// Table
+// ---------------------------------------------------------------------------
+
 .data-table__wrapper {
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .data-table__table {
@@ -26,27 +62,36 @@
   font-size: $font-size-sm;
 }
 
+// ---------------------------------------------------------------------------
+// Column headers
+// ---------------------------------------------------------------------------
+
 .data-table__header-row {
   background-color: $color-surface-elevated;
   border-bottom: 1px solid $color-border;
 }
 
 .data-table__header-cell {
-  padding: $space-md $space-lg;
+  padding: $space-sm $space-lg;
   text-align: left;
   font-weight: $font-weight-semibold;
   color: $color-text-muted;
   text-transform: uppercase;
   font-size: $font-size-xs;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
 }
+
+// ---------------------------------------------------------------------------
+// Body rows
+// ---------------------------------------------------------------------------
 
 .data-table__row {
   border-bottom: 1px solid $color-border;
-  transition: background-color $transition-base;
+  transition: background-color $transition-fast;
 
   &:hover {
-    background-color: rgba($color-primary, 0.05);
+    background-color: rgba($color-primary, 0.04);
   }
 
   &:last-child {
@@ -55,14 +100,36 @@
 }
 
 .data-table__cell {
-  padding: $space-md $space-lg;
+  padding: $space-sm $space-lg;
   color: $color-text-secondary;
   vertical-align: middle;
+  line-height: 1.4;
+
+  // First column — primary weight and color
+  &--first {
+    color: $color-text-primary;
+    font-weight: $font-weight-medium;
+  }
 }
 
+// ---------------------------------------------------------------------------
+// Empty state
+// ---------------------------------------------------------------------------
+
 .data-table__empty {
+  padding: $space-2xl $space-md;
   text-align: center;
-  padding: $space-xl;
   color: $color-text-muted;
-  font-style: italic;
+  font-size: $font-size-sm;
+  display: table-cell;  // stays as td
+
+  // Flex is not available on <td>, so we use inline-flex trick
+}
+
+.data-table__empty-icon {
+  display: block;
+  font-size: $font-size-3xl;
+  opacity: 0.3;
+  margin-bottom: $space-sm;
+  line-height: 1;
 }

@@ -7,18 +7,26 @@
   position: sticky;
   top: 0;
   z-index: 100;
+  transition: box-shadow $transition-base;
+
+  &--scrolled {
+    box-shadow: $shadow-md;
+  }
 
   &__container {
     @include container-width;
     @include flex-between;
     height: 70px;
+    gap: $space-lg;
   }
+
+  // ── Logo ─────────────────────────────────────────────────────────────────
 
   &__logo {
     display: flex;
     align-items: center;
     text-decoration: none;
-    gap: $space-md;
+    flex-shrink: 0;
   }
 
   &__logo-text {
@@ -27,56 +35,203 @@
     color: $color-primary;
   }
 
+  // ── Desktop nav links ──────────────────────────────────────────────────
+
   &__links {
     display: none;
     list-style: none;
-    gap: $space-xl;
+    gap: $space-xs;
     align-items: center;
+    flex: 1;
 
     @media (min-width: $breakpoint-md) {
       display: flex;
     }
-
-    a {
-      color: $color-text-secondary;
-      transition: color $transition-base;
-
-      &:hover {
-        color: $color-primary;
-      }
-    }
   }
 
-  &__preview-link {
-    color: $color-primary;
-    font-weight: $font-weight-semibold;
-    padding: $space-xs $space-md;
+  &__nav-link {
+    display: block;
+    padding: $space-sm $space-md;
     border-radius: $radius-md;
-    background-color: rgba($color-primary, 0.1);
-    transition: all $transition-base;
+    color: $color-text-secondary;
+    text-decoration: none;
+    font-size: $font-size-sm;
+    font-weight: $font-weight-medium;
+    transition: background-color $transition-base, color $transition-base;
 
     &:hover {
-      background-color: rgba($color-primary, 0.2);
-      color: $color-primary-light;
+      background-color: rgba($color-primary, 0.08);
+      color: $color-primary;
+    }
+
+    &--active {
+      color: $color-primary;
+      font-weight: $font-weight-semibold;
+      background-color: rgba($color-primary, 0.08);
     }
   }
+
+  // ── Actions ───────────────────────────────────────────────────────────
 
   &__actions {
     display: flex;
     align-items: center;
-    gap: $space-lg;
+    gap: $space-md;
+    flex-shrink: 0;
   }
 
   &__link {
     color: $color-text-secondary;
     font-size: $font-size-sm;
-    padding: $space-md $space-lg;
+    font-weight: $font-weight-medium;
+    padding: $space-sm $space-md;
     border-radius: $radius-md;
+    text-decoration: none;
     transition: all $transition-base;
+    display: none;
+
+    @media (min-width: $breakpoint-md) {
+      display: block;
+    }
 
     &:hover {
       color: $color-primary;
-      background-color: rgba($color-primary, 0.1);
+      background-color: rgba($color-primary, 0.08);
     }
+  }
+
+  // ── Hamburger ────────────────────────────────────────────────────────
+
+  &__hamburger {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 36px;
+    height: 36px;
+    padding: 9px 7px;
+    background: none;
+    border: 1px solid $color-border;
+    border-radius: $radius-md;
+    cursor: pointer;
+    transition: all $transition-base;
+
+    @media (min-width: $breakpoint-md) {
+      display: none;
+    }
+
+    span {
+      display: block;
+      height: 2px;
+      width: 100%;
+      background-color: $color-text-secondary;
+      border-radius: 2px;
+      transition: background-color $transition-base;
+    }
+
+    &:hover {
+      background-color: rgba($color-primary, 0.08);
+      border-color: rgba($color-primary, 0.3);
+
+      span {
+        background-color: $color-primary;
+      }
+    }
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Mobile overlay
+// ---------------------------------------------------------------------------
+
+.public-nav__mobile-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 98;
+  backdrop-filter: blur(2px);
+
+  @media (min-width: $breakpoint-md) {
+    display: none;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Mobile drawer
+// ---------------------------------------------------------------------------
+
+.public-nav__mobile-drawer {
+  position: fixed;
+  top: 70px; // match nav height
+  left: 0;
+  right: 0;
+  background-color: $color-surface-card;
+  border-bottom: 1px solid $color-border;
+  z-index: 99;
+  transform: translateY(-8px);
+  opacity: 0;
+  pointer-events: none;
+  transition: transform $transition-base, opacity $transition-base;
+  box-shadow: $shadow-lg;
+
+  &--open {
+    transform: translateY(0);
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  @media (min-width: $breakpoint-md) {
+    display: none;
+  }
+}
+
+.public-nav__mobile-links {
+  list-style: none;
+  padding: $space-md;
+  display: flex;
+  flex-direction: column;
+  gap: $space-xs;
+  border-bottom: 1px solid $color-border;
+}
+
+.public-nav__mobile-link {
+  display: block;
+  padding: $space-md $space-lg;
+  border-radius: $radius-md;
+  color: $color-text-secondary;
+  text-decoration: none;
+  font-size: $font-size-base;
+  font-weight: $font-weight-medium;
+  transition: all $transition-base;
+
+  &:hover {
+    background-color: rgba($color-primary, 0.08);
+    color: $color-primary;
+  }
+
+  &--active {
+    background-color: rgba($color-primary, 0.1);
+    color: $color-primary;
+    font-weight: $font-weight-semibold;
+  }
+}
+
+.public-nav__mobile-footer {
+  padding: $space-md $space-lg;
+}
+
+.public-nav__mobile-cta {
+  display: block;
+  text-align: center;
+  padding: $space-md;
+  background-color: $color-primary;
+  color: #ffffff;
+  border-radius: $radius-md;
+  font-weight: $font-weight-semibold;
+  text-decoration: none;
+  transition: background-color $transition-base;
+
+  &:hover {
+    background-color: $color-primary-dark;
+    color: #ffffff;
   }
 }

@@ -13,6 +13,7 @@ interface DataTableProps<T> {
   columns: Column<T>[]
   title?: string
   emptyMessage?: string
+  emptyIcon?: string
 }
 
 export function DataTable<T extends { id: string }>({
@@ -20,21 +21,29 @@ export function DataTable<T extends { id: string }>({
   columns,
   title,
   emptyMessage = 'No data available',
+  emptyIcon = '📋',
 }: DataTableProps<T>) {
   return (
     <div className="data-table">
-      {title && <h3 className="data-table__title">{title}</h3>}
+      {title && (
+        <div className="data-table__header">
+          <h3 className="data-table__title">{title}</h3>
+          {data.length > 0 && (
+            <span className="data-table__count">{data.length}</span>
+          )}
+        </div>
+      )}
       <div className="data-table__wrapper">
         <table className="data-table__table">
           <thead>
             <tr className="data-table__header-row">
-              {columns.map((column) => (
+              {columns.map((col, i) => (
                 <th
-                  key={String(column.key)}
-                  className="data-table__header-cell"
-                  style={{ width: column.width }}
+                  key={String(col.key)}
+                  className={['data-table__header-cell', i === 0 ? 'data-table__header-cell--first' : ''].filter(Boolean).join(' ')}
+                  style={{ width: col.width }}
                 >
-                  {column.label}
+                  {col.label}
                 </th>
               ))}
             </tr>
@@ -43,21 +52,22 @@ export function DataTable<T extends { id: string }>({
             {data.length === 0 ? (
               <tr>
                 <td colSpan={columns.length} className="data-table__empty">
-                  {emptyMessage}
+                  <span className="data-table__empty-icon" aria-hidden="true">{emptyIcon}</span>
+                  <span>{emptyMessage}</span>
                 </td>
               </tr>
             ) : (
               data.map((row) => (
                 <tr key={row.id} className="data-table__row">
-                  {columns.map((column) => (
+                  {columns.map((col, i) => (
                     <td
-                      key={String(column.key)}
-                      className="data-table__cell"
-                      style={{ width: column.width }}
+                      key={String(col.key)}
+                      className={['data-table__cell', i === 0 ? 'data-table__cell--first' : ''].filter(Boolean).join(' ')}
+                      style={{ width: col.width }}
                     >
-                      {column.render
-                        ? column.render(row[column.key], row)
-                        : String(row[column.key])}
+                      {col.render
+                        ? col.render(row[col.key], row)
+                        : String(row[col.key] ?? '—')}
                     </td>
                   ))}
                 </tr>

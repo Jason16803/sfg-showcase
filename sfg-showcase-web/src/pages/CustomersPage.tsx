@@ -103,6 +103,7 @@ export function CustomersPage() {
   const [search,      setSearch]      = useState('')
   const [statusFilter, setStatusFilter] = useState('')
   const [showAddForm,  setShowAddForm]  = useState(false)
+  const [confirmingReset, setConfirmingReset] = useState(false)
 
   // ── Real API data ─────────────────────────────────────────────────────────
   const { items, pagination, isLoading, isMock } = useCustomers({ limit: 100 })
@@ -186,8 +187,8 @@ export function CustomersPage() {
   }
 
   const handleReset = () => {
-    if (!window.confirm('Reset demo customer changes to baseline?')) return
     resetLocalChanges()
+    setConfirmingReset(false)
   }
 
   return (
@@ -222,13 +223,21 @@ export function CustomersPage() {
             <code>{import.meta.env.VITE_API_URL}/customers</code>.{' '}
             Requires <strong>assistant_manager+</strong> role.
             Adds and deletions are <strong>local only</strong>.
-            {hasLocalChanges && (
+            {hasLocalChanges && !confirmingReset && (
               <>
                 {' '}
-                <button className="customers-page__reset-link" onClick={handleReset}>
+                <button className="customers-page__reset-link" onClick={() => setConfirmingReset(true)}>
                   Reset local changes
                 </button>
               </>
+            )}
+            {confirmingReset && (
+              <span className="customers-page__inline-confirm">
+                {' '}Reset all local changes?{' '}
+                <button className="customers-page__inline-confirm-btn customers-page__inline-confirm-btn--yes" onClick={handleReset}>Yes</button>
+                {' '}
+                <button className="customers-page__inline-confirm-btn" onClick={() => setConfirmingReset(false)}>No</button>
+              </span>
             )}
           </div>
         )}

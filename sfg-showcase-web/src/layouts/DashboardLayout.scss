@@ -13,11 +13,18 @@
 }
 
 // ---------------------------------------------------------------------------
-// Demo mode strip  (spans full width, pinned to top)
+// Demo mode strip  (sticky — spans full width, always visible)
 // ---------------------------------------------------------------------------
 
+// Height is stable at 32px in normal usage. Sidebar and header reference
+// this as their sticky offset via top: 32px.
+$demo-strip-h: 32px;
+
 .dashboard-layout__demo-strip {
-  grid-column: 1 / -1;  // span both sidebar + main
+  grid-column: 1 / -1;
+  position: sticky;
+  top: 0;
+  z-index: 50;          // above sidebar + header, below mobile drawer (201)
   display: flex;
   align-items: center;
   gap: $space-md;
@@ -25,7 +32,8 @@
   background-color: rgba($color-warning, 0.06);
   border-bottom: 1px solid rgba($color-warning, 0.2);
   font-size: $font-size-xs;
-  min-height: 32px;
+  min-height: $demo-strip-h;
+  overflow: hidden;     // prevent content overflow on narrow viewports
 }
 
 .dashboard-layout__demo-label {
@@ -44,6 +52,9 @@
 .dashboard-layout__demo-info {
   flex: 1;
   color: $color-text-muted;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 
   code {
     font-family: 'Courier New', monospace;
@@ -71,8 +82,47 @@
   &:focus-visible { outline: 2px solid $color-warning; outline-offset: 2px; }
 }
 
+// Inline confirm for demo reset — replaces window.confirm()
+.dashboard-layout__demo-confirm {
+  display: flex;
+  align-items: center;
+  gap: $space-sm;
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+  flex-shrink: 0;
+}
+
+.dashboard-layout__demo-confirm-btn {
+  font: inherit;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-semibold;
+  padding: 1px 8px;
+  border-radius: $radius-sm;
+  cursor: pointer;
+  border: 1px solid $color-border;
+  background: $color-surface-card;
+  color: $color-text-secondary;
+  transition: all $transition-fast;
+
+  &:hover {
+    border-color: $color-border-light;
+    color: $color-text-primary;
+  }
+
+  &--yes {
+    background: rgba($color-warning, 0.12);
+    border-color: rgba($color-warning, 0.35);
+    color: $color-warning;
+
+    &:hover {
+      background: rgba($color-warning, 0.22);
+      border-color: $color-warning;
+    }
+  }
+}
+
 // ---------------------------------------------------------------------------
-// Sidebar
+// Desktop Sidebar
 // ---------------------------------------------------------------------------
 
 .dashboard-layout__sidebar {
@@ -82,10 +132,11 @@
   display: flex;
   flex-direction: column;
   position: sticky;
-  top: 0;
-  height: 100vh;
+  top: $demo-strip-h;          // sit flush under the sticky demo strip
+  height: calc(100vh - #{$demo-strip-h}); // fill remaining viewport height
   overflow-y: auto;
 
+  // Hidden on mobile — replaced by drawer
   @media (max-width: $breakpoint-md) {
     display: none;
   }
@@ -98,7 +149,6 @@
   gap: $space-md;
 }
 
-// Wordmark — standalone link, no underline
 .dashboard-layout__wordmark {
   font-size: $font-size-2xl;
   font-weight: $font-weight-bold;
@@ -106,13 +156,130 @@
   text-decoration: none;
   line-height: 1;
 
+  &:hover { color: $color-primary-light; }
+}
+
+// ---------------------------------------------------------------------------
+// Mobile overlay + drawer
+// ---------------------------------------------------------------------------
+
+.dashboard-layout__mobile-overlay {
+  display: none;
+
+  @media (max-width: $breakpoint-md) {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+    z-index: 200;
+    backdrop-filter: blur(2px);
+    animation: fadeOverlay 0.2s ease both;
+  }
+}
+
+@keyframes fadeOverlay {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.dashboard-layout__mobile-drawer {
+  display: none;
+
+  @media (max-width: $breakpoint-md) {
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: min(280px, 80vw);
+    background-color: $color-surface-card;
+    border-right: 1px solid $color-border;
+    z-index: 201;
+    padding: $space-md;
+    overflow-y: auto;
+    transform: translateX(-100%);
+    transition: transform 0.25s ease;
+
+    &--open {
+      transform: translateX(0);
+    }
+  }
+}
+
+.dashboard-layout__mobile-drawer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: $space-md;
+  padding-bottom: $space-md;
+  border-bottom: 1px solid $color-border;
+}
+
+.dashboard-layout__mobile-role {
+  margin-bottom: $space-lg;
+}
+
+.dashboard-layout__mobile-close {
+  background: none;
+  border: 1px solid $color-border;
+  border-radius: $radius-md;
+  color: $color-text-muted;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: $font-size-sm;
+  transition: all $transition-base;
+
   &:hover {
-    color: $color-primary-light;
+    background-color: $color-surface-elevated;
+    color: $color-text-primary;
+    border-color: $color-border-light;
   }
 }
 
 // ---------------------------------------------------------------------------
-// Nav
+// Hamburger button — mobile only, shown in header
+// ---------------------------------------------------------------------------
+
+.dashboard-layout__hamburger {
+  display: none;
+
+  @media (max-width: $breakpoint-md) {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 36px;
+    height: 36px;
+    padding: 9px 7px;
+    background: none;
+    border: 1px solid $color-border;
+    border-radius: $radius-md;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: all $transition-base;
+
+    &:hover {
+      background-color: $color-surface-elevated;
+      border-color: $color-border-light;
+    }
+
+    span {
+      display: block;
+      height: 2px;
+      width: 100%;
+      background-color: $color-text-secondary;
+      border-radius: 2px;
+      transition: background-color $transition-base;
+    }
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Nav (shared by desktop sidebar and mobile drawer)
 // ---------------------------------------------------------------------------
 
 .dashboard-layout__nav {
@@ -145,7 +312,6 @@
     color: $color-text-primary;
   }
 
-  // Active state — implemented route the user is on
   &--active {
     background-color: rgba($color-primary, 0.1);
     color: $color-primary;
@@ -163,7 +329,6 @@
     }
   }
 
-  // Pending state — route not yet implemented
   &--pending {
     color: $color-text-muted;
     cursor: default;
@@ -175,7 +340,6 @@
   }
 }
 
-// "Soon" badge on pending nav items
 .dashboard-layout__nav-soon {
   font-size: $font-size-xs;
   font-weight: $font-weight-semibold;
@@ -196,6 +360,7 @@
 .dashboard-layout__sidebar-footer {
   border-top: 1px solid $color-border;
   padding-top: $space-lg;
+  margin-top: auto;
 }
 
 .dashboard-layout__logout {
@@ -231,7 +396,7 @@
   display: flex;
   flex-direction: column;
   background-color: $color-surface-bg;
-  min-width: 0; // prevent overflow in grid
+  min-width: 0;
 }
 
 // ---------------------------------------------------------------------------
@@ -243,7 +408,7 @@
   border-bottom: 1px solid $color-border;
   padding: $space-lg $space-md;
   position: sticky;
-  top: 0;
+  top: $demo-strip-h;  // sit under sticky demo strip
   z-index: 10;
 
   @media (min-width: $breakpoint-lg) {
@@ -257,7 +422,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: $space-lg;
+  gap: $space-md;
 }
 
 .dashboard-layout__header-text {
@@ -270,12 +435,21 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+
+    @media (max-width: $breakpoint-sm) {
+      font-size: $font-size-lg;
+    }
   }
 
   p {
     font-size: $font-size-sm;
     color: $color-text-muted;
     margin: 0;
+
+    // Hide date on very small screens
+    @media (max-width: $breakpoint-sm) {
+      display: none;
+    }
   }
 }
 
@@ -286,6 +460,16 @@
   padding-left: $space-lg;
   border-left: 1px solid $color-border;
   flex-shrink: 0;
+
+  // Collapse to avatar only on small screens
+  @media (max-width: $breakpoint-sm) {
+    padding-left: $space-sm;
+    border-left: none;
+
+    > div:last-child {
+      display: none;
+    }
+  }
 }
 
 .dashboard-layout__user-avatar {
@@ -324,5 +508,5 @@
 
 .dashboard-layout__main {
   flex: 1;
-  min-width: 0; // prevent overflow in flex column
+  min-width: 0;
 }

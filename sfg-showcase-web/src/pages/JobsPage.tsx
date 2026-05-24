@@ -126,6 +126,7 @@ function AddJobForm({ onAdd, onCancel }: AddJobFormProps) {
 export function JobsPage() {
   const [statusFilter, setStatusFilter] = useState('')
   const [showAddForm,  setShowAddForm]  = useState(false)
+  const [confirmingReset, setConfirmingReset] = useState(false)
 
   // ── Real API data ─────────────────────────────────────────────────────────
   // Fetch without status filter; we apply filtering client-side on displayJobs
@@ -217,8 +218,8 @@ export function JobsPage() {
   }
 
   const handleReset = () => {
-    if (!window.confirm('Reset demo job changes to baseline? Local additions will be removed.')) return
     resetLocalChanges()
+    setConfirmingReset(false)
   }
 
   return (
@@ -252,13 +253,21 @@ export function JobsPage() {
             <strong>Live data</strong> from{' '}
             <code>{import.meta.env.VITE_API_URL}/jobs</code>.{' '}
             Adds and deletions are <strong>local only</strong> and reset on reload.
-            {hasLocalChanges && (
+            {hasLocalChanges && !confirmingReset && (
               <>
                 {' '}
-                <button className="jobs-page__reset-link" onClick={handleReset}>
+                <button className="jobs-page__reset-link" onClick={() => setConfirmingReset(true)}>
                   Reset local changes
                 </button>
               </>
+            )}
+            {confirmingReset && (
+              <span className="jobs-page__inline-confirm">
+                {' '}Reset all local changes?{' '}
+                <button className="jobs-page__inline-confirm-btn jobs-page__inline-confirm-btn--yes" onClick={handleReset}>Yes</button>
+                {' '}
+                <button className="jobs-page__inline-confirm-btn" onClick={() => setConfirmingReset(false)}>No</button>
+              </span>
             )}
           </div>
         )}

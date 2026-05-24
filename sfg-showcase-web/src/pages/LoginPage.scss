@@ -122,6 +122,30 @@
 }
 
 // ---------------------------------------------------------------------------
+// Session ended notice — shown when redirected from a protected route
+// ---------------------------------------------------------------------------
+
+.login-page__session-notice {
+  display: flex;
+  align-items: center;
+  gap: $space-sm;
+  padding: $space-md;
+  border-radius: $radius-md;
+  background-color: rgba($color-primary, 0.07);
+  border: 1px solid rgba($color-primary, 0.2);
+  color: $color-text-secondary;
+  font-size: $font-size-sm;
+  line-height: $line-height-normal;
+  margin-bottom: $space-lg;
+}
+
+.login-page__session-notice-icon {
+  font-size: $font-size-base;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+// ---------------------------------------------------------------------------
 // Server auth error banner
 // ---------------------------------------------------------------------------
 

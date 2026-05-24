@@ -1,15 +1,35 @@
 @use '@/styles/variables' as *;
 
+// ---------------------------------------------------------------------------
+// Hero section
+// ---------------------------------------------------------------------------
+
 .demo-banner {
   padding: $space-3xl $space-md;
   background: linear-gradient(
-    135deg,
-    rgba($color-primary, 0.05) 0%,
-    rgba(6, 182, 212, 0.05) 100%
+    160deg,
+    $color-surface-bg 0%,
+    rgba($color-primary, 0.06) 50%,
+    rgba(6, 182, 212, 0.04) 100%
   );
+  border-bottom: 1px solid $color-border;
+  position: relative;
+  overflow: hidden;
+
+  // Subtle radial glow behind text
+  &::before {
+    content: '';
+    position: absolute;
+    top: -20%;
+    left: -10%;
+    width: 60%;
+    height: 80%;
+    background: radial-gradient(ellipse, rgba($color-primary, 0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
 
   @media (min-width: $breakpoint-lg) {
-    padding: $space-3xl $space-xl;
+    padding: 6rem $space-xl;
   }
 }
 
@@ -18,11 +38,17 @@
   gap: $space-3xl;
   align-items: center;
   grid-template-columns: 1fr;
+  position: relative;
 
   @media (min-width: $breakpoint-lg) {
     grid-template-columns: 1fr 1fr;
+    gap: 5rem;
   }
 }
+
+// ---------------------------------------------------------------------------
+// Text side
+// ---------------------------------------------------------------------------
 
 .demo-banner__text {
   display: flex;
@@ -30,34 +56,93 @@
   gap: $space-lg;
 }
 
+.demo-banner__eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: $space-sm;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-semibold;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: $color-primary;
+  background: rgba($color-primary, 0.1);
+  border: 1px solid rgba($color-primary, 0.2);
+  border-radius: 999px;
+  padding: 4px 12px;
+  width: fit-content;
+}
+
+.demo-banner__eyebrow-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: $color-success;
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.6; transform: scale(0.85); }
+}
+
 .demo-banner__title {
-  font-size: $font-size-3xl;
+  font-size: clamp(2.25rem, 5vw, 3.5rem);
   color: $color-text-primary;
   font-weight: $font-weight-bold;
-  line-height: $line-height-tight;
+  line-height: 1.1;
+  letter-spacing: -0.025em;
+  margin: 0;
+}
 
-  @media (min-width: $breakpoint-md) {
-    font-size: $font-size-4xl;
-  }
+.demo-banner__title-accent {
+  background: linear-gradient(135deg, $color-primary 0%, $color-primary-light 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .demo-banner__description {
   font-size: $font-size-lg;
   color: $color-text-secondary;
   line-height: $line-height-relaxed;
-  max-width: 600px;
+  max-width: 520px;
+  margin: 0;
+}
+
+.demo-banner__proof-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $space-lg;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+
+  li {
+    font-size: $font-size-sm;
+    color: $color-text-muted;
+  }
+
+  strong {
+    color: $color-text-primary;
+    font-weight: $font-weight-bold;
+  }
 }
 
 .demo-banner__actions {
   display: flex;
   flex-wrap: wrap;
   gap: $space-md;
-  margin-top: $space-md;
-
-  @media (min-width: $breakpoint-md) {
-    gap: $space-lg;
-  }
 }
+
+.demo-banner__hint {
+  font-size: $font-size-xs;
+  color: $color-text-muted;
+  margin: 0;
+}
+
+// ---------------------------------------------------------------------------
+// Visual side — dashboard preview illustration
+// ---------------------------------------------------------------------------
 
 .demo-banner__visual {
   display: flex;
@@ -68,11 +153,32 @@
 .demo-banner__dashboard-preview {
   width: 100%;
   max-width: 500px;
+  background: $color-surface-card;
   border: 1px solid $color-border;
   border-radius: $radius-lg;
   overflow: hidden;
-  background: linear-gradient(135deg, $color-surface-card 0%, rgba($color-primary, 0.05) 100%);
-  box-shadow: $shadow-xl;
+  box-shadow: $shadow-xl, 0 0 0 1px rgba($color-primary, 0.08);
+}
+
+// Window chrome dots
+.demo-banner__window-chrome {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: $space-md $space-lg;
+  border-bottom: 1px solid $color-border;
+  background: $color-surface-elevated;
+
+  span {
+    display: block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+
+    &:nth-child(1) { background: #ef4444; }
+    &:nth-child(2) { background: $color-warning; }
+    &:nth-child(3) { background: $color-success; }
+  }
 }
 
 .demo-banner__preview-header {
@@ -81,10 +187,11 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: $space-md;
 }
 
 .demo-banner__preview-title {
-  font-size: $font-size-base;
+  font-size: $font-size-sm;
   font-weight: $font-weight-semibold;
   color: $color-text-primary;
 }
@@ -93,11 +200,27 @@
   display: flex;
   gap: $space-lg;
   font-size: $font-size-xs;
-}
 
-.demo-banner__preview-nav-item {
-  color: $color-text-muted;
-  opacity: 0.6;
+  span {
+    color: $color-text-muted;
+
+    &:first-child {
+      color: $color-primary;
+      font-weight: $font-weight-semibold;
+      position: relative;
+
+      &::after {
+        content: '';
+        position: absolute;
+        bottom: -9px;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: $color-primary;
+        border-radius: 1px;
+      }
+    }
+  }
 }
 
 .demo-banner__preview-metrics {
@@ -110,23 +233,24 @@
 
 .demo-banner__metric {
   padding: $space-md;
-  background-color: rgba($color-primary, 0.05);
+  background-color: rgba($color-primary, 0.04);
   border-radius: $radius-md;
-  border: 1px solid rgba($color-primary, 0.1);
+  border: 1px solid rgba($color-primary, 0.08);
 }
 
 .demo-banner__metric-label {
   font-size: $font-size-xs;
   color: $color-text-muted;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.06em;
   margin-bottom: $space-xs;
 }
 
 .demo-banner__metric-value {
-  font-size: $font-size-lg;
+  font-size: $font-size-xl;
   font-weight: $font-weight-bold;
   color: $color-primary;
+  letter-spacing: -0.02em;
 }
 
 .demo-banner__preview-chart {
@@ -134,38 +258,40 @@
   display: flex;
   align-items: flex-end;
   justify-content: space-around;
-  gap: $space-md;
-  height: 100px;
+  gap: $space-sm;
+  height: 90px;
+  border-bottom: 1px solid $color-border;
 }
 
 .demo-banner__chart-bar {
-  width: 8%;
-  min-width: 12px;
-  background: linear-gradient(180deg, $color-primary 0%, $color-primary-light 100%);
+  flex: 1;
+  min-width: 10px;
+  background: linear-gradient(180deg, $color-primary 0%, rgba($color-primary, 0.4) 100%);
   border-radius: $radius-sm $radius-sm 0 0;
-  opacity: 0.7;
+  opacity: 0.8;
 
-  &:nth-child(1) {
-    opacity: 0.5;
-  }
+  &:last-child  { opacity: 1; }
+  &:nth-child(4) { opacity: 0.9; }
+  &:nth-child(3) { opacity: 0.75; }
+  &:nth-child(2) { opacity: 0.65; }
+  &:nth-child(1) { opacity: 0.55; }
+}
 
-  &:nth-child(2) {
-    opacity: 0.6;
-  }
+.demo-banner__preview-status {
+  padding: $space-md $space-lg;
+  display: flex;
+  align-items: center;
+  gap: $space-sm;
+  font-size: $font-size-xs;
+  color: $color-text-muted;
+}
 
-  &:nth-child(3) {
-    opacity: 0.75;
-  }
+.demo-banner__status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
 
-  &:nth-child(4) {
-    opacity: 0.65;
-  }
-
-  &:nth-child(5) {
-    opacity: 0.85;
-  }
-
-  &:nth-child(6) {
-    opacity: 0.9;
-  }
+  &--green { background: $color-success; }
+  &--amber { background: $color-warning; margin-left: $space-sm; }
 }

@@ -6,10 +6,10 @@ import { DashboardLayout } from '@/layouts/DashboardLayout'
 import {
   HomePage, LoginPage, SignupPage, OAuthCallbackPage,
   DashboardPage, CustomersPage, JobsPage, TeamPage, SettingsPage, ReportsPage,
+  AboutPage, ContactPage,
 } from '@/pages'
 import { useAuthStore } from '@/store/authStore'
 
-// Redirect authenticated users away from auth pages
 function RedirectIfAuthed({ children }: { children: ReactNode }) {
   const { isAuthenticated, isLoading } = useAuthStore()
   if (isLoading) return null
@@ -23,14 +23,11 @@ export function AppRouter() {
       <Routes>
         {/* ── Public routes ──────────────────────────────────────────── */}
         <Route element={<PublicLayout />}>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/login"  element={<RedirectIfAuthed><LoginPage /></RedirectIfAuthed>} />
-          <Route path="/signup" element={<RedirectIfAuthed><SignupPage /></RedirectIfAuthed>} />
-
-          {/*
-           * OAuth callback — placeholder; backend endpoint not yet implemented.
-           * See docs/google-oauth-plan.md for activation checklist.
-           */}
+          <Route path="/"        element={<HomePage />} />
+          <Route path="/about"   element={<AboutPage />} />
+          <Route path="/contact" element={<ContactPage />} />
+          <Route path="/login"   element={<RedirectIfAuthed><LoginPage /></RedirectIfAuthed>} />
+          <Route path="/signup"  element={<RedirectIfAuthed><SignupPage /></RedirectIfAuthed>} />
           <Route path="/oauth/callback" element={<OAuthCallbackPage />} />
         </Route>
 

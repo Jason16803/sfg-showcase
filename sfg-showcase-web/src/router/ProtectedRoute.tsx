@@ -1,4 +1,4 @@
-import { Navigate, Outlet } from 'react-router-dom'
+import { Navigate, Outlet, useLocation } from 'react-router-dom'
 import type { ReactNode } from 'react'
 import { useAuthStore } from '@/store/authStore'
 import './ProtectedRoute.scss'
@@ -10,24 +10,23 @@ interface ProtectedRouteProps {
 /**
  * ProtectedRoute
  *
- * Wraps routes that require a valid JWT and authenticated user.
+ * Guards routes that require a valid JWT + authenticated user.
  *
  * States:
- *   isLoading:true       → render spinner (hydrateAuth() in flight)
- *   isAuthenticated:true → render children or <Outlet /> (layout routes)
- *   isAuthenticated:false → redirect to /login (no token, or token was cleared)
+ *   isLoading:true        → spinner (hydrateAuth in flight)
+ *   isAuthenticated:true  → render children or <Outlet />
+ *   isAuthenticated:false → redirect to /login WITH { state: { from } }
  *
- * Used in two patterns in AppRouter:
- *   1. Layout wrap:  <ProtectedRoute><DashboardLayout /></ProtectedRoute>
- *      DashboardLayout renders <Outlet /> — nested routes inject into it.
- *   2. Direct wrap:  <ProtectedRoute><SomePage /></ProtectedRoute>
+ * The `from` location state is consumed by LoginPage to:
+ *   a) Redirect back to the intended route after successful login
+ *   b) Detect that the user was redirected mid-session (show "session ended" notice)
  *
- * Security note: frontend route hiding is NOT a security boundary.
- * All API routes enforce requireAuth() + requireRole() on the backend.
- * This component only provides the UX redirect; it does not grant access.
+ * Security note: this is a UX gate only.
+ * All real access control is enforced by requireAuth() + requireRole() on the backend.
  */
 export function ProtectedRoute({ children }: ProtectedRouteProps) {
   const { isAuthenticated, isLoading } = useAuthStore()
+  const location = useLocation()
 
   if (isLoading) {
     return (
@@ -41,11 +40,11 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
   }
 
   if (!isAuthenticated) {
-    return <Navigate to="/login" replace />
+    // Pass the current location so LoginPage can:
+    //   1. Redirect back here after login
+    //   2. Show a "session ended" notice if the user was already authenticated
+    return <Navigate to="/login" state={{ from: location }} replace />
   }
 
-  // Support both layout routes (children = <DashboardLayout /> which has <Outlet />)
-  // and direct child wrapping. If children is provided, render it; otherwise
-  // render <Outlet /> for nested route injection.
   return children ? <>{children}</> : <Outlet />
 }
