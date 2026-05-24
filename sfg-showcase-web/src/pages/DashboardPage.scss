@@ -1,5 +1,9 @@
 @use '@/styles/variables' as *;
 
+// ---------------------------------------------------------------------------
+// Page wrapper
+// ---------------------------------------------------------------------------
+
 .dashboard-page {
   flex: 1;
   padding: $space-lg $space-md;
@@ -9,18 +13,44 @@
   }
 }
 
+// ---------------------------------------------------------------------------
+// Header
+// ---------------------------------------------------------------------------
+
 .dashboard-page__header {
   margin-bottom: $space-2xl;
 
   h1 {
     font-size: $font-size-3xl;
-    margin-bottom: $space-md;
+    margin-bottom: $space-sm;
   }
 
   p {
     color: $color-text-secondary;
+    font-size: $font-size-sm;
+    margin: 0;
   }
 }
+
+// Inline badge shown when dashboard is running on mock data (no auth/API)
+.dashboard-page__demo-badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-semibold;
+  color: $color-warning;
+  background-color: rgba($color-warning, 0.1);
+  border: 1px solid rgba($color-warning, 0.25);
+  border-radius: 999px;
+  padding: 1px 8px;
+  margin-left: $space-sm;
+  letter-spacing: 0.02em;
+  vertical-align: middle;
+}
+
+// ---------------------------------------------------------------------------
+// Metrics grid
+// ---------------------------------------------------------------------------
 
 .dashboard-page__metrics {
   display: grid;
@@ -36,6 +66,50 @@
     grid-template-columns: repeat(4, 1fr);
   }
 }
+
+// ---------------------------------------------------------------------------
+// Skeleton loading pulse (used while hooks are fetching)
+// ---------------------------------------------------------------------------
+
+@keyframes dashboard-skeleton-pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}
+
+.dashboard-page__skeleton-card {
+  background-color: $color-surface-card;
+  border: 1px solid $color-border;
+  border-radius: $radius-lg;
+  padding: $space-lg;
+  display: flex;
+  flex-direction: column;
+  gap: $space-md;
+  animation: dashboard-skeleton-pulse 1.6s ease-in-out infinite;
+}
+
+.dashboard-page__skeleton-line {
+  border-radius: $radius-sm;
+  background-color: $color-surface-elevated;
+
+  &--title {
+    height: 12px;
+    width: 55%;
+  }
+
+  &--value {
+    height: 28px;
+    width: 70%;
+  }
+
+  &--sub {
+    height: 10px;
+    width: 40%;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Charts grid
+// ---------------------------------------------------------------------------
 
 .dashboard-page__charts {
   display: grid;
@@ -53,10 +127,11 @@
   border: 1px solid $color-border;
   border-radius: $radius-lg;
   padding: $space-lg;
-  transition: all $transition-base;
+  transition: border-color $transition-base, box-shadow $transition-base;
 
   h3 {
-    font-size: $font-size-lg;
+    font-size: $font-size-base;
+    font-weight: $font-weight-semibold;
     margin-bottom: $space-lg;
     color: $color-text-primary;
   }
@@ -66,6 +141,10 @@
     box-shadow: $shadow-md;
   }
 }
+
+// ---------------------------------------------------------------------------
+// Content grid: tables + activity feed
+// ---------------------------------------------------------------------------
 
 .dashboard-page__content {
   display: grid;
@@ -85,6 +164,10 @@
 .dashboard-page__sidebar {
   min-width: 0;
 }
+
+// ---------------------------------------------------------------------------
+// Footer: customer table
+// ---------------------------------------------------------------------------
 
 .dashboard-page__footer {
   margin-bottom: $space-2xl;

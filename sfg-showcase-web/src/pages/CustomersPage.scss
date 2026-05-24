@@ -1,0 +1,311 @@
+@use '@/styles/variables' as *;
+
+.customers-page {
+  flex: 1;
+  padding: $space-lg $space-md;
+
+  @media (min-width: $breakpoint-lg) { padding: $space-xl; }
+}
+
+.customers-page__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: $space-xl;
+
+  h1 { font-size: $font-size-3xl; margin-bottom: $space-sm; }
+
+  p {
+    font-size: $font-size-sm;
+    color: $color-text-secondary;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: $space-sm;
+  }
+}
+
+.customers-page__demo-badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-semibold;
+  color: $color-warning;
+  background-color: rgba($color-warning, 0.1);
+  border: 1px solid rgba($color-warning, 0.25);
+  border-radius: 999px;
+  padding: 1px 8px;
+}
+
+.customers-page__filters {
+  display: flex;
+  gap: $space-md;
+  margin-bottom: $space-xl;
+  flex-wrap: wrap;
+
+  @media (min-width: $breakpoint-md) { flex-wrap: nowrap; }
+}
+
+.customers-page__search {
+  flex: 1;
+  min-width: 200px;
+}
+
+.customers-page__status-filter {
+  width: 160px;
+  flex-shrink: 0;
+}
+
+.customers-page__table {
+  background-color: $color-surface-card;
+  border: 1px solid $color-border;
+  border-radius: $radius-lg;
+  overflow: hidden;
+}
+
+.customers-page__count {
+  font-size: $font-size-sm;
+  color: $color-text-muted;
+  margin-top: $space-md;
+  text-align: right;
+}
+
+.customers-page__local-count {
+  color: $color-warning;
+}
+
+// ---------------------------------------------------------------------------
+// Role-gated add button
+// ---------------------------------------------------------------------------
+
+.customers-page__add-btn {
+  padding: $space-sm $space-lg;
+  background-color: rgba($color-primary, 0.12);
+  border: 1px solid rgba($color-primary, 0.35);
+  border-radius: $radius-md;
+  color: $color-primary-light;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all $transition-base;
+  flex-shrink: 0;
+
+  &:hover {
+    background-color: rgba($color-primary, 0.2);
+    border-color: $color-primary;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $color-primary;
+    outline-offset: 2px;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Demo / role notices
+// ---------------------------------------------------------------------------
+
+.customers-page__demo-notice,
+.customers-page__role-notice {
+  padding: $space-sm $space-md;
+  border-radius: $radius-md;
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+  margin-bottom: $space-lg;
+  line-height: $line-height-normal;
+
+  strong { color: $color-text-primary; }
+  em { font-style: normal; color: $color-primary-light; }
+  code {
+    font-family: 'Courier New', monospace;
+    border-radius: $radius-sm;
+    padding: 1px 4px;
+    font-size: 0.9em;
+  }
+}
+
+.customers-page__demo-notice {
+  background-color: rgba($color-primary, 0.06);
+  border: 1px solid rgba($color-primary, 0.18);
+  code { background-color: rgba($color-primary, 0.1); }
+}
+
+.customers-page__role-notice {
+  background-color: rgba($color-warning, 0.06);
+  border: 1px solid rgba($color-warning, 0.2);
+}
+
+.customers-page__reset-link {
+  color: $color-primary-light;
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-semibold;
+  cursor: pointer;
+  text-decoration: underline;
+
+  &:hover { color: $color-primary; }
+}
+
+// ---------------------------------------------------------------------------
+// Local-only badge
+// ---------------------------------------------------------------------------
+
+.customers-page__local-badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.65rem;
+  font-weight: $font-weight-semibold;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: $color-warning;
+  background-color: rgba($color-warning, 0.1);
+  border: 1px solid rgba($color-warning, 0.25);
+  border-radius: $radius-sm;
+  padding: 1px 5px;
+  margin-left: $space-sm;
+  vertical-align: middle;
+}
+
+.customers-page__name-cell {
+  display: inline-flex;
+  align-items: center;
+}
+
+// ---------------------------------------------------------------------------
+// Per-row delete button
+// ---------------------------------------------------------------------------
+
+.customers-page__delete-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: $radius-sm;
+  border: 1px solid transparent;
+  background: none;
+  color: $color-text-muted;
+  font-size: $font-size-lg;
+  line-height: 1;
+  cursor: pointer;
+  transition: all $transition-base;
+  font-family: inherit;
+
+  &:hover {
+    color: $color-error;
+    border-color: rgba($color-error, 0.35);
+    background-color: rgba($color-error, 0.07);
+  }
+
+  &:focus-visible {
+    outline: 2px solid $color-error;
+    outline-offset: 2px;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Inline add form
+// ---------------------------------------------------------------------------
+
+.customers-page__add-form {
+  background-color: $color-surface-card;
+  border: 1px solid rgba($color-primary, 0.25);
+  border-radius: $radius-lg;
+  padding: $space-lg;
+  margin-bottom: $space-lg;
+}
+
+.customers-page__add-form-title {
+  font-size: $font-size-base;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  margin-bottom: $space-lg;
+  display: flex;
+  align-items: center;
+  gap: $space-sm;
+}
+
+.customers-page__add-form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: $space-md;
+  margin-bottom: $space-lg;
+
+  @media (max-width: $breakpoint-md) { grid-template-columns: 1fr; }
+}
+
+.customers-page__add-form-field {
+  display: flex;
+  flex-direction: column;
+  gap: $space-xs;
+}
+
+.customers-page__add-form-label {
+  font-size: $font-size-xs;
+  font-weight: $font-weight-semibold;
+  color: $color-text-secondary;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.customers-page__add-form-input {
+  padding: $space-sm $space-md;
+  background-color: $color-surface-elevated;
+  border: 1px solid $color-border;
+  border-radius: $radius-md;
+  color: $color-text-primary;
+  font-size: $font-size-sm;
+  font-family: inherit;
+  transition: border-color $transition-base;
+
+  &:focus {
+    outline: none;
+    border-color: $color-primary;
+    box-shadow: 0 0 0 2px rgba($color-primary, 0.2);
+  }
+
+  option { background-color: $color-surface-card; }
+}
+
+.customers-page__add-form-actions {
+  display: flex;
+  gap: $space-md;
+}
+
+.customers-page__add-form-submit {
+  padding: $space-sm $space-xl;
+  background-color: $color-primary;
+  border: none;
+  border-radius: $radius-md;
+  color: #ffffff;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background-color $transition-base;
+
+  &:hover { background-color: $color-primary-dark; }
+  &:focus-visible { outline: 2px solid $color-primary; outline-offset: 2px; }
+}
+
+.customers-page__add-form-cancel {
+  padding: $space-sm $space-lg;
+  background-color: transparent;
+  border: 1px solid $color-border;
+  border-radius: $radius-md;
+  color: $color-text-secondary;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all $transition-base;
+
+  &:hover {
+    border-color: $color-border-light;
+    color: $color-text-primary;
+  }
+}

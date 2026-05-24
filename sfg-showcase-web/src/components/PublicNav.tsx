@@ -9,25 +9,12 @@ export function PublicNav() {
           <span className="public-nav__logo-text">SFG</span>
         </Link>
         <ul className="public-nav__links">
-          <li>
-            <a href="#features">Features</a>
-          </li>
-          <li>
-            <a href="#about">About</a>
-          </li>
-          <li>
-            <a href="#contact">Contact</a>
-          </li>
-          <li>
-            <Link to="/showcase-dashboard" className="public-nav__preview-link">
-              View Dashboard Preview
-            </Link>
-          </li>
+          <li><a href="#features">Features</a></li>
+          <li><a href="#about">About</a></li>
+          <li><a href="#contact">Contact</a></li>
         </ul>
         <div className="public-nav__actions">
-          <Link to="/login" className="public-nav__link">
-            Sign In
-          </Link>
+          <Link to="/login" className="public-nav__link">Sign In</Link>
         </div>
       </div>
     </nav>

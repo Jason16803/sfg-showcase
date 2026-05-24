@@ -1,0 +1,197 @@
+@use '@/styles/variables' as *;
+
+.team-page {
+  flex: 1;
+  padding: $space-lg $space-md;
+
+  @media (min-width: $breakpoint-lg) { padding: $space-xl; }
+}
+
+.team-page__header {
+  margin-bottom: $space-xl;
+
+  h1 { font-size: $font-size-3xl; margin-bottom: $space-sm; }
+
+  p {
+    font-size: $font-size-sm;
+    color: $color-text-secondary;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: $space-sm;
+  }
+}
+
+.team-page__demo-badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-semibold;
+  color: $color-warning;
+  background-color: rgba($color-warning, 0.1);
+  border: 1px solid rgba($color-warning, 0.25);
+  border-radius: 999px;
+  padding: 1px 8px;
+}
+
+// Member list
+.team-page__list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: $space-sm;
+}
+
+.team-page__member {
+  display: flex;
+  align-items: center;
+  gap: $space-lg;
+  padding: $space-lg;
+  background-color: $color-surface-card;
+  border: 1px solid $color-border;
+  border-radius: $radius-lg;
+  transition: border-color $transition-base;
+
+  &:hover { border-color: $color-border-light; }
+
+  &--current {
+    border-color: rgba($color-primary, 0.3);
+    background-color: rgba($color-primary, 0.03);
+  }
+
+  @media (max-width: $breakpoint-md) {
+    flex-wrap: wrap;
+    gap: $space-md;
+  }
+}
+
+.team-page__avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: $radius-md;
+  background: linear-gradient(135deg, $color-primary, $color-primary-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: $font-weight-bold;
+  font-size: $font-size-sm;
+  color: #fff;
+  flex-shrink: 0;
+  user-select: none;
+}
+
+.team-page__member-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.team-page__name-row {
+  display: flex;
+  align-items: center;
+  gap: $space-sm;
+  flex-wrap: wrap;
+  margin-bottom: $space-xs;
+}
+
+.team-page__name {
+  font-size: $font-size-base;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  display: flex;
+  align-items: center;
+  gap: $space-sm;
+}
+
+.team-page__you {
+  font-size: $font-size-xs;
+  font-weight: $font-weight-semibold;
+  color: $color-primary;
+  background-color: rgba($color-primary, 0.1);
+  border: 1px solid rgba($color-primary, 0.2);
+  border-radius: 999px;
+  padding: 0 6px;
+}
+
+.team-page__role-badge {
+  font-size: $font-size-xs;
+}
+
+.team-page__email {
+  font-size: $font-size-sm;
+  color: $color-text-muted;
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.team-page__meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: $space-sm;
+  flex-shrink: 0;
+
+  @media (max-width: $breakpoint-md) {
+    flex-direction: row;
+    align-items: center;
+  }
+}
+
+.team-page__last-login {
+  font-size: $font-size-xs;
+  color: $color-text-muted;
+  white-space: nowrap;
+}
+
+// Empty state
+.team-page__empty {
+  padding: $space-2xl;
+  text-align: center;
+  background-color: $color-surface-card;
+  border: 1px solid $color-border;
+  border-radius: $radius-lg;
+
+  p { font-size: $font-size-sm; color: $color-text-muted; margin: 0; }
+}
+
+// Loading skeleton
+@keyframes team-pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.45; }
+}
+
+.team-page__loading { display: flex; flex-direction: column; gap: $space-sm; }
+
+.team-page__skeleton-row {
+  display: flex;
+  align-items: center;
+  gap: $space-lg;
+  padding: $space-lg;
+  background-color: $color-surface-card;
+  border: 1px solid $color-border;
+  border-radius: $radius-lg;
+  animation: team-pulse 1.6s ease-in-out infinite;
+}
+
+.team-page__skeleton-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: $radius-md;
+  background-color: $color-surface-elevated;
+  flex-shrink: 0;
+}
+
+.team-page__skeleton-content {
+  display: flex;
+  flex-direction: column;
+  gap: $space-sm;
+  flex: 1;
+}
+
+.team-page__skeleton-line {
+  border-radius: $radius-sm;
+  background-color: $color-surface-elevated;
+  &--name  { height: 14px; width: 40%; }
+  &--email { height: 11px; width: 60%; }
+}

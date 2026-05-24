@@ -1,3 +1,25 @@
+/**
+ * Charts.tsx
+ *
+ * Recharts-based chart components for the dashboard.
+ *
+ * CURRENT STATE: all three charts use internal mock data.
+ *
+ * TODO — RevenueChart:
+ *   Wire to Floe financial API when a tenant revenue summary endpoint exists.
+ *   Accept `data?: RevenueDataPoint[]` prop; fall back to revenueData when absent.
+ *
+ * TODO — JobCompletionChart:
+ *   Accept `stats?: JobStats` prop from useJobs/stats hook.
+ *   Transform JobStats { completed, 'in-progress', scheduled, ... } into weekly bar data.
+ *   Fall back to jobCompletionData when prop is absent.
+ *
+ * TODO — CustomerGrowthChart:
+ *   No SFO Core endpoint provides customer growth over time.
+ *   A dedicated GET /api/v1/dashboard/customer-growth endpoint would be needed.
+ *   Until then, chart stays on internal mock data.
+ */
+
 import {
   LineChart,
   Line,
@@ -13,6 +35,11 @@ import {
   ResponsiveContainer,
 } from 'recharts'
 import './Charts.scss'
+
+// ---------------------------------------------------------------------------
+// Internal mock data
+// Move to dashboard.mock.ts and accept as props when real endpoints are ready
+// ---------------------------------------------------------------------------
 
 const revenueData = [
   { month: 'Jan', revenue: 4000, target: 3000 },
@@ -39,6 +66,10 @@ const customerGrowthData = [
   { month: 'Jun', active: 252, new: 34 },
 ]
 
+// ---------------------------------------------------------------------------
+// Chart components
+// ---------------------------------------------------------------------------
+
 export function RevenueChart() {
   return (
     <ResponsiveContainer width="100%" height={300}>
@@ -52,12 +83,7 @@ export function RevenueChart() {
         <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
         <XAxis dataKey="month" stroke="#94a3b8" />
         <YAxis stroke="#94a3b8" />
-        <Tooltip
-          contentStyle={{
-            backgroundColor: '#1e293b',
-            border: '1px solid #334155',
-          }}
-        />
+        <Tooltip contentStyle={{ backgroundColor: '#1e293b', border: '1px solid #334155' }} />
         <Legend />
         <Area
           type="monotone"
@@ -86,16 +112,11 @@ export function JobCompletionChart() {
         <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
         <XAxis dataKey="week" stroke="#94a3b8" />
         <YAxis stroke="#94a3b8" />
-        <Tooltip
-          contentStyle={{
-            backgroundColor: '#1e293b',
-            border: '1px solid #334155',
-          }}
-        />
+        <Tooltip contentStyle={{ backgroundColor: '#1e293b', border: '1px solid #334155' }} />
         <Legend />
         <Bar dataKey="completed" fill="#10b981" name="Completed" />
-        <Bar dataKey="pending" fill="#f59e0b" name="Pending" />
-        <Bar dataKey="overdue" fill="#ef4444" name="Overdue" />
+        <Bar dataKey="pending"   fill="#f59e0b" name="Pending" />
+        <Bar dataKey="overdue"   fill="#ef4444" name="Overdue" />
       </BarChart>
     </ResponsiveContainer>
   )
@@ -108,12 +129,7 @@ export function CustomerGrowthChart() {
         <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
         <XAxis dataKey="month" stroke="#94a3b8" />
         <YAxis stroke="#94a3b8" />
-        <Tooltip
-          contentStyle={{
-            backgroundColor: '#1e293b',
-            border: '1px solid #334155',
-          }}
-        />
+        <Tooltip contentStyle={{ backgroundColor: '#1e293b', border: '1px solid #334155' }} />
         <Legend />
         <Line
           type="monotone"
