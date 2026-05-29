@@ -1,26 +1,42 @@
 @use '@/styles/variables' as *;
-@use '@/styles/utilities' as *;
+
+// ---------------------------------------------------------------------------
+// PublicNav — Phase 2: luminous nav chrome, glass mobile drawer.
+// The nav is the first impression of the product on public pages.
+// ---------------------------------------------------------------------------
 
 .public-nav {
-  background-color: $color-surface-card;
-  border-bottom: 1px solid $color-border;
+  background-color: $surface-card;
+  border-bottom: 1px solid $border-card;
   position: sticky;
   top: 0;
   z-index: 100;
+  box-shadow: 0 1px 0 $border-base, $shadow-sm;
   transition: box-shadow $transition-base;
 
+  // Stronger shadow + border when user has scrolled
   &--scrolled {
-    box-shadow: $shadow-md;
+    box-shadow:
+      0 1px 0 $border-raised,
+      $shadow-md;
   }
 
   &__container {
-    @include container-width;
-    @include flex-between;
-    height: 70px;
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 $space-md;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 68px;
     gap: $space-lg;
+
+    @media (min-width: $breakpoint-lg) {
+      padding: 0 $space-xl;
+    }
   }
 
-  // ── Logo ─────────────────────────────────────────────────────────────────
+  // ── Logo ──────────────────────────────────────────────────────────────
 
   &__logo {
     display: flex;
@@ -32,10 +48,14 @@
   &__logo-text {
     font-size: $font-size-2xl;
     font-weight: $font-weight-bold;
-    color: $color-primary;
+    color: $color-primary-light;
+    letter-spacing: $tracking-tight;
+    transition: color $transition-base;
+
+    &:hover { color: #a5b4fc; }
   }
 
-  // ── Desktop nav links ──────────────────────────────────────────────────
+  // ── Desktop nav links ─────────────────────────────────────────────────
 
   &__links {
     display: none;
@@ -53,19 +73,20 @@
     display: block;
     padding: $space-sm $space-md;
     border-radius: $radius-md;
-    color: $color-text-secondary;
+    color: $color-text-muted;
     text-decoration: none;
     font-size: $font-size-sm;
     font-weight: $font-weight-medium;
-    transition: background-color $transition-base, color $transition-base;
+    letter-spacing: $tracking-wide;
+    transition: color $transition-base, background-color $transition-base;
 
     &:hover {
-      background-color: rgba($color-primary, 0.08);
-      color: $color-primary;
+      color: $color-text-primary;
+      background-color: rgba($color-info, 0.07);
     }
 
     &--active {
-      color: $color-primary;
+      color: $color-text-primary;
       font-weight: $font-weight-semibold;
       background-color: rgba($color-primary, 0.08);
     }
@@ -81,26 +102,24 @@
   }
 
   &__link {
-    color: $color-text-secondary;
+    color: $color-text-muted;
     font-size: $font-size-sm;
     font-weight: $font-weight-medium;
     padding: $space-sm $space-md;
     border-radius: $radius-md;
     text-decoration: none;
-    transition: all $transition-base;
+    transition: color $transition-base, background-color $transition-base;
     display: none;
 
-    @media (min-width: $breakpoint-md) {
-      display: block;
-    }
+    @media (min-width: $breakpoint-md) { display: block; }
 
     &:hover {
-      color: $color-primary;
-      background-color: rgba($color-primary, 0.08);
+      color: $color-text-primary;
+      background-color: rgba($color-info, 0.07);
     }
   }
 
-  // ── Hamburger ────────────────────────────────────────────────────────
+  // ── Hamburger ─────────────────────────────────────────────────────────
 
   &__hamburger {
     display: flex;
@@ -110,68 +129,73 @@
     height: 36px;
     padding: 9px 7px;
     background: none;
-    border: 1px solid $color-border;
+    border: 1px solid $border-card;
     border-radius: $radius-md;
     cursor: pointer;
     transition: all $transition-base;
 
-    @media (min-width: $breakpoint-md) {
-      display: none;
-    }
+    @media (min-width: $breakpoint-md) { display: none; }
 
     span {
       display: block;
       height: 2px;
       width: 100%;
-      background-color: $color-text-secondary;
+      background-color: $color-text-muted;
       border-radius: 2px;
       transition: background-color $transition-base;
     }
 
     &:hover {
-      background-color: rgba($color-primary, 0.08);
-      border-color: rgba($color-primary, 0.3);
+      background-color: rgba($color-info, 0.07);
+      border-color: $border-raised;
 
-      span {
-        background-color: $color-primary;
-      }
+      span { background-color: $color-text-primary; }
     }
   }
 }
 
 // ---------------------------------------------------------------------------
-// Mobile overlay
+// Mobile overlay — scrim
 // ---------------------------------------------------------------------------
 
 .public-nav__mobile-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.6);
   z-index: 98;
-  backdrop-filter: blur(2px);
 
-  @media (min-width: $breakpoint-md) {
-    display: none;
+  @supports (backdrop-filter: blur(1px)) {
+    backdrop-filter: blur($glass-blur-sm);
+    background: rgba(0, 0, 0, 0.45);
   }
+
+  @media (min-width: $breakpoint-md) { display: none; }
 }
 
 // ---------------------------------------------------------------------------
-// Mobile drawer
+// Mobile drawer — glass-menu surface
 // ---------------------------------------------------------------------------
 
 .public-nav__mobile-drawer {
   position: fixed;
-  top: 70px; // match nav height
+  top: 68px;
   left: 0;
   right: 0;
-  background-color: $color-surface-card;
-  border-bottom: 1px solid $color-border;
   z-index: 99;
-  transform: translateY(-8px);
+  transform: translateY(-6px);
   opacity: 0;
   pointer-events: none;
   transition: transform $transition-base, opacity $transition-base;
+
+  // Glass surface
+  background: $glass-bg-menu;
+  border-bottom: 1px solid $border-overlay;
   box-shadow: $shadow-lg;
+
+  @supports (backdrop-filter: blur(1px)) {
+    backdrop-filter: blur($glass-blur-md);
+    background: rgba(#1a2740, 0.90);
+  }
 
   &--open {
     transform: translateY(0);
@@ -179,9 +203,7 @@
     pointer-events: auto;
   }
 
-  @media (min-width: $breakpoint-md) {
-    display: none;
-  }
+  @media (min-width: $breakpoint-md) { display: none; }
 }
 
 .public-nav__mobile-links {
@@ -190,7 +212,7 @@
   display: flex;
   flex-direction: column;
   gap: $space-xs;
-  border-bottom: 1px solid $color-border;
+  border-bottom: 1px solid $border-card;
 }
 
 .public-nav__mobile-link {
@@ -204,13 +226,13 @@
   transition: all $transition-base;
 
   &:hover {
-    background-color: rgba($color-primary, 0.08);
-    color: $color-primary;
+    background-color: rgba($color-info, 0.07);
+    color: $color-text-primary;
   }
 
   &--active {
     background-color: rgba($color-primary, 0.1);
-    color: $color-primary;
+    color: $color-text-primary;
     font-weight: $font-weight-semibold;
   }
 }
@@ -223,15 +245,19 @@
   display: block;
   text-align: center;
   padding: $space-md;
-  background-color: $color-primary;
+  background: linear-gradient(135deg, $color-primary 0%, $color-primary-light 100%);
   color: #ffffff;
   border-radius: $radius-md;
   font-weight: $font-weight-semibold;
+  font-size: $font-size-sm;
   text-decoration: none;
-  transition: background-color $transition-base;
+  letter-spacing: $tracking-wide;
+  transition: opacity $transition-base, box-shadow $transition-base;
+  box-shadow: 0 4px 14px rgba($color-primary, 0.35);
 
   &:hover {
-    background-color: $color-primary-dark;
+    opacity: 0.9;
     color: #ffffff;
+    box-shadow: 0 4px 20px rgba($color-primary, 0.5);
   }
 }

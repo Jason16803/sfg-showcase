@@ -1,24 +1,31 @@
 @use '@/styles/variables' as *;
+@use '@/styles/utilities' as *;
+
+// ---------------------------------------------------------------------------
+// DataTable — Phase 2: elevated surface system, teal row hover, NO glass.
+// Data-dense surface — blur is never applied here.
+// ---------------------------------------------------------------------------
+
+@keyframes data-table-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0);   }
+}
 
 // ---------------------------------------------------------------------------
 // Container
 // ---------------------------------------------------------------------------
 
 .data-table {
-  background-color: $color-surface-card;
-  border: 1px solid $color-border;
+  background-color: $surface-card;
+  border: 1px solid $border-card;
   border-radius: $radius-lg;
   overflow: hidden;
+  box-shadow: $shadow-sm, $shadow-inset-glow;
   animation: data-table-in 0.3s ease both;
 }
 
-@keyframes data-table-in {
-  from { opacity: 0; transform: translateY(6px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
 // ---------------------------------------------------------------------------
-// Header row (title + count badge)
+// Card header (title + count badge)
 // ---------------------------------------------------------------------------
 
 .data-table__header {
@@ -27,7 +34,8 @@
   justify-content: space-between;
   gap: $space-sm;
   padding: $space-md $space-lg;
-  border-bottom: 1px solid $color-border;
+  border-bottom: 1px solid $border-card;
+  background-color: $surface-card;
 }
 
 .data-table__title {
@@ -35,20 +43,22 @@
   font-weight: $font-weight-semibold;
   color: $color-text-primary;
   margin: 0;
+  letter-spacing: $tracking-snug;
 }
 
 .data-table__count {
   font-size: $font-size-xs;
   color: $color-text-muted;
-  background: $color-surface-elevated;
-  border: 1px solid $color-border;
+  background: $surface-raised;
+  border: 1px solid $border-raised;
   border-radius: 999px;
-  padding: 1px 8px;
-  font-weight: $font-weight-medium;
+  padding: 1px 9px;
+  font-weight: $font-weight-semibold;
+  letter-spacing: $tracking-wide;
 }
 
 // ---------------------------------------------------------------------------
-// Table
+// Table scroll wrapper
 // ---------------------------------------------------------------------------
 
 .data-table__wrapper {
@@ -67,8 +77,8 @@
 // ---------------------------------------------------------------------------
 
 .data-table__header-row {
-  background-color: $color-surface-elevated;
-  border-bottom: 1px solid $color-border;
+  background-color: $surface-raised;
+  border-bottom: 1px solid $border-raised;
 }
 
 .data-table__header-cell {
@@ -78,20 +88,21 @@
   color: $color-text-muted;
   text-transform: uppercase;
   font-size: $font-size-xs;
-  letter-spacing: 0.06em;
+  letter-spacing: $tracking-widest;
   white-space: nowrap;
 }
 
 // ---------------------------------------------------------------------------
-// Body rows
+// Body rows — teal-tinted hover (operational, directional)
 // ---------------------------------------------------------------------------
 
 .data-table__row {
-  border-bottom: 1px solid $color-border;
+  border-bottom: 1px solid $border-card;
   transition: background-color $transition-fast;
 
   &:hover {
-    background-color: rgba($color-primary, 0.04);
+    // Subtle teal tint — matches the info/teal operational color story
+    background-color: rgba($color-info, 0.04);
   }
 
   &:last-child {
@@ -105,7 +116,7 @@
   vertical-align: middle;
   line-height: 1.4;
 
-  // First column — primary weight and color
+  // First column — primary emphasis
   &--first {
     color: $color-text-primary;
     font-weight: $font-weight-medium;
@@ -121,15 +132,13 @@
   text-align: center;
   color: $color-text-muted;
   font-size: $font-size-sm;
-  display: table-cell;  // stays as td
-
-  // Flex is not available on <td>, so we use inline-flex trick
+  display: table-cell;
 }
 
 .data-table__empty-icon {
   display: block;
   font-size: $font-size-3xl;
-  opacity: 0.3;
+  opacity: 0.25;
   margin-bottom: $space-sm;
   line-height: 1;
 }

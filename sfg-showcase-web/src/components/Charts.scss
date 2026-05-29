@@ -1,17 +1,47 @@
 @use '@/styles/variables' as *;
 
 // ---------------------------------------------------------------------------
-// Custom tooltip component
+// Charts — Phase 2: glass-tooltip, elevated chart card surface.
+// Chart containers are solid surfaces — NO glass on charts themselves.
+// ---------------------------------------------------------------------------
+
+// ---------------------------------------------------------------------------
+// Custom tooltip — glass-menu surface (floats above chart)
 // ---------------------------------------------------------------------------
 
 .chart-tooltip {
-  background-color: $color-surface-elevated;
-  border: 1px solid $color-border-light;
+  background-color: $glass-bg-tooltip;
+  border: 1px solid $border-overlay;
   border-radius: $radius-md;
   padding: $space-sm $space-md;
   box-shadow: $shadow-lg;
   font-size: $font-size-xs;
-  min-width: 140px;
+  min-width: 148px;
+
+  // Top-edge luminosity highlight
+  position: relative;
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(#8ba4e7, 0.35) 35%,
+      rgba(#8ba4e7, 0.5)  50%,
+      rgba(#8ba4e7, 0.35) 65%,
+      transparent 100%
+    );
+    border-radius: $radius-md $radius-md 0 0;
+    pointer-events: none;
+  }
+
+  // Backdrop blur where supported — tooltip floats above chart area
+  @supports (backdrop-filter: blur(1px)) {
+    backdrop-filter: blur($glass-blur-sm);
+    background-color: rgba(#1a2740, 0.92);
+  }
 }
 
 .chart-tooltip__label {
@@ -19,10 +49,10 @@
   font-weight: $font-weight-semibold;
   color: $color-text-muted;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: $tracking-widest;
   margin-bottom: $space-sm;
   padding-bottom: $space-xs;
-  border-bottom: 1px solid $color-border;
+  border-bottom: 1px solid $border-card;
 }
 
 .chart-tooltip__row {
@@ -49,20 +79,17 @@
   font-weight: $font-weight-semibold;
   color: $color-text-primary;
   font-size: $font-size-xs;
-  letter-spacing: -0.01em;
+  letter-spacing: $tracking-snug;
 }
 
 // ---------------------------------------------------------------------------
-// Recharts global overrides
+// Recharts global overrides — kept minimal
 // ---------------------------------------------------------------------------
-
-.recharts-text {
-  fill: $color-text-muted;
-}
 
 .recharts-cartesian-axis-tick-value {
   fill: $color-text-muted;
   font-size: 11px;
+  letter-spacing: $tracking-wide;
 }
 
 .recharts-legend-wrapper {

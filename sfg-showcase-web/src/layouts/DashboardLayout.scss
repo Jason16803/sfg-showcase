@@ -1,10 +1,21 @@
 @use '@/styles/variables' as *;
+@use '@/styles/utilities' as *;
+
+// ---------------------------------------------------------------------------
+// DashboardLayout — Phase 2: deeper chrome, luminous borders, premium nav.
+// Sidebar is the most solid surface — NO glass. Glass only on mobile overlay.
+// ---------------------------------------------------------------------------
 
 .dashboard-layout {
   display: grid;
   grid-template-columns: 260px 1fr;
+  // Row 1: demo strip (auto) — sticky at top: 0
+  // Row 2: sidebar + main-wrapper — fills remaining viewport
   grid-template-rows: auto 1fr;
+  // Use 100dvh where supported (avoids mobile URL-bar jank);
+  // fall back to 100vh on older browsers.
   min-height: 100vh;
+  min-height: 100dvh;
   gap: 0;
 
   @media (max-width: $breakpoint-md) {
@@ -13,37 +24,39 @@
 }
 
 // ---------------------------------------------------------------------------
-// Demo mode strip  (sticky — spans full width, always visible)
+// Demo strip — sticky chrome, amber warning atmosphere
 // ---------------------------------------------------------------------------
 
-// Height is stable at 32px in normal usage. Sidebar and header reference
-// this as their sticky offset via top: 32px.
 $demo-strip-h: 32px;
 
 .dashboard-layout__demo-strip {
   grid-column: 1 / -1;
   position: sticky;
   top: 0;
-  z-index: 50;          // above sidebar + header, below mobile drawer (201)
+  z-index: 50;
   display: flex;
   align-items: center;
   gap: $space-md;
   padding: 5px $space-lg;
-  background-color: rgba($color-warning, 0.06);
-  border-bottom: 1px solid rgba($color-warning, 0.2);
+  background-color: rgba($color-warning, 0.055);
+  border-bottom: 1px solid rgba($color-warning, 0.18);
   font-size: $font-size-xs;
   min-height: $demo-strip-h;
-  overflow: hidden;     // prevent content overflow on narrow viewports
+  // overflow: hidden breaks position:sticky on children in the same stacking context.
+  // overflow: clip is the correct replacement — it clips visually without creating
+  // a new scroll container, so sticky positioning is preserved.
+  overflow: clip;
+  box-shadow: 0 1px 0 rgba($color-warning, 0.08), 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .dashboard-layout__demo-label {
   font-size: 0.65rem;
   font-weight: $font-weight-bold;
-  letter-spacing: 0.12em;
+  letter-spacing: $tracking-widest;
   text-transform: uppercase;
   color: $color-warning;
-  background-color: rgba($color-warning, 0.15);
-  border: 1px solid rgba($color-warning, 0.35);
+  background-color: rgba($color-warning, 0.12);
+  border: 1px solid rgba($color-warning, 0.28);
   border-radius: $radius-sm;
   padding: 1px 7px;
   flex-shrink: 0;
@@ -59,7 +72,7 @@ $demo-strip-h: 32px;
   code {
     font-family: 'Courier New', monospace;
     font-size: 0.85em;
-    background-color: rgba($color-warning, 0.1);
+    background-color: rgba($color-warning, 0.09);
     border-radius: $radius-sm;
     padding: 1px 4px;
     color: $color-text-secondary;
@@ -78,11 +91,10 @@ $demo-strip-h: 32px;
   text-decoration: underline;
   flex-shrink: 0;
 
-  &:hover { opacity: 0.75; }
+  &:hover      { opacity: 0.75; }
   &:focus-visible { outline: 2px solid $color-warning; outline-offset: 2px; }
 }
 
-// Inline confirm for demo reset — replaces window.confirm()
 .dashboard-layout__demo-confirm {
   display: flex;
   align-items: center;
@@ -99,47 +111,45 @@ $demo-strip-h: 32px;
   padding: 1px 8px;
   border-radius: $radius-sm;
   cursor: pointer;
-  border: 1px solid $color-border;
-  background: $color-surface-card;
+  border: 1px solid $border-card;
+  background: $surface-card;
   color: $color-text-secondary;
   transition: all $transition-fast;
 
   &:hover {
-    border-color: $color-border-light;
+    border-color: $border-raised;
     color: $color-text-primary;
   }
 
   &--yes {
-    background: rgba($color-warning, 0.12);
-    border-color: rgba($color-warning, 0.35);
+    background: rgba($color-warning, 0.1);
+    border-color: rgba($color-warning, 0.3);
     color: $color-warning;
 
     &:hover {
-      background: rgba($color-warning, 0.22);
+      background: rgba($color-warning, 0.18);
       border-color: $color-warning;
     }
   }
 }
 
 // ---------------------------------------------------------------------------
-// Desktop Sidebar
+// Desktop Sidebar — most solid surface, the foundation layer
 // ---------------------------------------------------------------------------
 
 .dashboard-layout__sidebar {
-  background-color: $color-surface-card;
-  border-right: 1px solid $color-border;
+  background-color: $surface-card;
+  border-right: 1px solid $border-card;
   padding: $space-lg $space-md;
   display: flex;
   flex-direction: column;
   position: sticky;
-  top: $demo-strip-h;          // sit flush under the sticky demo strip
-  height: calc(100vh - #{$demo-strip-h}); // fill remaining viewport height
+  top: $demo-strip-h;
+  height: calc(100vh - #{$demo-strip-h});
   overflow-y: auto;
+  box-shadow: 1px 0 0 $border-base;
 
-  // Hidden on mobile — replaced by drawer
-  @media (max-width: $breakpoint-md) {
-    display: none;
-  }
+  @media (max-width: $breakpoint-md) { display: none; }
 }
 
 .dashboard-layout__sidebar-header {
@@ -147,20 +157,24 @@ $demo-strip-h: 32px;
   display: flex;
   flex-direction: column;
   gap: $space-md;
+  padding-bottom: $space-lg;
+  border-bottom: 1px solid $border-card;
 }
 
 .dashboard-layout__wordmark {
   font-size: $font-size-2xl;
   font-weight: $font-weight-bold;
-  color: $color-primary;
+  color: $color-primary-light;
   text-decoration: none;
   line-height: 1;
+  letter-spacing: $tracking-tight;
+  transition: color $transition-base;
 
-  &:hover { color: $color-primary-light; }
+  &:hover { color: #bfdbfe; }   // blue-200 — was indigo #a5b4fc
 }
 
 // ---------------------------------------------------------------------------
-// Mobile overlay + drawer
+// Mobile overlay + drawer — glass treatment here only
 // ---------------------------------------------------------------------------
 
 .dashboard-layout__mobile-overlay {
@@ -170,10 +184,14 @@ $demo-strip-h: 32px;
     display: block;
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.55);
+    background: rgba(0, 0, 0, 0.6);
     z-index: 200;
-    backdrop-filter: blur(2px);
     animation: fadeOverlay 0.2s ease both;
+
+    @supports (backdrop-filter: blur(1px)) {
+      backdrop-filter: blur($glass-blur-sm);
+      background: rgba(0, 0, 0, 0.45);
+    }
   }
 }
 
@@ -193,17 +211,23 @@ $demo-strip-h: 32px;
     left: 0;
     bottom: 0;
     width: min(280px, 80vw);
-    background-color: $color-surface-card;
-    border-right: 1px solid $color-border;
     z-index: 201;
     padding: $space-md;
     overflow-y: auto;
     transform: translateX(-100%);
     transition: transform 0.25s ease;
 
-    &--open {
-      transform: translateX(0);
+    // Glass surface for mobile drawer — cold slate
+    background: $glass-bg-auth;
+    border-right: 1px solid $border-modal;
+    box-shadow: $shadow-xl;
+
+    @supports (backdrop-filter: blur(1px)) {
+      backdrop-filter: blur($glass-blur-md);
+      background: rgba(#192232, 0.92);   // cold slate — was indigo #1c2a4a
     }
+
+    &--open { transform: translateX(0); }
   }
 }
 
@@ -213,7 +237,7 @@ $demo-strip-h: 32px;
   justify-content: space-between;
   margin-bottom: $space-md;
   padding-bottom: $space-md;
-  border-bottom: 1px solid $color-border;
+  border-bottom: 1px solid $border-card;
 }
 
 .dashboard-layout__mobile-role {
@@ -222,7 +246,7 @@ $demo-strip-h: 32px;
 
 .dashboard-layout__mobile-close {
   background: none;
-  border: 1px solid $color-border;
+  border: 1px solid $border-card;
   border-radius: $radius-md;
   color: $color-text-muted;
   width: 32px;
@@ -235,14 +259,14 @@ $demo-strip-h: 32px;
   transition: all $transition-base;
 
   &:hover {
-    background-color: $color-surface-elevated;
+    background-color: rgba($color-info, 0.07);
     color: $color-text-primary;
-    border-color: $color-border-light;
+    border-color: $border-raised;
   }
 }
 
 // ---------------------------------------------------------------------------
-// Hamburger button — mobile only, shown in header
+// Hamburger — mobile only
 // ---------------------------------------------------------------------------
 
 .dashboard-layout__hamburger {
@@ -256,15 +280,15 @@ $demo-strip-h: 32px;
     height: 36px;
     padding: 9px 7px;
     background: none;
-    border: 1px solid $color-border;
+    border: 1px solid $border-card;
     border-radius: $radius-md;
     cursor: pointer;
     flex-shrink: 0;
     transition: all $transition-base;
 
     &:hover {
-      background-color: $color-surface-elevated;
-      border-color: $color-border-light;
+      background-color: rgba($color-info, 0.07);
+      border-color: $border-raised;
     }
 
     span {
@@ -290,7 +314,7 @@ $demo-strip-h: 32px;
     list-style: none;
     display: flex;
     flex-direction: column;
-    gap: $space-xs;
+    gap: 2px;
   }
 }
 
@@ -300,38 +324,43 @@ $demo-strip-h: 32px;
   justify-content: space-between;
   padding: $space-sm $space-md;
   border-radius: $radius-md;
-  color: $color-text-secondary;
-  transition: all $transition-base;
+  color: $color-text-muted;
+  transition: color $transition-base, background-color $transition-base;
   text-decoration: none;
   font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
   position: relative;
   cursor: pointer;
+  letter-spacing: $tracking-wide;
 
   &:hover {
-    background-color: $color-surface-elevated;
+    background-color: rgba($color-info, 0.06);
     color: $color-text-primary;
   }
 
   &--active {
     background-color: rgba($color-primary, 0.1);
-    color: $color-primary;
+    color: $color-primary-light;
     font-weight: $font-weight-semibold;
 
+    // Left accent bar — 3px, primary color
     &::before {
       content: '';
       position: absolute;
       left: 0;
-      top: 0;
-      bottom: 0;
+      top: 20%;
+      bottom: 20%;
       width: 3px;
-      background-color: $color-primary;
-      border-radius: 0 $radius-md $radius-md 0;
+      background: linear-gradient(180deg, $color-primary, $color-primary-light);
+      border-radius: 0 $radius-sm $radius-sm 0;
+      box-shadow: 0 0 8px rgba($color-primary, 0.4);
     }
   }
 
   &--pending {
     color: $color-text-muted;
     cursor: default;
+    opacity: 0.6;
 
     &:hover {
       background-color: transparent;
@@ -344,12 +373,12 @@ $demo-strip-h: 32px;
   font-size: $font-size-xs;
   font-weight: $font-weight-semibold;
   color: $color-text-muted;
-  background-color: $color-surface-elevated;
-  border: 1px solid $color-border;
+  background-color: $surface-raised;
+  border: 1px solid $border-raised;
   border-radius: $radius-sm;
   padding: 1px 5px;
   line-height: 1.4;
-  letter-spacing: 0.02em;
+  letter-spacing: $tracking-wide;
   flex-shrink: 0;
 }
 
@@ -358,38 +387,39 @@ $demo-strip-h: 32px;
 // ---------------------------------------------------------------------------
 
 .dashboard-layout__sidebar-footer {
-  border-top: 1px solid $color-border;
+  border-top: 1px solid $border-card;
   padding-top: $space-lg;
   margin-top: auto;
 }
 
 .dashboard-layout__logout {
   width: 100%;
-  padding: $space-md;
+  padding: $space-sm $space-md;
   background-color: transparent;
-  color: $color-text-secondary;
-  border: 1px solid $color-border;
+  color: $color-text-muted;
+  border: 1px solid $border-card;
   border-radius: $radius-md;
   cursor: pointer;
   transition: all $transition-base;
   font-size: $font-size-sm;
   font-weight: $font-weight-semibold;
   font-family: inherit;
+  letter-spacing: $tracking-wide;
 
   &:hover {
-    background-color: rgba($color-error, 0.08);
-    border-color: rgba($color-error, 0.4);
+    background-color: rgba($color-error, 0.07);
+    border-color: rgba($color-error, 0.35);
     color: $color-error;
   }
 
   &:focus-visible {
-    outline: 2px solid $color-primary;
-    outline-offset: 2px;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba($color-error, 0.25);
   }
 }
 
 // ---------------------------------------------------------------------------
-// Main wrapper
+// Main content wrapper
 // ---------------------------------------------------------------------------
 
 .dashboard-layout__main-wrapper {
@@ -397,22 +427,32 @@ $demo-strip-h: 32px;
   flex-direction: column;
   background-color: $color-surface-bg;
   min-width: 0;
+  // Height-constrained so the sticky header works within this column.
+  // Without min-height: 0, the flex child can grow past the grid row and
+  // the sticky header has nothing to stick within.
+  min-height: 0;
+  // The wrapper fills the grid row below the demo strip.
+  // We do NOT set overflow: auto here because we want the page to scroll
+  // naturally (document scroll), not create a nested scroll container.
+  // The sticky header's top: $demo-strip-h is relative to the viewport,
+  // which is the correct behaviour for a document-level sticky element.
 }
 
 // ---------------------------------------------------------------------------
-// Header
+// Header — elevated chrome above main content
 // ---------------------------------------------------------------------------
 
 .dashboard-layout__header {
-  background-color: $color-surface-card;
-  border-bottom: 1px solid $color-border;
+  background-color: $surface-card;
+  border-bottom: 1px solid $border-card;
   padding: $space-lg $space-md;
   position: sticky;
-  top: $demo-strip-h;  // sit under sticky demo strip
+  top: $demo-strip-h;
   z-index: 10;
+  box-shadow: 0 1px 0 $border-base, 0 2px 8px rgba(0, 0, 0, 0.2);
 
   @media (min-width: $breakpoint-lg) {
-    padding: $space-lg $space-xl;
+    padding: $space-md $space-xl;
   }
 }
 
@@ -430,26 +470,25 @@ $demo-strip-h: 32px;
   min-width: 0;
 
   h1 {
-    font-size: $font-size-xl;
-    margin-bottom: $space-xs;
+    font-size: $font-size-lg;
+    font-weight: $font-weight-semibold;
+    margin-bottom: 1px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    letter-spacing: $tracking-snug;
+    color: $color-text-primary;
 
-    @media (max-width: $breakpoint-sm) {
-      font-size: $font-size-lg;
-    }
+    @media (max-width: $breakpoint-sm) { font-size: $font-size-base; }
   }
 
   p {
-    font-size: $font-size-sm;
+    font-size: $font-size-xs;
     color: $color-text-muted;
     margin: 0;
+    letter-spacing: $tracking-wide;
 
-    // Hide date on very small screens
-    @media (max-width: $breakpoint-sm) {
-      display: none;
-    }
+    @media (max-width: $breakpoint-sm) { display: none; }
   }
 }
 
@@ -458,25 +497,21 @@ $demo-strip-h: 32px;
   align-items: center;
   gap: $space-md;
   padding-left: $space-lg;
-  border-left: 1px solid $color-border;
+  border-left: 1px solid $border-card;
   flex-shrink: 0;
 
-  // Collapse to avatar only on small screens
   @media (max-width: $breakpoint-sm) {
     padding-left: $space-sm;
     border-left: none;
-
-    > div:last-child {
-      display: none;
-    }
+    > div:last-child { display: none; }
   }
 }
 
 .dashboard-layout__user-avatar {
-  width: 38px;
-  height: 38px;
+  width: 36px;
+  height: 36px;
   border-radius: $radius-md;
-  background: linear-gradient(135deg, $color-primary, $color-primary-light);
+  background: linear-gradient(135deg, $color-primary 0%, $color-primary-light 100%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -485,6 +520,8 @@ $demo-strip-h: 32px;
   font-size: $font-size-xs;
   flex-shrink: 0;
   user-select: none;
+  box-shadow: 0 0 0 1px $border-raised, 0 2px 8px rgba($color-primary, 0.3);
+  letter-spacing: $tracking-wide;
 }
 
 .dashboard-layout__user-name {
@@ -493,6 +530,7 @@ $demo-strip-h: 32px;
   font-weight: $font-weight-semibold;
   margin: 0;
   white-space: nowrap;
+  letter-spacing: $tracking-snug;
 }
 
 .dashboard-layout__user-role {
@@ -500,6 +538,7 @@ $demo-strip-h: 32px;
   color: $color-text-muted;
   margin: 0;
   white-space: nowrap;
+  letter-spacing: $tracking-wide;
 }
 
 // ---------------------------------------------------------------------------

@@ -1,29 +1,38 @@
 @use '@/styles/variables' as *;
 
+// ---------------------------------------------------------------------------
+// Button — Phase 2: premium hover states, primary luminous glow.
+// ---------------------------------------------------------------------------
+
 .btn {
   font-weight: $font-weight-semibold;
   border: none;
   border-radius: $radius-md;
   cursor: pointer;
-  transition: all $transition-base;
+  transition:
+    background-color $transition-base,
+    box-shadow       $transition-base,
+    transform        $transition-fast,
+    border-color     $transition-base;
   font-family: inherit;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: $space-sm;
   white-space: nowrap;
+  letter-spacing: $tracking-wide;
 
   &:focus-visible {
-    outline: 2px solid $color-primary;
-    outline-offset: 2px;
+    outline: none;
+    box-shadow: $shadow-focus;
   }
 
   &:disabled {
-    opacity: 0.5;
+    opacity: 0.45;
     cursor: not-allowed;
   }
 
-  /* Size variants */
+  // ── Size variants ────────────────────────────────────────────────────
   &--sm {
     padding: $space-sm $space-md;
     font-size: $font-size-sm;
@@ -37,18 +46,43 @@
   }
 
   &--lg {
-    padding: $space-lg $space-xl;
-    font-size: $font-size-lg;
+    padding: $space-md $space-xl;
+    font-size: $font-size-base;
+    font-weight: $font-weight-bold;
     min-height: $size-lg;
   }
 
-  /* Style variants */
+  // ── Primary — indigo with luminous hover glow ────────────────────────
   &--primary {
     background-color: $color-primary;
     color: #ffffff;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 
     &:hover:not(:disabled) {
       background-color: $color-primary-dark;
+      box-shadow:
+        0 0 0 1px rgba($color-primary, 0.4),
+        0 4px 16px rgba($color-primary, 0.35),
+        0 1px 2px rgba(0, 0, 0, 0.3);
+    }
+
+    &:active:not(:disabled) {
+      transform: scale(0.98);
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+    }
+  }
+
+  // ── Secondary — elevated surface with luminous border hover ──────────
+  &--secondary {
+    background-color: $surface-raised;
+    color: $color-text-primary;
+    border: 1px solid $border-raised;
+    box-shadow: $shadow-sm;
+
+    &:hover:not(:disabled) {
+      background-color: $surface-overlay;
+      border-color: $border-overlay;
+      box-shadow: $shadow-md;
     }
 
     &:active:not(:disabled) {
@@ -56,24 +90,20 @@
     }
   }
 
-  &--secondary {
-    background-color: $color-surface-elevated;
-    color: $color-text-primary;
-    border: 1px solid $color-border;
-
-    &:hover:not(:disabled) {
-      background-color: $color-border;
-      border-color: $color-border-light;
-    }
-  }
-
+  // ── Ghost — transparent with primary tinted border ───────────────────
   &--ghost {
     background-color: transparent;
-    color: $color-primary;
-    border: 1px solid $color-primary;
+    color: $color-primary-light;
+    border: 1px solid rgba($color-primary, 0.35);
 
     &:hover:not(:disabled) {
-      background-color: rgba($color-primary, 0.1);
+      background-color: rgba($color-primary, 0.08);
+      border-color: rgba($color-primary, 0.55);
+      box-shadow: 0 0 12px rgba($color-primary, 0.12);
+    }
+
+    &:active:not(:disabled) {
+      transform: scale(0.98);
     }
   }
 }

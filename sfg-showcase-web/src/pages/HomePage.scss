@@ -1,33 +1,54 @@
 @use '@/styles/variables' as *;
+@use '@/styles/utilities' as *;
 
 .home-page {
   flex: 1;
 }
 
+// ---------------------------------------------------------------------------
+// Features section
+// ---------------------------------------------------------------------------
+
 .home-features {
   padding: $space-3xl $space-md;
-  border-top: 1px solid $color-border;
+  border-top: 1px solid $border-card;
+  border-bottom: 1px solid $border-card;
 
   @media (min-width: $breakpoint-lg) {
-    padding: $space-3xl $space-xl;
+    padding: 5rem $space-xl;
   }
 }
 
 .home-features__header {
   text-align: center;
   margin-bottom: $space-3xl;
-
-  h2 {
-    font-size: $font-size-3xl;
-    margin-bottom: $space-md;
-  }
-
-  p {
-    font-size: $font-size-lg;
-    color: $color-text-secondary;
-  }
+  max-width: 640px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
+.home-features__eyebrow {
+  @include eyebrow-label;
+  margin-bottom: $space-md;
+}
+
+.home-features__header h2 {
+  font-size: clamp(1.75rem, 4vw, $font-size-3xl);
+  font-weight: $font-weight-bold;
+  color: $color-text-primary;
+  letter-spacing: $tracking-snug;
+  margin-bottom: $space-md;
+  line-height: 1.2;
+}
+
+.home-features__header p {
+  font-size: $font-size-lg;
+  color: $color-text-secondary;
+  line-height: $line-height-relaxed;
+  margin: 0;
+}
+
+// Feature card grid
 .home-features__grid {
   display: grid;
   gap: $space-lg;
@@ -37,80 +58,219 @@
     grid-template-columns: repeat(2, 1fr);
   }
 
-  @media (min-width: $breakpoint-lg) {
+  @media (min-width: $breakpoint-xl) {
     grid-template-columns: repeat(4, 1fr);
   }
 }
 
 .home-features__card {
-  background-color: $color-surface-card;
-  border: 1px solid $color-border;
+  background-color: $surface-card;
+  border: 1px solid $border-card;
   border-radius: $radius-lg;
-  padding: $space-lg;
-  transition: all $transition-base;
+  padding: $space-xl;
+  box-shadow: $shadow-sm, $shadow-inset-glow;
+  transition:
+    border-color  $transition-base,
+    box-shadow    $transition-base,
+    transform     $transition-slow;
+  position: relative;
+  overflow: hidden;
+
+  // Accent bar — top edge, matches card accent color
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    opacity: 0.5;
+    transition: opacity $transition-base;
+  }
+
+  &--primary::before { background: linear-gradient(90deg, $color-primary, $color-primary-light); }
+  &--info::before    { background: linear-gradient(90deg, $color-info, $color-info-light); }
+  &--success::before { background: linear-gradient(90deg, $color-success, $color-success-light); }
+  &--warning::before { background: linear-gradient(90deg, $color-warning, $color-warning-light); }
 
   &:hover {
-    border-color: $color-border-light;
-    box-shadow: $shadow-md;
-    transform: translateY(-2px);
+    border-color: $border-raised;
+    box-shadow: $shadow-md, $shadow-inset-glow;
+    transform: translateY(-3px);
+
+    &::before { opacity: 0.85; }
   }
 
   h3 {
-    font-size: $font-size-lg;
-    margin-bottom: $space-md;
+    font-size: $font-size-base;
+    font-weight: $font-weight-semibold;
+    color: $color-text-primary;
+    margin-bottom: $space-sm;
+    letter-spacing: $tracking-snug;
   }
 
   p {
     font-size: $font-size-sm;
     color: $color-text-secondary;
+    line-height: $line-height-relaxed;
+    margin: 0;
   }
 }
 
-.home-footer-cta {
-  padding: $space-3xl $space-md;
-  background: linear-gradient(
-    135deg,
-    rgba($color-primary, 0.1) 0%,
-    rgba(6, 182, 212, 0.1) 100%
-  );
-  border-top: 1px solid $color-border;
+// Icon container — letter glyph approach
+.home-features__card-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: $radius-md;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: $space-lg;
+  font-size: $font-size-base;
+  font-weight: $font-weight-bold;
+  border: 1px solid transparent;
+
+  // Phase 5 will replace with Lucide SVG icons at 18px
+  span { font-size: $font-size-xs; letter-spacing: $tracking-widest; }
+
+  &--primary {
+    background: rgba($color-primary, 0.12);
+    border-color: rgba($color-primary, 0.18);
+    color: $color-primary-light;
+  }
+
+  &--info {
+    background: rgba($color-info, 0.1);
+    border-color: rgba($color-info, 0.18);
+    color: $color-info;
+  }
+
+  &--success {
+    background: rgba($color-success, 0.1);
+    border-color: rgba($color-success, 0.18);
+    color: $color-success;
+  }
+
+  &--warning {
+    background: rgba($color-warning, 0.1);
+    border-color: rgba($color-warning, 0.18);
+    color: $color-warning;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Social proof strip
+// ---------------------------------------------------------------------------
+
+.home-proof {
+  padding: $space-2xl $space-md;
+  background: $surface-card;
+  border-bottom: 1px solid $border-card;
 
   @media (min-width: $breakpoint-lg) {
-    padding: $space-3xl $space-xl;
+    padding: $space-2xl $space-xl;
+  }
+}
+
+.home-proof__grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: $space-lg;
+
+  @media (min-width: $breakpoint-md) {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.home-proof__item {
+  text-align: center;
+  padding: $space-md;
+}
+
+.home-proof__val {
+  font-size: $font-size-3xl;
+  font-weight: $font-weight-bold;
+  color: $color-text-primary;
+  letter-spacing: $tracking-tight;
+  line-height: 1;
+  margin-bottom: $space-xs;
+  // Subtle gradient on the value
+  background: linear-gradient(135deg, $color-text-primary 30%, $color-primary-light 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.home-proof__label {
+  font-size: $font-size-xs;
+  color: $color-text-muted;
+  text-transform: uppercase;
+  letter-spacing: $tracking-wider;
+  font-weight: $font-weight-semibold;
+}
+
+// ---------------------------------------------------------------------------
+// Footer CTA
+// ---------------------------------------------------------------------------
+
+.home-footer-cta {
+  padding: $space-3xl $space-md;
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse 70% 60% at 50% 110%, rgba($color-primary, 0.1) 0%, transparent 65%),
+    radial-gradient(ellipse 40% 35% at 90%  20%, rgba($color-info,    0.06) 0%, transparent 55%),
+    $color-surface-bg;
+  border-top: 1px solid $border-card;
+
+  @media (min-width: $breakpoint-lg) {
+    padding: 5.5rem $space-xl;
   }
 }
 
 .home-footer-cta__content {
+  max-width: 600px;
+  margin: 0 auto;
   text-align: center;
-
-  h2 {
-    font-size: $font-size-3xl;
-    margin-bottom: $space-md;
-  }
-
-  p {
-    font-size: $font-size-lg;
-    color: $color-text-secondary;
-    margin-bottom: $space-xl;
-  }
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $space-lg;
 }
 
-.home-footer-cta__button {
-  background-color: $color-primary;
-  color: #ffffff;
-  border: none;
-  padding: $space-md $space-xl;
-  border-radius: $radius-md;
-  font-size: $font-size-base;
-  font-weight: $font-weight-semibold;
-  cursor: pointer;
-  transition: all $transition-base;
+.home-footer-cta__eyebrow {
+  @include eyebrow-label;
+  // Teal variant for the CTA section
+  color: $color-info;
+  background: rgba($color-info, 0.09);
+  border-color: rgba($color-info, 0.2);
+}
 
-  &:hover {
-    background-color: $color-primary-dark;
-  }
+.home-footer-cta__content h2 {
+  font-size: clamp(1.75rem, 4vw, $font-size-3xl);
+  font-weight: $font-weight-bold;
+  color: $color-text-primary;
+  letter-spacing: $tracking-snug;
+  margin: 0;
+  line-height: 1.2;
+}
 
-  &:active {
-    transform: scale(0.98);
-  }
+.home-footer-cta__content > p {
+  font-size: $font-size-lg;
+  color: $color-text-secondary;
+  line-height: $line-height-relaxed;
+  max-width: 520px;
+  margin: 0;
+}
+
+.home-footer-cta__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: $space-md;
+}
+
+.home-footer-cta__hint {
+  font-size: $font-size-xs !important;
+  color: $color-text-muted !important;
+  letter-spacing: $tracking-wide;
+  margin: 0;
 }

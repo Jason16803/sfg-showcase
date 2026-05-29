@@ -1,39 +1,59 @@
 @use '@/styles/variables' as *;
 
 // ---------------------------------------------------------------------------
-// Layout
+// SignupPage — Phase 4: AuthShell handles background + entrance.
 // ---------------------------------------------------------------------------
 
-.signup-page {
-  flex: 1;
-  display: flex;
-  align-items: flex-start;
-  justify-content: center;
-  padding: $space-2xl $space-md;
+// ── Glass card ───────────────────────────────────────────────────────────────
 
-  @media (min-width: $breakpoint-md) {
-    align-items: center;
-    padding: $space-xl $space-md;
+.signup-page__card {
+  position: relative;
+  background: $glass-bg-auth;
+  border: 1px solid $border-modal;
+  border-radius: $radius-xl;
+  padding: $card-inset-lg;
+  box-shadow: $shadow-xl, $shadow-inset-glow;
+
+  // Top-edge luminosity — ice blue
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent 5%,
+      rgba(#60a5fa, 0.18) 30%,
+      rgba(#93c5fd, 0.36) 50%,
+      rgba(#60a5fa, 0.18) 70%,
+      transparent 95%
+    );
+    border-radius: $radius-xl $radius-xl 0 0;
+    pointer-events: none;
+  }
+
+  @supports (backdrop-filter: blur(1px)) {
+    backdrop-filter: blur($glass-blur-lg);
+    background: rgba(#192232, 0.82);   // cold slate — was indigo #1c2a4a
+  }
+
+  &--success {
+    border-color: rgba($color-success, 0.32);
+
+    &::before {
+      background: linear-gradient(
+        90deg,
+        transparent 5%,
+        rgba($color-success, 0.22) 30%,
+        rgba($color-success, 0.42) 50%,
+        rgba($color-success, 0.22) 70%,
+        transparent 95%
+      );
+    }
   }
 }
 
-.signup-page__content {
-  width: 100%;
-  max-width: 520px;
-}
-
-// ---------------------------------------------------------------------------
-// Card
-// ---------------------------------------------------------------------------
-
-.signup-page__card {
-  background-color: $color-surface-card;
-  border: 1px solid $color-border;
-}
-
-// ---------------------------------------------------------------------------
-// Header
-// ---------------------------------------------------------------------------
+// ── Header ───────────────────────────────────────────────────────────────────
 
 .signup-page__header {
   margin-bottom: $space-xl;
@@ -41,46 +61,128 @@
 
   h1 {
     font-size: $font-size-2xl;
-    margin-bottom: $space-sm;
+    font-weight: $font-weight-bold;
+    letter-spacing: $tracking-snug;
     color: $color-text-primary;
+    margin-bottom: $space-sm;
   }
 
   p {
     font-size: $font-size-sm;
     color: $color-text-secondary;
     line-height: $line-height-relaxed;
+    margin: 0;
+    max-width: 380px;
+    margin-left: auto;
+    margin-right: auto;
   }
 }
 
 .signup-page__badge {
   display: inline-block;
-  padding: $space-xs $space-md;
+  padding: 3px 12px;
   border-radius: 999px;
-  background-color: rgba($color-primary, 0.12);
-  border: 1px solid rgba($color-primary, 0.25);
+  background: rgba($color-primary, 0.1);
+  border: 1px solid rgba($color-primary, 0.22);
   color: $color-primary-light;
   font-size: $font-size-xs;
   font-weight: $font-weight-semibold;
-  letter-spacing: 0.06em;
+  letter-spacing: $tracking-wider;
   text-transform: uppercase;
   margin-bottom: $space-md;
 }
 
-// ---------------------------------------------------------------------------
-// Form
-// ---------------------------------------------------------------------------
+// ── Google OAuth request-access section ─────────────────────────────────────
+
+.signup-page__oauth {
+  display: flex;
+  flex-direction: column;
+  gap: $space-sm;
+  margin-bottom: $space-lg;
+}
+
+.signup-page__google-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: $space-sm;
+  padding: 11px $space-lg;
+  background: #ffffff;
+  color: #3c4043;
+  border: 1px solid #dadce0;
+  border-radius: $radius-md;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  font-family: inherit;
+  cursor: pointer;
+  min-height: $size-md;
+  transition: background $transition-base, box-shadow $transition-base;
+
+  &:hover {
+    background: #f8f9fa;
+    box-shadow: 0 1px 6px rgba(0, 0, 0, 0.16);
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba($color-primary, 0.3);
+  }
+
+  &:disabled { opacity: 0.5; cursor: not-allowed; pointer-events: none; }
+}
+
+.signup-page__google-icon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+.signup-page__oauth-note {
+  font-size: $font-size-xs;
+  color: $color-text-muted;
+  text-align: center;
+  line-height: $line-height-relaxed;
+  margin: 0;
+  letter-spacing: $tracking-wide;
+}
+
+// ── Divider ───────────────────────────────────────────────────────────────────
+
+.signup-page__divider {
+  display: flex;
+  align-items: center;
+  gap: $space-md;
+  margin-bottom: $space-lg;
+
+  &::before, &::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: $border-card;
+  }
+
+  span {
+    font-size: $font-size-xs;
+    color: $color-text-muted;
+    white-space: nowrap;
+    text-transform: uppercase;
+    letter-spacing: $tracking-wider;
+  }
+}
+
+// ── Form ─────────────────────────────────────────────────────────────────────
 
 .signup-page__form {
   display: flex;
   flex-direction: column;
-  gap: $space-lg;
+  gap: $space-md;
 }
 
-// Two-column row (name, password pair)
 .signup-page__row {
   display: grid;
   grid-template-columns: 1fr;
-  gap: $space-lg;
+  gap: $space-md;
 
   @media (min-width: $breakpoint-sm) {
     grid-template-columns: 1fr 1fr;
@@ -90,18 +192,21 @@
 .signup-page__field {
   display: flex;
   flex-direction: column;
-  gap: $space-sm;
+  gap: 5px;
 }
 
 .signup-page__label {
-  font-size: $font-size-sm;
+  font-size: $font-size-xs;
   font-weight: $font-weight-semibold;
-  color: $color-text-primary;
+  color: $color-text-secondary;
+  letter-spacing: $tracking-wider;
+  text-transform: uppercase;
 }
 
 .signup-page__error {
   font-size: $font-size-xs;
   color: $color-error;
+  letter-spacing: $tracking-wide;
 }
 
 .signup-page__submit {
@@ -113,76 +218,62 @@
   font-size: $font-size-xs;
   color: $color-text-muted;
   text-align: center;
-  margin-top: -$space-sm;
+  margin: 0;
+  letter-spacing: $tracking-wide;
 }
 
-// ---------------------------------------------------------------------------
-// Footer
-// ---------------------------------------------------------------------------
+// ── Footer ───────────────────────────────────────────────────────────────────
 
 .signup-page__footer {
-  margin-top: $space-xl;
+  margin-top: $space-lg;
   padding-top: $space-lg;
-  border-top: 1px solid $color-border;
+  border-top: 1px solid $border-card;
   text-align: center;
   font-size: $font-size-sm;
 
-  p {
-    color: $color-text-secondary;
-  }
+  p { color: $color-text-muted; margin: 0; }
 
   a {
-    color: $color-primary;
+    color: $color-primary-light;
     font-weight: $font-weight-semibold;
 
-    &:hover {
-      text-decoration: underline;
-    }
+    &:hover { text-decoration: underline; }
   }
 }
 
-// ---------------------------------------------------------------------------
-// Success state
-// ---------------------------------------------------------------------------
-
-.signup-page__card--success {
-  border-color: rgba($color-success, 0.3);
-  background-color: rgba($color-success, 0.04);
-}
+// ── Success ───────────────────────────────────────────────────────────────────
 
 .signup-page__success {
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
-  padding: $space-xl 0;
+  padding: $space-lg 0;
   gap: $space-lg;
 }
 
-.signup-page__success-icon {
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  background-color: rgba($color-success, 0.15);
-  border: 1px solid rgba($color-success, 0.3);
+.signup-page__success-ring {
+  width: 64px;
+  height: 64px;
   color: $color-success;
-  font-size: $font-size-2xl;
-  font-weight: $font-weight-bold;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  filter: drop-shadow(0 0 10px rgba($color-success, 0.28));
+  flex-shrink: 0;
+
+  svg { width: 100%; height: 100%; }
 }
 
 .signup-page__success-title {
   font-size: $font-size-2xl;
+  font-weight: $font-weight-bold;
   color: $color-text-primary;
+  letter-spacing: $tracking-snug;
   margin: 0;
 }
 
 .signup-page__success-body {
   font-size: $font-size-base;
   color: $color-text-secondary;
-  max-width: 380px;
+  max-width: 360px;
   line-height: $line-height-relaxed;
   margin: 0;
 }
@@ -190,31 +281,29 @@
 .signup-page__success-note {
   font-size: $font-size-sm;
   color: $color-text-muted;
-  max-width: 360px;
+  max-width: 340px;
   line-height: $line-height-relaxed;
   margin: 0;
 }
 
 .signup-page__success-link {
-  color: $color-primary;
+  color: $color-primary-light;
   font-size: $font-size-sm;
   font-weight: $font-weight-semibold;
   text-decoration: none;
+  letter-spacing: $tracking-snug;
 
-  &:hover {
-    text-decoration: underline;
-  }
+  &:hover { text-decoration: underline; }
 }
 
-// ---------------------------------------------------------------------------
-// Shared input error state (mirrors LoginPage)
-// ---------------------------------------------------------------------------
+// ── Input error ───────────────────────────────────────────────────────────────
 
 input.error {
-  border-color: $color-error;
-  background-color: rgba($color-error, 0.05);
+  border-color: rgba($color-error, 0.6);
+  background: rgba($color-error, 0.04);
 
   &:focus {
-    border-color: $color-error;
+    border-color: rgba($color-error, 0.8);
+    box-shadow: 0 0 0 3px rgba($color-error, 0.14);
   }
 }

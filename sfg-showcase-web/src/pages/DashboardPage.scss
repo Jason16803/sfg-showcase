@@ -1,33 +1,41 @@
 @use '@/styles/variables' as *;
+@use '@/styles/utilities' as *;
 
 // ---------------------------------------------------------------------------
-// Shimmer animation — used by multiple skeleton types on this page
+// DashboardPage — Phase 2: elevated chart cards, consolidated shimmer,
+// improved section headers, subtle page atmosphere.
+// Data surfaces (tables, activity feed) are handled by their own components.
 // ---------------------------------------------------------------------------
 
-@keyframes shimmer {
-  0%   { background-position: -600px 0; }
-  100% { background-position:  600px 0; }
-}
+// ---------------------------------------------------------------------------
+// Shimmer mixin — references canonical shimmer-sweep from global.scss
+// ---------------------------------------------------------------------------
 
 @mixin shimmer-base {
   background: linear-gradient(
     90deg,
-    $color-surface-elevated 25%,
-    $color-border           50%,
-    $color-surface-elevated 75%
+    $surface-raised     25%,
+    rgba(#4d7fa8, 0.14) 50%,   // steel-blue sweep — was stale #6b84c7
+    $surface-raised     75%
   );
   background-size: 600px 100%;
-  animation: shimmer 1.5s ease-in-out infinite;
+  animation: shimmer-sweep 1.5s ease-in-out infinite;
   border-radius: $radius-sm;
 }
 
 // ---------------------------------------------------------------------------
-// Page wrapper
+// Page wrapper — subtle teal atmosphere in one corner
 // ---------------------------------------------------------------------------
+
+// Combined height of demo strip (32px) + header (~68px) + small buffer.
+// Used as scroll-margin-top on sections so anchor links land below chrome.
+$dashboard-chrome-h: 116px;
 
 .dashboard-page {
   flex: 1;
   padding: $space-lg $space-md;
+  background:
+    radial-gradient(ellipse 40% 35% at 95% 95%, rgba($color-info, 0.04) 0%, transparent 60%);
 
   @media (min-width: $breakpoint-lg) {
     padding: $space-xl;
@@ -39,22 +47,23 @@
 // ---------------------------------------------------------------------------
 
 .dashboard-page__section {
-  margin-bottom: $space-2xl;
+  margin-bottom: $section-gap;
 
   &--last {
     margin-bottom: 0;
-    padding-bottom: $space-2xl;
+    padding-bottom: $section-gap;
   }
 }
 
 .dashboard-page__section-title {
-  font-size: $font-size-base;
+  font-size: $font-size-sm;
   font-weight: $font-weight-semibold;
   color: $color-text-primary;
   margin-bottom: $space-md;
   display: flex;
   align-items: baseline;
   gap: $space-md;
+  letter-spacing: $tracking-snug;
 }
 
 .dashboard-page__section-sub {
@@ -62,7 +71,7 @@
   font-weight: $font-weight-regular;
   color: $color-text-muted;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: $tracking-widest;
 }
 
 // ---------------------------------------------------------------------------
@@ -77,10 +86,10 @@
     font-weight: $font-weight-bold;
     color: $color-text-primary;
     margin-bottom: $space-xs;
-    letter-spacing: -0.02em;
+    letter-spacing: $tracking-snug;
 
     @media (min-width: $breakpoint-lg) {
-      font-size: $font-size-3xl;
+      font-size: $font-size-page-title;
     }
   }
 
@@ -92,6 +101,7 @@
     align-items: center;
     gap: $space-sm;
     flex-wrap: wrap;
+    letter-spacing: $tracking-wide;
   }
 }
 
@@ -101,11 +111,11 @@
   font-size: $font-size-xs;
   font-weight: $font-weight-semibold;
   color: $color-warning;
-  background-color: rgba($color-warning, 0.1);
-  border: 1px solid rgba($color-warning, 0.25);
+  background-color: rgba($color-warning, 0.09);
+  border: 1px solid rgba($color-warning, 0.22);
   border-radius: 999px;
   padding: 2px 8px;
-  letter-spacing: 0.03em;
+  letter-spacing: $tracking-wide;
 }
 
 // ---------------------------------------------------------------------------
@@ -120,12 +130,12 @@
 
   @media (min-width: $breakpoint-lg) {
     grid-template-columns: repeat(4, 1fr);
-    gap: $space-lg;
+    gap: $card-gap;
   }
 }
 
 // ---------------------------------------------------------------------------
-// Status strip — compact job distribution bar
+// Status strip
 // ---------------------------------------------------------------------------
 
 .status-strip {
@@ -145,29 +155,30 @@
   font-size: $font-size-xs;
   font-weight: $font-weight-semibold;
   border: 1px solid transparent;
-  transition: all $transition-fast;
+  transition: box-shadow $transition-fast, transform $transition-fast;
   cursor: default;
+  letter-spacing: $tracking-wide;
 
   &:hover {
-    filter: brightness(1.1);
     transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
   }
 
   &--inprogress {
     background: rgba($color-primary, 0.12);
-    color: $color-primary;
-    border-color: rgba($color-primary, 0.2);
+    color: $color-primary-light;
+    border-color: rgba($color-primary, 0.22);
   }
 
   &--scheduled {
-    background: rgba(#06b6d4, 0.1);
-    color: #06b6d4;
-    border-color: rgba(#06b6d4, 0.2);
+    background: rgba($color-info, 0.1);   // was hardcoded #06b6d4
+    color: $color-info;
+    border-color: rgba($color-info, 0.2);
   }
 
   &--new {
     background: rgba($color-warning, 0.1);
-    color: #d97706; // amber-600, replaces darken($color-warning, 5%)
+    color: #d97706;
     border-color: rgba($color-warning, 0.2);
   }
 
@@ -178,7 +189,7 @@
   }
 
   &--canceled {
-    background: rgba($color-error, 0.08);
+    background: rgba($color-error, 0.07);
     color: $color-error;
     border-color: rgba($color-error, 0.15);
   }
@@ -187,7 +198,7 @@
 .status-strip__count {
   font-size: $font-size-sm;
   font-weight: $font-weight-bold;
-  letter-spacing: -0.02em;
+  letter-spacing: $tracking-tight;
   line-height: 1;
 }
 
@@ -203,7 +214,7 @@
 
 .dashboard-page__charts {
   display: grid;
-  gap: $space-lg;
+  gap: $card-gap;
   grid-template-columns: 1fr;
   margin-bottom: 0;
 
@@ -212,21 +223,22 @@
   }
 
   @media (min-width: $breakpoint-xl) {
-    // Revenue dominant at 2fr, two smaller charts at 1fr each
     grid-template-columns: 2fr 1fr 1fr;
   }
 }
 
+// Chart card — solid elevated surface (NO glass — chart surfaces must be solid)
 .dashboard-page__chart-card {
-  background-color: $color-surface-card;
-  border: 1px solid $color-border;
+  background-color: $surface-card;
+  border: 1px solid $border-card;
   border-radius: $radius-lg;
   padding: $space-lg;
+  box-shadow: $shadow-sm, $shadow-inset-glow;
   transition: border-color $transition-base, box-shadow $transition-base;
 
   &:hover {
-    border-color: $color-border-light;
-    box-shadow: $shadow-md;
+    border-color: $border-raised;
+    box-shadow: $shadow-md, $shadow-inset-glow;
   }
 
   h3 {
@@ -234,13 +246,12 @@
     font-weight: $font-weight-semibold;
     color: $color-text-primary;
     margin-bottom: 2px;
+    letter-spacing: $tracking-snug;
   }
 
-  // Primary chart spans both columns on 2-col layout (< 1280px)
+  // Primary chart spans both cols at mid breakpoint
   @media (min-width: $breakpoint-md) and (max-width: 1279px) {
-    &--primary {
-      grid-column: span 2;
-    }
+    &--primary { grid-column: span 2; }
   }
 }
 
@@ -248,6 +259,7 @@
   font-size: $font-size-xs;
   color: $color-text-muted;
   margin: 0 0 $space-md;
+  letter-spacing: $tracking-wide;
 }
 
 // ---------------------------------------------------------------------------
@@ -255,14 +267,15 @@
 // ---------------------------------------------------------------------------
 
 .dashboard-page__skeleton-card {
-  background-color: $color-surface-card;
-  border: 1px solid $color-border;
+  background-color: $surface-card;
+  border: 1px solid $border-card;
   border-radius: $radius-lg;
   padding: $space-lg;
   display: flex;
   flex-direction: column;
   gap: $space-md;
   min-height: 110px;
+  box-shadow: $shadow-sm, $shadow-inset-glow;
 }
 
 .dashboard-page__skeleton-chart {
@@ -288,7 +301,7 @@
 
 .dashboard-page__content {
   display: grid;
-  gap: $space-lg;
+  gap: $card-gap;
   grid-template-columns: 1fr;
 
   @media (min-width: $breakpoint-lg) {

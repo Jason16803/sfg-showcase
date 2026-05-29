@@ -26,17 +26,18 @@ import './Charts.scss'
 // ---------------------------------------------------------------------------
 
 const COLORS = {
-  primary:       '#6366f1',
-  primaryLight:  '#818cf8',
+  primary:       '#60a5fa',   // ice blue — was indigo #6366f1
+  primaryLight:  '#93c5fd',   // blue-300 — was #818cf8
   success:       '#10b981',
   warning:       '#f59e0b',
   error:         '#ef4444',
-  cyan:          '#06b6d4',
-  grid:          '#334155',
-  axisText:      '#94a3b8',
-  tooltipBg:     '#1e293b',
-  tooltipBorder: '#334155',
-  dot:           '#1e293b',
+  cyan:          '#67e8f9',   // ice cyan — was #06b6d4
+  // Phase palette transition: updated to match new surface tokens
+  grid:          '#1c2535',   // $surface-overlay — was #1e2d50
+  axisText:      '#94a3b8',   // $color-text-muted — unchanged
+  tooltipBg:     '#17222f',   // $glass-bg-tooltip — was #1a2740
+  tooltipBorder: '#2d5070',   // $border-overlay approx — was #3d5080
+  dot:           '#0d1118',   // $color-surface-bg — was #0f172a
 }
 
 // ---------------------------------------------------------------------------

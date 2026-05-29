@@ -1,47 +1,43 @@
 @use '@/styles/variables' as *;
+@use '@/styles/utilities' as *;
 
 .contact-page {
   flex: 1;
 }
 
 // ---------------------------------------------------------------------------
-// Hero
+// Hero — Phase 3
 // ---------------------------------------------------------------------------
 
 .contact-hero {
   padding: $space-3xl $space-md 2.5rem;
-  border-bottom: 1px solid $color-border;
-  background: linear-gradient(
-    135deg,
-    rgba($color-primary, 0.04) 0%,
-    rgba(6, 182, 212, 0.04) 100%
-  );
+  border-bottom: 1px solid $border-card;
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse 55% 50% at 8%  35%, rgba($color-primary, 0.09) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 35% at 92% 80%, rgba($color-info,    0.06) 0%, transparent 55%),
+    $color-surface-bg;
 
   @media (min-width: $breakpoint-lg) {
     padding: $space-3xl $space-xl 2.5rem;
   }
 
   &__eyebrow {
-    display: inline-block;
-    font-size: $font-size-xs;
-    font-weight: $font-weight-semibold;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: $color-primary;
-    background: rgba($color-primary, 0.1);
-    border: 1px solid rgba($color-primary, 0.2);
-    border-radius: 999px;
-    padding: 3px 12px;
+    @include eyebrow-label;
+    color: $color-info;
+    background: rgba($color-info, 0.08);
+    border-color: rgba($color-info, 0.18);
     margin-bottom: $space-lg;
   }
 
   &__title {
-    font-size: clamp(2rem, 5vw, 3rem);
+    font-size: clamp(2.25rem, 5.5vw, $font-size-display-sm);
     font-weight: $font-weight-bold;
     color: $color-text-primary;
-    letter-spacing: -0.02em;
-    line-height: 1.12;
-    margin-bottom: $space-lg;
+    letter-spacing: $tracking-snug;
+    line-height: 1.08;
+    margin-bottom: $space-md;
   }
 
   &__sub {
@@ -89,7 +85,7 @@
     font-size: $font-size-2xl;
     font-weight: $font-weight-bold;
     color: $color-text-primary;
-    letter-spacing: -0.01em;
+    letter-spacing: $tracking-snug;
     margin: 0;
   }
 
@@ -104,7 +100,7 @@
     list-style: none;
     display: flex;
     flex-direction: column;
-    gap: $space-xl;
+    gap: $space-lg;
   }
 
   &__item {
@@ -113,24 +109,34 @@
     gap: $space-md;
   }
 
+  // SVG icon container — accent-tinted circles
   &__item-icon {
     width: 40px;
     height: 40px;
-    background: rgba($color-primary, 0.1);
-    border: 1px solid rgba($color-primary, 0.15);
     border-radius: $radius-md;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: $font-size-base;
     flex-shrink: 0;
+    border: 1px solid transparent;
+    transition: all $transition-base;
+
+    svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    &--primary { background: rgba($color-primary, 0.1); border-color: rgba($color-primary, 0.18); color: $color-primary-light; }
+    &--info    { background: rgba($color-info,    0.1); border-color: rgba($color-info,    0.18); color: $color-info;         }
+    &--success { background: rgba($color-success, 0.1); border-color: rgba($color-success, 0.18); color: $color-success;      }
+    &--warning { background: rgba($color-warning, 0.1); border-color: rgba($color-warning, 0.18); color: $color-warning;      }
   }
 
   &__item-label {
     font-size: $font-size-xs;
     font-weight: $font-weight-semibold;
     text-transform: uppercase;
-    letter-spacing: 0.07em;
+    letter-spacing: $tracking-widest;
     color: $color-text-muted;
     margin-bottom: 3px;
   }
@@ -139,11 +145,12 @@
     font-size: $font-size-sm;
     font-weight: $font-weight-medium;
     color: $color-text-primary;
+    letter-spacing: $tracking-snug;
   }
 }
 
 // ---------------------------------------------------------------------------
-// Form card
+// Form card — uses Card component (already elevated in Phase 2)
 // ---------------------------------------------------------------------------
 
 .contact-form-card {
@@ -152,12 +159,13 @@
     font-weight: $font-weight-bold;
     color: $color-text-primary;
     margin-bottom: $space-xl;
+    letter-spacing: $tracking-snug;
   }
 
   &__error {
-    padding: $space-md;
+    padding: $space-sm $space-md;
     background: rgba($color-error, 0.08);
-    border: 1px solid rgba($color-error, 0.25);
+    border: 1px solid rgba($color-error, 0.22);
     border-radius: $radius-md;
     color: $color-error;
     font-size: $font-size-sm;
@@ -192,8 +200,9 @@
 
   &__label {
     font-size: $font-size-sm;
-    font-weight: $font-weight-medium;
+    font-weight: $font-weight-semibold;
     color: $color-text-primary;
+    letter-spacing: $tracking-wide;
 
     &--required::after {
       content: ' *';
@@ -210,18 +219,19 @@
   &__input {
     width: 100%;
     padding: $space-md;
-    border: 1px solid $color-border;
+    border: 1px solid $border-raised;
     border-radius: $radius-md;
-    background-color: $color-surface-elevated;
+    background-color: $surface-raised;
     color: $color-text-primary;
     font-size: $font-size-sm;
     font-family: inherit;
-    transition: border-color $transition-base, box-shadow $transition-base;
+    transition: border-color $transition-base, box-shadow $transition-base, background-color $transition-base;
 
     &:focus {
       outline: none;
       border-color: $color-primary;
-      box-shadow: 0 0 0 3px rgba($color-primary, 0.12);
+      background-color: $surface-overlay;
+      box-shadow: 0 0 0 3px rgba($color-primary, 0.16);
     }
 
     &::placeholder {
@@ -229,9 +239,11 @@
     }
 
     &--error {
-      border-color: $color-error;
+      border-color: rgba($color-error, 0.6);
+      background-color: rgba($color-error, 0.04);
 
       &:focus {
+        border-color: rgba($color-error, 0.8);
         box-shadow: 0 0 0 3px rgba($color-error, 0.12);
       }
     }
@@ -246,51 +258,82 @@
   &__error-msg {
     font-size: $font-size-xs;
     color: $color-error;
-    font-weight: $font-weight-medium;
+    font-weight: $font-weight-semibold;
   }
 
   &__submit {
     width: 100%;
     justify-content: center;
     margin-top: $space-sm;
+    position: relative;
+  }
+
+  // Spinner during submission
+  &__spinner {
+    width: 14px;
+    height: 14px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top-color: #ffffff;
+    border-radius: 50%;
+    animation: contact-spin 0.8s linear infinite;
+    flex-shrink: 0;
   }
 }
 
+@keyframes contact-spin {
+  to { transform: rotate(360deg); }
+}
+
 // ---------------------------------------------------------------------------
-// Success state
+// Success page / state — full section layout
 // ---------------------------------------------------------------------------
+
+.contact-success-page {
+  flex: 1;
+  padding: $space-3xl $space-md;
+  border-top: 1px solid $border-card;
+  background:
+    radial-gradient(ellipse 55% 45% at 50% 80%, rgba($color-success, 0.06) 0%, transparent 60%),
+    $color-surface-bg;
+}
 
 .contact-success {
   max-width: 440px;
   margin: 0 auto;
   text-align: center;
-  padding: $space-3xl 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $space-xl;
 
-  &__icon {
-    width: 64px;
-    height: 64px;
-    border-radius: 50%;
-    background: rgba($color-success, 0.12);
-    border: 2px solid rgba($color-success, 0.3);
-    color: $color-success;
-    font-size: $font-size-2xl;
+  &__ring {
+    width: 72px;
+    height: 72px;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin: 0 auto $space-xl;
+    color: $color-success;
+    filter: drop-shadow(0 0 12px rgba($color-success, 0.3));
+
+    svg {
+      width: 100%;
+      height: 100%;
+    }
   }
 
   h2 {
     font-size: $font-size-2xl;
     font-weight: $font-weight-bold;
     color: $color-text-primary;
-    margin-bottom: $space-md;
+    letter-spacing: $tracking-snug;
+    margin: 0;
   }
 
   p {
     font-size: $font-size-base;
     color: $color-text-secondary;
     line-height: $line-height-relaxed;
-    margin-bottom: $space-xl;
+    margin: 0;
+    max-width: 360px;
   }
 }

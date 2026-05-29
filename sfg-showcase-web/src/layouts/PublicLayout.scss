@@ -1,4 +1,5 @@
 @use '@/styles/variables' as *;
+@use '@/styles/utilities' as *;
 
 .public-layout {
   display: flex;
@@ -10,18 +11,156 @@
   flex: 1;
 }
 
-.public-layout__footer {
-  background-color: $color-surface-card;
-  border-top: 1px solid $color-border;
-  padding: $space-lg $space-md;
-  text-align: center;
+// ---------------------------------------------------------------------------
+// Footer — Phase 3: richer four-column layout, brand identity, bottom bar.
+// ---------------------------------------------------------------------------
 
-  @media (min-width: $breakpoint-lg) {
-    padding: $space-xl;
+.public-layout__footer {
+  background-color: $surface-card;
+  border-top: 1px solid $border-card;
+  box-shadow: 0 -1px 0 $border-base;
+}
+
+.public-layout__footer-inner {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: $space-3xl $space-md $space-2xl;
+  display: grid;
+  gap: $space-2xl;
+  grid-template-columns: 1fr;
+
+  @media (min-width: $breakpoint-md) {
+    grid-template-columns: 1.8fr repeat(3, 1fr);
+    gap: $space-xl;
+    padding: $space-3xl $space-xl $space-2xl;
+  }
+}
+
+// ── Brand column ──────────────────────────────────────────────────────────
+
+.public-layout__footer-brand {
+  display: flex;
+  flex-direction: column;
+  gap: $space-md;
+}
+
+.public-layout__footer-wordmark {
+  font-size: $font-size-2xl;
+  font-weight: $font-weight-bold;
+  color: $color-primary-light;
+  letter-spacing: $tracking-tight;
+  text-decoration: none;
+  width: fit-content;
+  transition: color $transition-base;
+
+  &:hover { color: #a5b4fc; }
+}
+
+.public-layout__footer-tagline {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  line-height: $line-height-relaxed;
+  margin: 0;
+}
+
+.public-layout__footer-location {
+  font-size: $font-size-xs;
+  color: $color-text-muted;
+  margin: 0;
+  letter-spacing: $tracking-wide;
+}
+
+.public-layout__footer-badges {
+  display: flex;
+  gap: $space-sm;
+  flex-wrap: wrap;
+}
+
+.public-layout__footer-badge {
+  font-size: 10px;
+  font-weight: $font-weight-semibold;
+  letter-spacing: $tracking-wider;
+  text-transform: uppercase;
+  color: $color-primary-light;
+  background: rgba($color-primary, 0.09);
+  border: 1px solid rgba($color-primary, 0.2);
+  border-radius: 999px;
+  padding: 2px 8px;
+
+  &--teal {
+    color: $color-info;
+    background: rgba($color-info, 0.08);
+    border-color: rgba($color-info, 0.18);
+  }
+}
+
+// ── Nav columns ───────────────────────────────────────────────────────────
+
+.public-layout__footer-col {
+  display: flex;
+  flex-direction: column;
+  gap: $space-md;
+}
+
+.public-layout__footer-col-heading {
+  font-size: $font-size-xs;
+  font-weight: $font-weight-semibold;
+  text-transform: uppercase;
+  letter-spacing: $tracking-widest;
+  color: $color-text-muted;
+}
+
+.public-layout__footer-col-links {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: $space-sm;
+}
+
+.public-layout__footer-link {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  text-decoration: none;
+  transition: color $transition-base;
+  letter-spacing: $tracking-wide;
+
+  &:hover { color: $color-text-primary; }
+}
+
+// ── Bottom bar ────────────────────────────────────────────────────────────
+
+.public-layout__footer-bottom {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: $space-lg $space-md;
+  border-top: 1px solid $border-card;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: $space-md;
+
+  @media (min-width: $breakpoint-md) {
+    padding: $space-lg $space-xl;
   }
 
   p {
-    font-size: $font-size-sm;
+    font-size: $font-size-xs;
     color: $color-text-muted;
+    margin: 0;
+    letter-spacing: $tracking-wide;
   }
+}
+
+.public-layout__footer-credits {
+  text-align: right;
+}
+
+.public-layout__footer-credit-link {
+  color: $color-primary-light;
+  text-decoration: none;
+  font-weight: $font-weight-semibold;
+  transition: color $transition-base;
+
+  &:hover { color: #a5b4fc; text-decoration: underline; }
 }

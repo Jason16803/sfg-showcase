@@ -1,24 +1,30 @@
-import { Container } from '@/components'
+import { Link } from 'react-router-dom'
+import { Container, Button } from '@/components'
 import './AboutPage.scss'
 
+// Values — icon glyphs replace OS-dependent emoji
 const VALUES = [
   {
-    icon: '🏗️',
+    glyph: '◈',
+    accent: 'primary',
     title: 'Built to last',
     body: 'Every architectural decision is made with reliability, performance, and long-term maintainability in mind — not just the next sprint.',
   },
   {
-    icon: '🤝',
+    glyph: '◎',
+    accent: 'info',
     title: 'Operators first',
     body: 'We design for the people actually running the operations, not just the executives approving the budget. Field teams are first-class users.',
   },
   {
-    icon: '🔐',
+    glyph: '◉',
+    accent: 'success',
     title: 'Trust by default',
     body: 'Multi-tenant isolation, RBAC, and audit trails are not afterthoughts. They are baked into the architecture from day one.',
   },
   {
-    icon: '⚡',
+    glyph: '◆',
+    accent: 'warning',
     title: 'Relentlessly iterative',
     body: 'We ship fast, learn from real usage, and improve constantly. Beta means we move with urgency — and that feedback shapes every release.',
   },
@@ -46,15 +52,16 @@ const TEAM = [
 ]
 
 const STATS = [
-  { val: '180+', label: 'Businesses onboarded' },
-  { val: '$2.4M', label: 'Invoices processed' },
-  { val: '99.8%', label: 'Uptime (90-day)' },
-  { val: '4.8★', label: 'Average rating' },
+  { val: '180+',  label: 'Businesses onboarded' },
+  { val: '$2.4M', label: 'Invoices processed'   },
+  { val: '99.8%', label: 'Uptime (90-day)'       },
+  { val: '4.8★',  label: 'Average rating'        },
 ]
 
 export function AboutPage() {
   return (
     <main className="about-page">
+
       {/* Hero */}
       <section className="about-hero">
         <Container>
@@ -63,8 +70,9 @@ export function AboutPage() {
             Operations software that works<br />as hard as you do.
           </h1>
           <p className="about-hero__sub">
-            SmithForgd started as a tool to solve the real operational chaos we saw in service businesses.
-            Today it&rsquo;s a platform powering field teams, franchises, and service operators across the country.
+            SmithForgd started as a tool to solve the real operational chaos we saw in service
+            businesses. Today it&rsquo;s a platform powering field teams, franchises, and service
+            operators across the country.
           </p>
         </Container>
       </section>
@@ -77,13 +85,14 @@ export function AboutPage() {
               <div className="about-mission__eyebrow">Our mission</div>
               <h2>Give every service business the operational edge of a Fortune 500.</h2>
               <p>
-                The best HVAC company, landscaper, or home services team shouldn&rsquo;t lose to a bigger competitor
-                just because they lack modern software. We believe every business — regardless of size — deserves
-                the tools to run jobs, manage teams, and grow revenue.
+                The best HVAC company, landscaper, or home services team shouldn&rsquo;t lose to a
+                bigger competitor just because they lack modern software. We believe every business
+                — regardless of size — deserves the tools to run jobs, manage teams, and grow
+                revenue.
               </p>
               <p>
-                SmithForgd is built on that belief: clear workflows, real-time visibility, and a platform that
-                gets out of your way.
+                SmithForgd is built on that belief: clear workflows, real-time visibility, and a
+                platform that gets out of your way.
               </p>
             </div>
             <div className="about-mission__stats">
@@ -107,8 +116,10 @@ export function AboutPage() {
           </div>
           <div className="about-values__grid">
             {VALUES.map((v) => (
-              <div key={v.title} className="about-values__card">
-                <div className="about-values__card-icon">{v.icon}</div>
+              <div key={v.title} className={`about-values__card about-values__card--${v.accent}`}>
+                <div className={`about-values__card-icon about-values__card-icon--${v.accent}`}>
+                  <span aria-hidden="true">{v.glyph}</span>
+                </div>
                 <h3 className="about-values__card-title">{v.title}</h3>
                 <p className="about-values__card-body">{v.body}</p>
               </div>
@@ -136,6 +147,25 @@ export function AboutPage() {
           </div>
         </Container>
       </section>
+
+      {/* Bottom CTA */}
+      <section className="about-cta">
+        <Container>
+          <div className="about-cta__content">
+            <h2>Ready to see it in action?</h2>
+            <p>Request demo access and explore a live multi-tenant workspace.</p>
+            <div className="about-cta__actions">
+              <Link to="/login">
+                <Button variant="primary" size="lg">Access the demo</Button>
+              </Link>
+              <Link to="/contact">
+                <Button variant="ghost" size="lg">Get in touch</Button>
+              </Link>
+            </div>
+          </div>
+        </Container>
+      </section>
+
     </main>
   )
 }

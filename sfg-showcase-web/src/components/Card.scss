@@ -1,15 +1,24 @@
 @use '@/styles/variables' as *;
+@use '@/styles/utilities' as *;
+
+// ---------------------------------------------------------------------------
+// Card — Phase 2: applies surface elevation system.
+// Uses $surface-card + $border-card + dark-calibrated shadows.
+// No glass — Card is a solid data surface.
+// ---------------------------------------------------------------------------
 
 .card {
-  background-color: $color-surface-card;
-  border: 1px solid $color-border;
+  background-color: $surface-card;
+  border: 1px solid $border-card;
   border-radius: $radius-lg;
-  padding: $space-lg;
-  transition: all $transition-base;
-  box-shadow: $shadow-sm;
+  padding: $card-inset;
+  box-shadow: $shadow-sm, $shadow-inset-glow;
+  transition:
+    border-color $transition-base,
+    box-shadow   $transition-base;
 
   &:hover {
-    border-color: $color-border-light;
-    box-shadow: $shadow-md;
+    border-color: $border-raised;
+    box-shadow: $shadow-md, $shadow-inset-glow;
   }
 }

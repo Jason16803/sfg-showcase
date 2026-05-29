@@ -2,8 +2,13 @@
 @use './utilities' as *;
 
 /* ============================================================================
-   GLOBAL STYLES
+   GLOBAL STYLES — SFG Showcase Web
+   Phase 1: Added canonical shimmer keyframe, refined scrollbar.
    ============================================================================ */
+
+// ---------------------------------------------------------------------------
+// Reset
+// ---------------------------------------------------------------------------
 
 * {
   margin: 0;
@@ -32,46 +37,39 @@ body {
   flex-direction: column;
 }
 
-/* ============================================================================
-   TYPOGRAPHY
-   ============================================================================ */
+// ---------------------------------------------------------------------------
+// CANONICAL SHIMMER KEYFRAME
+// Defined here once so all components can reference it via @mixin shimmer
+// without each defining their own duplicate @keyframes block.
+// ---------------------------------------------------------------------------
 
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
+@keyframes shimmer-sweep {
+  0%   { background-position: -600px 0; }
+  100% { background-position:  600px 0; }
+}
+
+// ---------------------------------------------------------------------------
+// Typography scale
+// ---------------------------------------------------------------------------
+
+h1, h2, h3, h4, h5, h6 {
   font-weight: $font-weight-bold;
   line-height: $line-height-tight;
+  color: $color-text-primary;
 }
 
-h1 {
-  font-size: $font-size-4xl;
-}
-
-h2 {
-  font-size: $font-size-3xl;
-}
-
-h3 {
-  font-size: $font-size-2xl;
-}
-
-h4 {
-  font-size: $font-size-xl;
-}
-
-h5 {
-  font-size: $font-size-lg;
-}
-
-h6 {
-  font-size: $font-size-base;
-}
+// Sizes mapped to the token scale.
+// Component overrides via BEM classes take precedence.
+h1 { font-size: $font-size-4xl;  letter-spacing: $tracking-snug;   }
+h2 { font-size: $font-size-3xl;  letter-spacing: $tracking-snug;   }
+h3 { font-size: $font-size-2xl;  letter-spacing: $tracking-normal; }
+h4 { font-size: $font-size-xl;   letter-spacing: $tracking-normal; }
+h5 { font-size: $font-size-lg;   letter-spacing: $tracking-normal; }
+h6 { font-size: $font-size-base; letter-spacing: $tracking-normal; }
 
 p {
   color: $color-text-secondary;
+  line-height: $line-height-normal;
 }
 
 a {
@@ -79,18 +77,13 @@ a {
   text-decoration: none;
   transition: color $transition-base;
 
-  &:hover {
-    color: $color-primary-light;
-  }
-
-  &:focus-visible {
-    @include focus-ring;
-  }
+  &:hover      { color: $color-primary-light; }
+  &:focus-visible { @include focus-ring-outline; }
 }
 
-/* ============================================================================
-   FORM ELEMENTS
-   ============================================================================ */
+// ---------------------------------------------------------------------------
+// Form elements
+// ---------------------------------------------------------------------------
 
 input,
 textarea,
@@ -106,16 +99,20 @@ textarea,
 select {
   width: 100%;
   padding: $space-md;
-  border: 1px solid $color-border;
+  border: 1px solid $border-raised;
   border-radius: $radius-md;
-  background-color: $color-surface-elevated;
+  background-color: $surface-raised;
   color: $color-text-primary;
-  transition: border-color $transition-base, background-color $transition-base;
+  transition:
+    border-color $transition-base,
+    background-color $transition-base,
+    box-shadow $transition-base;
 
   &:focus {
     outline: none;
     border-color: $color-primary;
-    background-color: $color-surface-bg;
+    background-color: $surface-overlay;
+    box-shadow: 0 0 0 3px rgba($color-primary, 0.18);
   }
 
   &::placeholder {
@@ -123,25 +120,34 @@ select {
   }
 }
 
-/* ============================================================================
-   SCROLLBAR
-   ============================================================================ */
+// ---------------------------------------------------------------------------
+// Scrollbar — refined for dark environment
+// ---------------------------------------------------------------------------
 
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: $color-surface-bg;
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: $color-border;
+  background: rgba(#4d7fa8, 0.22);   // steel-blue — was indigo #6b84c7
   border-radius: $radius-md;
+  transition: background $transition-base;
 
   &:hover {
-    background: $color-border-light;
+    background: rgba(#4d7fa8, 0.42);
   }
 }
 
+// ---------------------------------------------------------------------------
+// Selection color
+// ---------------------------------------------------------------------------
+
+::selection {
+  background: rgba($color-primary, 0.28);  // ice blue tint
+  color: $color-text-primary;
+}
