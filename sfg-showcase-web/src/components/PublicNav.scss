@@ -1,82 +1,263 @@
 @use '@/styles/variables' as *;
-@use '@/styles/utilities' as *;
+
+// ---------------------------------------------------------------------------
+// PublicNav — Phase 2: luminous nav chrome, glass mobile drawer.
+// The nav is the first impression of the product on public pages.
+// ---------------------------------------------------------------------------
 
 .public-nav {
-  background-color: $color-surface-card;
-  border-bottom: 1px solid $color-border;
+  background-color: $surface-card;
+  border-bottom: 1px solid $border-card;
   position: sticky;
   top: 0;
   z-index: 100;
+  box-shadow: 0 1px 0 $border-base, $shadow-sm;
+  transition: box-shadow $transition-base;
+
+  // Stronger shadow + border when user has scrolled
+  &--scrolled {
+    box-shadow:
+      0 1px 0 $border-raised,
+      $shadow-md;
+  }
 
   &__container {
-    @include container-width;
-    @include flex-between;
-    height: 70px;
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 $space-md;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 68px;
+    gap: $space-lg;
+
+    @media (min-width: $breakpoint-lg) {
+      padding: 0 $space-xl;
+    }
   }
+
+  // ── Logo ──────────────────────────────────────────────────────────────
 
   &__logo {
     display: flex;
     align-items: center;
     text-decoration: none;
-    gap: $space-md;
+    flex-shrink: 0;
   }
 
   &__logo-text {
     font-size: $font-size-2xl;
     font-weight: $font-weight-bold;
-    color: $color-primary;
+    color: $color-primary-light;
+    letter-spacing: $tracking-tight;
+    transition: color $transition-base;
+
+    &:hover { color: #a5b4fc; }
   }
+
+  // ── Desktop nav links ─────────────────────────────────────────────────
 
   &__links {
     display: none;
     list-style: none;
-    gap: $space-xl;
+    gap: $space-xs;
     align-items: center;
+    flex: 1;
 
     @media (min-width: $breakpoint-md) {
       display: flex;
     }
-
-    a {
-      color: $color-text-secondary;
-      transition: color $transition-base;
-
-      &:hover {
-        color: $color-primary;
-      }
-    }
   }
 
-  &__preview-link {
-    color: $color-primary;
-    font-weight: $font-weight-semibold;
-    padding: $space-xs $space-md;
+  &__nav-link {
+    display: block;
+    padding: $space-sm $space-md;
     border-radius: $radius-md;
-    background-color: rgba($color-primary, 0.1);
-    transition: all $transition-base;
+    color: $color-text-muted;
+    text-decoration: none;
+    font-size: $font-size-sm;
+    font-weight: $font-weight-medium;
+    letter-spacing: $tracking-wide;
+    transition: color $transition-base, background-color $transition-base;
 
     &:hover {
-      background-color: rgba($color-primary, 0.2);
-      color: $color-primary-light;
+      color: $color-text-primary;
+      background-color: rgba($color-info, 0.07);
+    }
+
+    &--active {
+      color: $color-text-primary;
+      font-weight: $font-weight-semibold;
+      background-color: rgba($color-primary, 0.08);
     }
   }
+
+  // ── Actions ───────────────────────────────────────────────────────────
 
   &__actions {
     display: flex;
     align-items: center;
-    gap: $space-lg;
+    gap: $space-md;
+    flex-shrink: 0;
   }
 
   &__link {
-    color: $color-text-secondary;
+    color: $color-text-muted;
     font-size: $font-size-sm;
-    padding: $space-md $space-lg;
+    font-weight: $font-weight-medium;
+    padding: $space-sm $space-md;
     border-radius: $radius-md;
-    transition: all $transition-base;
+    text-decoration: none;
+    transition: color $transition-base, background-color $transition-base;
+    display: none;
+
+    @media (min-width: $breakpoint-md) { display: block; }
 
     &:hover {
-      color: $color-primary;
-      background-color: rgba($color-primary, 0.1);
+      color: $color-text-primary;
+      background-color: rgba($color-info, 0.07);
     }
+  }
+
+  // ── Hamburger ─────────────────────────────────────────────────────────
+
+  &__hamburger {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 36px;
+    height: 36px;
+    padding: 9px 7px;
+    background: none;
+    border: 1px solid $border-card;
+    border-radius: $radius-md;
+    cursor: pointer;
+    transition: all $transition-base;
+
+    @media (min-width: $breakpoint-md) { display: none; }
+
+    span {
+      display: block;
+      height: 2px;
+      width: 100%;
+      background-color: $color-text-muted;
+      border-radius: 2px;
+      transition: background-color $transition-base;
+    }
+
+    &:hover {
+      background-color: rgba($color-info, 0.07);
+      border-color: $border-raised;
+
+      span { background-color: $color-text-primary; }
+    }
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Mobile overlay — scrim
+// ---------------------------------------------------------------------------
+
+.public-nav__mobile-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 98;
+
+  @supports (backdrop-filter: blur(1px)) {
+    backdrop-filter: blur($glass-blur-sm);
+    background: rgba(0, 0, 0, 0.45);
+  }
+
+  @media (min-width: $breakpoint-md) { display: none; }
+}
+
+// ---------------------------------------------------------------------------
+// Mobile drawer — glass-menu surface
+// ---------------------------------------------------------------------------
+
+.public-nav__mobile-drawer {
+  position: fixed;
+  top: 68px;
+  left: 0;
+  right: 0;
+  z-index: 99;
+  transform: translateY(-6px);
+  opacity: 0;
+  pointer-events: none;
+  transition: transform $transition-base, opacity $transition-base;
+
+  // Glass surface
+  background: $glass-bg-menu;
+  border-bottom: 1px solid $border-overlay;
+  box-shadow: $shadow-lg;
+
+  @supports (backdrop-filter: blur(1px)) {
+    backdrop-filter: blur($glass-blur-md);
+    background: rgba(#1a2740, 0.90);
+  }
+
+  &--open {
+    transform: translateY(0);
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  @media (min-width: $breakpoint-md) { display: none; }
+}
+
+.public-nav__mobile-links {
+  list-style: none;
+  padding: $space-md;
+  display: flex;
+  flex-direction: column;
+  gap: $space-xs;
+  border-bottom: 1px solid $border-card;
+}
+
+.public-nav__mobile-link {
+  display: block;
+  padding: $space-md $space-lg;
+  border-radius: $radius-md;
+  color: $color-text-secondary;
+  text-decoration: none;
+  font-size: $font-size-base;
+  font-weight: $font-weight-medium;
+  transition: all $transition-base;
+
+  &:hover {
+    background-color: rgba($color-info, 0.07);
+    color: $color-text-primary;
+  }
+
+  &--active {
+    background-color: rgba($color-primary, 0.1);
+    color: $color-text-primary;
+    font-weight: $font-weight-semibold;
+  }
+}
+
+.public-nav__mobile-footer {
+  padding: $space-md $space-lg;
+}
+
+.public-nav__mobile-cta {
+  display: block;
+  text-align: center;
+  padding: $space-md;
+  background: linear-gradient(135deg, $color-primary 0%, $color-primary-light 100%);
+  color: #ffffff;
+  border-radius: $radius-md;
+  font-weight: $font-weight-semibold;
+  font-size: $font-size-sm;
+  text-decoration: none;
+  letter-spacing: $tracking-wide;
+  transition: opacity $transition-base, box-shadow $transition-base;
+  box-shadow: 0 4px 14px rgba($color-primary, 0.35);
+
+  &:hover {
+    opacity: 0.9;
+    color: #ffffff;
+    box-shadow: 0 4px 20px rgba($color-primary, 0.5);
   }
 }

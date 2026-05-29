@@ -1,0 +1,409 @@
+@use '@/styles/variables' as *;
+@use '@/styles/utilities' as *;
+
+.about-page {
+  flex: 1;
+}
+
+// ---------------------------------------------------------------------------
+// Hero — Phase 3: deeper atmosphere, display typography
+// ---------------------------------------------------------------------------
+
+.about-hero {
+  padding: $space-3xl $space-md;
+  border-bottom: 1px solid $border-card;
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse 55% 50% at 8%  35%, rgba($color-primary, 0.09) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 35% at 92% 80%, rgba($color-info,    0.06) 0%, transparent 55%),
+    $color-surface-bg;
+
+  @media (min-width: $breakpoint-lg) {
+    padding: 5rem $space-xl;
+  }
+
+  &__eyebrow {
+    @include eyebrow-label;
+    margin-bottom: $space-lg;
+  }
+
+  &__title {
+    font-size: clamp(2.25rem, 5.5vw, $font-size-display-sm);
+    font-weight: $font-weight-bold;
+    color: $color-text-primary;
+    letter-spacing: $tracking-snug;
+    line-height: 1.08;
+    margin-bottom: $space-lg;
+    max-width: 780px;
+  }
+
+  &__sub {
+    font-size: $font-size-lg;
+    color: $color-text-secondary;
+    max-width: 620px;
+    line-height: $line-height-relaxed;
+    margin: 0;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Mission + Stats
+// ---------------------------------------------------------------------------
+
+.about-mission {
+  padding: $space-3xl $space-md;
+  border-bottom: 1px solid $border-card;
+
+  @media (min-width: $breakpoint-lg) {
+    padding: 5rem $space-xl;
+  }
+
+  &__layout {
+    display: grid;
+    gap: $space-3xl;
+    align-items: center;
+    grid-template-columns: 1fr;
+
+    @media (min-width: $breakpoint-lg) {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  &__text {
+    display: flex;
+    flex-direction: column;
+    gap: $space-lg;
+  }
+
+  &__eyebrow {
+    @include eyebrow-label;
+    color: $color-info;
+    background: rgba($color-info, 0.08);
+    border-color: rgba($color-info, 0.18);
+  }
+
+  &__text h2 {
+    font-size: clamp(1.75rem, 3.5vw, $font-size-3xl);
+    font-weight: $font-weight-bold;
+    color: $color-text-primary;
+    letter-spacing: $tracking-snug;
+    line-height: 1.2;
+    margin: 0;
+  }
+
+  &__text p {
+    font-size: $font-size-base;
+    color: $color-text-secondary;
+    line-height: $line-height-relaxed;
+    margin: 0;
+  }
+
+  // Stats 2×2 grid — richer tiles than v1
+  &__stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: $space-md;
+  }
+
+  &__stat {
+    background: linear-gradient(135deg, $color-primary 0%, $color-primary-light 100%);
+    border-radius: $radius-lg;
+    padding: $space-xl $space-lg;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    box-shadow: $shadow-md;
+
+    // Subtle inner highlight
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: rgba(#fff, 0.18);
+      border-radius: $radius-lg $radius-lg 0 0;
+    }
+  }
+
+  &__stat-val {
+    font-size: $font-size-3xl;
+    font-weight: $font-weight-bold;
+    color: #ffffff;
+    letter-spacing: $tracking-tight;
+    line-height: 1;
+    margin-bottom: $space-sm;
+  }
+
+  &__stat-label {
+    font-size: $font-size-xs;
+    color: rgba(255, 255, 255, 0.72);
+    font-weight: $font-weight-semibold;
+    letter-spacing: $tracking-wider;
+    text-transform: uppercase;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Values — elevated cards with left accent bars
+// ---------------------------------------------------------------------------
+
+.about-values {
+  padding: $space-3xl $space-md;
+  background-color: $surface-card;
+  border-bottom: 1px solid $border-card;
+
+  @media (min-width: $breakpoint-lg) {
+    padding: 5rem $space-xl;
+  }
+
+  &__header {
+    text-align: center;
+    margin-bottom: $space-3xl;
+  }
+
+  &__eyebrow {
+    @include eyebrow-label;
+    margin-bottom: $space-md;
+  }
+
+  &__header h2 {
+    font-size: clamp(1.75rem, 3.5vw, $font-size-3xl);
+    font-weight: $font-weight-bold;
+    color: $color-text-primary;
+    letter-spacing: $tracking-snug;
+    margin: 0;
+  }
+
+  &__grid {
+    display: grid;
+    gap: $space-lg;
+    grid-template-columns: 1fr;
+
+    @media (min-width: $breakpoint-md) {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    @media (min-width: $breakpoint-xl) {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+
+  // Card base
+  &__card {
+    background-color: $color-surface-bg;
+    border: 1px solid $border-card;
+    border-radius: $radius-lg;
+    padding: $space-xl;
+    box-shadow: $shadow-sm, $shadow-inset-glow;
+    position: relative;
+    overflow: hidden;
+    transition: border-color $transition-base, box-shadow $transition-base, transform $transition-slow;
+
+    // Left accent bar
+    &::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 3px;
+      border-radius: $radius-lg 0 0 $radius-lg;
+    }
+
+    &--primary::before  { background: linear-gradient(180deg, $color-primary,  $color-primary-light); }
+    &--info::before     { background: linear-gradient(180deg, $color-info,      $color-info-light);    }
+    &--success::before  { background: linear-gradient(180deg, $color-success,   $color-success-light); }
+    &--warning::before  { background: linear-gradient(180deg, $color-warning,   $color-warning-light); }
+
+    &:hover {
+      border-color: $border-raised;
+      box-shadow: $shadow-md, $shadow-inset-glow;
+      transform: translateY(-2px);
+    }
+  }
+
+  // Icon — circle container
+  &__card-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: $space-lg;
+    font-size: $font-size-lg;
+    border: 1px solid transparent;
+
+    &--primary { background: rgba($color-primary, 0.12); border-color: rgba($color-primary, 0.2); color: $color-primary-light; }
+    &--info    { background: rgba($color-info,    0.10); border-color: rgba($color-info,    0.2); color: $color-info;         }
+    &--success { background: rgba($color-success, 0.10); border-color: rgba($color-success, 0.2); color: $color-success;      }
+    &--warning { background: rgba($color-warning, 0.10); border-color: rgba($color-warning, 0.2); color: $color-warning;      }
+  }
+
+  &__card-title {
+    font-size: $font-size-base;
+    font-weight: $font-weight-semibold;
+    color: $color-text-primary;
+    margin-bottom: $space-sm;
+    letter-spacing: $tracking-snug;
+  }
+
+  &__card-body {
+    font-size: $font-size-sm;
+    color: $color-text-secondary;
+    line-height: $line-height-relaxed;
+    margin: 0;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Team
+// ---------------------------------------------------------------------------
+
+.about-team {
+  padding: $space-3xl $space-md;
+  border-bottom: 1px solid $border-card;
+
+  @media (min-width: $breakpoint-lg) {
+    padding: 5rem $space-xl;
+  }
+
+  &__header {
+    text-align: center;
+    margin-bottom: $space-3xl;
+  }
+
+  &__eyebrow {
+    @include eyebrow-label;
+    margin-bottom: $space-md;
+  }
+
+  &__header h2 {
+    font-size: clamp(1.75rem, 3.5vw, $font-size-3xl);
+    font-weight: $font-weight-bold;
+    color: $color-text-primary;
+    letter-spacing: $tracking-snug;
+    margin: 0;
+  }
+
+  &__grid {
+    display: grid;
+    gap: $space-lg;
+    grid-template-columns: 1fr;
+
+    @media (min-width: $breakpoint-md) {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    @media (min-width: $breakpoint-lg) {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  &__card {
+    background-color: $surface-card;
+    border: 1px solid $border-card;
+    border-radius: $radius-lg;
+    padding: $space-xl;
+    text-align: center;
+    box-shadow: $shadow-sm, $shadow-inset-glow;
+    transition: border-color $transition-base, box-shadow $transition-base, transform $transition-slow;
+
+    &:hover {
+      border-color: $border-raised;
+      box-shadow: $shadow-md, $shadow-inset-glow;
+      transform: translateY(-2px);
+    }
+  }
+
+  // Avatar with ring glow
+  &__avatar {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, $color-primary, $color-primary-light);
+    color: #ffffff;
+    font-size: $font-size-xl;
+    font-weight: $font-weight-bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto $space-lg;
+    user-select: none;
+    letter-spacing: $tracking-wide;
+    box-shadow:
+      0 0 0 3px rgba($color-primary, 0.2),
+      0 0 16px rgba($color-primary, 0.15),
+      $shadow-md;
+  }
+
+  &__name {
+    font-size: $font-size-base;
+    font-weight: $font-weight-semibold;
+    color: $color-text-primary;
+    margin-bottom: $space-xs;
+    letter-spacing: $tracking-snug;
+  }
+
+  &__role {
+    font-size: $font-size-xs;
+    font-weight: $font-weight-semibold;
+    color: $color-primary-light;
+    margin-bottom: $space-md;
+    text-transform: uppercase;
+    letter-spacing: $tracking-wider;
+  }
+
+  &__bio {
+    font-size: $font-size-sm;
+    color: $color-text-secondary;
+    line-height: $line-height-relaxed;
+    margin: 0;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Bottom CTA
+// ---------------------------------------------------------------------------
+
+.about-cta {
+  padding: $space-3xl $space-md;
+  background:
+    radial-gradient(ellipse 60% 55% at 50% 110%, rgba($color-primary, 0.09) 0%, transparent 60%),
+    $color-surface-bg;
+
+  @media (min-width: $breakpoint-lg) {
+    padding: 4.5rem $space-xl;
+  }
+}
+
+.about-cta__content {
+  max-width: 560px;
+  margin: 0 auto;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $space-lg;
+
+  h2 {
+    font-size: clamp(1.75rem, 4vw, $font-size-3xl);
+    font-weight: $font-weight-bold;
+    color: $color-text-primary;
+    letter-spacing: $tracking-snug;
+    margin: 0;
+  }
+
+  p {
+    font-size: $font-size-lg;
+    color: $color-text-secondary;
+    margin: 0;
+    line-height: $line-height-relaxed;
+  }
+}
+
+.about-cta__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: $space-md;
+}

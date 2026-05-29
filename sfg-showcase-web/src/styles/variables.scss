@@ -1,82 +1,220 @@
 /* ============================================================================
-   DESIGN SYSTEM VARIABLES
+   DESIGN SYSTEM VARIABLES — SFG Showcase Web
+   Last updated: Palette Transition — Industrial Slate/Ice Blue
+
+   Direction: operational command center, logistics/infrastructure SaaS.
+   - Deep slate/graphite navy foundations (cold, not indigo-tinted)
+   - Ice blue (#60a5fa) as the primary interactive accent
+   - Ice cyan (#67e8f9) as atmospheric/info accent
+   - Amber (#f59e0b) for warnings, pending, operational urgency ONLY
+   - Desaturated steel borders (no indigo bleed)
+
+   Naming convention (unchanged):
+     $color-*     — semantic color tokens
+     $surface-*   — elevation-level surface tokens
+     $border-*    — per-level border luminosity tokens
+     $glass-*     — floating chrome surfaces (auth, modals, overlays only)
+     $shadow-*    — dark-environment calibrated
+     $tracking-*  — letter-spacing tokens
    ============================================================================ */
 
-/* Colors */
-$color-primary: #6366f1;
-$color-primary-dark: #4f46e5;
-$color-primary-light: #818cf8;
+// ---------------------------------------------------------------------------
+// PRIMARY BRAND — ice blue interactive
+// Ice blue reads as "precision instrument" not "consumer app" or "AI startup"
+// ---------------------------------------------------------------------------
 
-$color-surface-bg: #0f172a;
-$color-surface-card: #1e293b;
-$color-surface-elevated: #334155;
+$color-primary:        #60a5fa;   // blue-400 — primary interactive
+$color-primary-dark:   #3b82f6;   // blue-500 — pressed / deep state
+$color-primary-light:  #93c5fd;   // blue-300 — hover, light fills
+$color-primary-subtle: #0f1e30;   // near-black with blue undertone — very light fills
 
-$color-text-primary: #f1f5f9;
-$color-text-secondary: #cbd5e1;
-$color-text-muted: #94a3b8;
+// ---------------------------------------------------------------------------
+// SEMANTIC STATUS — unchanged except $color-info (warmer cyan → ice cyan)
+// ---------------------------------------------------------------------------
 
-$color-border: #334155;
-$color-border-light: #475569;
+$color-success: #10b981;   // emerald-500 — completed, active, online
+$color-warning: #f59e0b;   // amber-500  — ONLY: warnings, pending, demo/beta labels
+$color-error:   #ef4444;   // red-500    — errors, overdue, destructive
 
-$color-success: #10b981;
-$color-warning: #f59e0b;
-$color-error: #ef4444;
+// Ice cyan — atmospheric accent, info states, teal operational indicators
+// Colder than the previous #06b6d4 — matches "icy" industrial direction
+$color-info:    #67e8f9;   // cyan-300
 
-/* Typography */
+// Light variants for glow / tint contexts
+$color-success-light: #34d399;   // emerald-400
+$color-warning-light: #fbbf24;   // amber-400
+$color-error-light:   #f87171;   // red-400
+$color-info-light:    #a5f3fc;   // cyan-200
+
+// ---------------------------------------------------------------------------
+// SURFACE ELEVATION SYSTEM — cold slate/graphite navy
+//
+// Key change from Phase 1: surfaces are now darker, colder, and less
+// blue-shifted. The indigo tint is gone. Surfaces read as industrial
+// graphite-slate rather than "deep space navy."
+//
+//   Level 1: Page background   — near-black slate
+//   Level 2: Card surfaces     — dark graphite navy
+//   Level 3: Elevated/inputs   — cold elevated graphite
+//   Level 4: Floating surfaces — dropdown/tooltip
+//   Level 5: Modal / auth      — deepest floating surface
+// ---------------------------------------------------------------------------
+
+// Level 1 — page canvas
+$color-surface-bg:       #0d1118;   // spec: $bg-base
+
+// Level 2 — primary card surface
+$color-surface-card:     #171d27;   // spec: $bg-surface
+$surface-card:           #171d27;   // semantic alias
+
+// Level 3 — elevated inputs, table headers
+$color-surface-elevated: #212938;   // spec: $bg-elevated
+$surface-raised:         #212938;   // semantic alias
+
+// Level 4 — floating: dropdowns, tooltips
+$surface-overlay:        #1c2535;   // slate step above card, below modal
+
+// Level 5 — modal / command palette / auth glass
+$surface-modal:          #192232;   // cold slate for floating panels
+
+// ---------------------------------------------------------------------------
+// BORDER LUMINOSITY SYSTEM — steel blue tint (no indigo bleed)
+//
+// Changed from indigo-blue (#6b84c7 family) to steel-blue (#4d7fa8 family).
+// The result is borders that read as "precision instrument chrome" rather
+// than "deep space indigo." Luminosity increases with elevation as before.
+// ---------------------------------------------------------------------------
+
+$border-base:    rgba(#4d7fa8, 0.12);   // page → card edge
+$border-card:    rgba(#4d7fa8, 0.18);   // card outline
+$border-raised:  rgba(#5b8fbc, 0.22);   // raised/input outline
+$border-overlay: rgba(#6b9fcc, 0.30);   // dropdown/tooltip outline
+$border-modal:   rgba(#7bafd8, 0.38);   // modal/auth panel outline
+
+// Legacy aliases — component backward compat
+$color-border:       #2a3547;   // updated: cold slate, no indigo
+$color-border-light: #3a4d62;   // updated: slightly lighter cold steel
+
+// ---------------------------------------------------------------------------
+// GLASS / CHROME TOKENS — cold slate glass
+// Used ONLY for auth panels, modals, overlays, dropdowns.
+// NOT for KPI cards, tables, charts, or data surfaces.
+// ---------------------------------------------------------------------------
+
+// Base tones — cold slate, not indigo-blue
+$glass-bg-auth:    rgba(#192232, 0.88);   // auth panels (sign-in/up)
+$glass-bg-modal:   rgba(#1c2535, 0.92);   // dialog surfaces
+$glass-bg-menu:    rgba(#17222f, 0.94);   // dropdown menus
+$glass-bg-tooltip: rgba(#17222f, 0.96);   // chart tooltips
+
+// Edge highlight — ice blue luminosity (replaces pure white)
+$glass-highlight:  rgba(#60a5fa, 0.06);
+
+// Blur values (unchanged)
+$glass-blur-sm:   4px;
+$glass-blur-md:   10px;
+$glass-blur-lg:   18px;
+
+// ---------------------------------------------------------------------------
+// SHADOW SYSTEM — dark environment calibrated (unchanged alpha values)
+// Inset glow: ice blue tint replaces indigo
+// ---------------------------------------------------------------------------
+
+$shadow-sm:  0 1px 3px rgba(0, 0, 0, 0.40);
+$shadow-md:  0 4px 12px rgba(0, 0, 0, 0.50);
+$shadow-lg:  0 8px 28px rgba(0, 0, 0, 0.60);
+$shadow-xl:  0 20px 48px rgba(0, 0, 0, 0.70);
+
+// Inset top-edge luminosity — ice blue tint (was indigo)
+$shadow-inset-glow: inset 0 1px 0 rgba(#60a5fa, 0.06);
+
+// Focus ring — uses $color-primary (ice blue) automatically
+$shadow-focus: 0 0 0 3px rgba($color-primary, 0.28);
+
+// ---------------------------------------------------------------------------
+// TEXT COLORS — unchanged (slate-200/300/400 family reads well on new bases)
+// Contrast checks:
+//   $color-text-primary   on $color-surface-bg  (#f1f5f9 on #0d1118) ≈ 17:1  ✓
+//   $color-text-secondary on $color-surface-card (#cbd5e1 on #171d27) ≈ 10:1  ✓
+//   $color-text-muted     on $color-surface-card (#94a3b8 on #171d27) ≈  5:1  ✓ AA
+// ---------------------------------------------------------------------------
+
+$color-text-primary:   #f1f5f9;   // slate-100
+$color-text-secondary: #cbd5e1;   // slate-300
+$color-text-muted:     #94a3b8;   // slate-400
+
+// ---------------------------------------------------------------------------
+// TYPOGRAPHY — unchanged
+// ---------------------------------------------------------------------------
+
 $font-family-base: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto',
   'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
 
-$font-size-xs: 0.75rem;
-$font-size-sm: 0.875rem;
-$font-size-base: 1rem;
-$font-size-lg: 1.125rem;
-$font-size-xl: 1.25rem;
-$font-size-2xl: 1.5rem;
-$font-size-3xl: 1.875rem;
-$font-size-4xl: 2.25rem;
+$font-size-xs:         0.75rem;
+$font-size-sm:         0.875rem;
+$font-size-base:       1rem;
+$font-size-lg:         1.125rem;
+$font-size-xl:         1.25rem;
+$font-size-2xl:        1.5rem;
+$font-size-3xl:        1.875rem;
+$font-size-4xl:        2.25rem;
+$font-size-page-title: 1.75rem;
+$font-size-display-sm: 2.75rem;
+$font-size-display-md: 3.25rem;
+$font-size-display-lg: 3.75rem;
 
-$font-weight-regular: 400;
-$font-weight-medium: 500;
+$font-weight-regular:  400;
+$font-weight-medium:   500;
 $font-weight-semibold: 600;
-$font-weight-bold: 700;
+$font-weight-bold:     700;
 
-$line-height-tight: 1.25;
-$line-height-normal: 1.5;
+$line-height-tight:   1.25;
+$line-height-normal:  1.5;
 $line-height-relaxed: 1.75;
 
-/* Spacing */
-$space-xs: 0.25rem;
-$space-sm: 0.5rem;
-$space-md: 1rem;
-$space-lg: 1.5rem;
-$space-xl: 2rem;
+$tracking-tight:   -0.03em;
+$tracking-snug:    -0.02em;
+$tracking-normal:   0em;
+$tracking-wide:     0.04em;
+$tracking-wider:    0.08em;
+$tracking-widest:   0.12em;
+
+// ---------------------------------------------------------------------------
+// SPACING — unchanged
+// ---------------------------------------------------------------------------
+
+$space-xs:  0.25rem;
+$space-sm:  0.5rem;
+$space-md:  1rem;
+$space-lg:  1.5rem;
+$space-xl:  2rem;
 $space-2xl: 3rem;
 $space-3xl: 4rem;
 
-/* Sizing */
+$section-gap:   $space-2xl;
+$card-gap:      $space-lg;
+$card-inset:    $space-lg;
+$card-inset-lg: $space-xl;
+
+// ---------------------------------------------------------------------------
+// SIZING / RADIUS / TRANSITIONS / BREAKPOINTS — unchanged
+// ---------------------------------------------------------------------------
+
 $size-sm: 32px;
 $size-md: 40px;
 $size-lg: 48px;
 
-/* Radius */
 $radius-sm: 4px;
 $radius-md: 8px;
 $radius-lg: 12px;
+$radius-xl: 16px;
 
-/* Shadows */
-$shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-$shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-$shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-$shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-
-/* Transitions */
 $transition-fast: 150ms ease-in-out;
 $transition-base: 200ms ease-in-out;
 $transition-slow: 300ms ease-in-out;
 
-/* Breakpoints */
-$breakpoint-sm: 640px;
-$breakpoint-md: 768px;
-$breakpoint-lg: 1024px;
-$breakpoint-xl: 1280px;
+$breakpoint-sm:  640px;
+$breakpoint-md:  768px;
+$breakpoint-lg:  1024px;
+$breakpoint-xl:  1280px;
 $breakpoint-2xl: 1536px;

@@ -1,22 +1,49 @@
 @use '@/styles/variables' as *;
 
-.login-page {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: $space-md;
-}
+// ---------------------------------------------------------------------------
+// LoginPage — Phase 4: AuthShell handles background + entrance.
+// This file focuses on the glass card, form polish, and demo section.
+// ---------------------------------------------------------------------------
 
-.login-page__content {
-  width: 100%;
-  max-width: 400px;
-}
+// ---------------------------------------------------------------------------
+// Glass card — floats above AuthShell's ambient canvas
+// ---------------------------------------------------------------------------
 
 .login-page__card {
-  background-color: $color-surface-card;
-  border: 1px solid $color-border;
+  position: relative;
+  background: $glass-bg-auth;
+  border: 1px solid $border-modal;
+  border-radius: $radius-xl;
+  padding: $card-inset-lg;
+  box-shadow: $shadow-xl, $shadow-inset-glow;
+
+  // Top-edge luminosity highlight — ice blue (was indigo)
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent 5%,
+      rgba(#60a5fa, 0.18) 30%,
+      rgba(#93c5fd, 0.36) 50%,
+      rgba(#60a5fa, 0.18) 70%,
+      transparent 95%
+    );
+    border-radius: $radius-xl $radius-xl 0 0;
+    pointer-events: none;
+  }
+
+  @supports (backdrop-filter: blur(1px)) {
+    backdrop-filter: blur($glass-blur-lg);
+    background: rgba(#192232, 0.82);   // cold slate glass — was indigo #1c2a4a
+  }
 }
+
+// ---------------------------------------------------------------------------
+// Header
+// ---------------------------------------------------------------------------
 
 .login-page__header {
   margin-bottom: $space-xl;
@@ -24,23 +51,68 @@
 
   h1 {
     font-size: $font-size-2xl;
-    margin-bottom: $space-md;
+    font-weight: $font-weight-bold;
+    letter-spacing: $tracking-snug;
+    color: $color-text-primary;
+    margin-bottom: $space-xs;
+    line-height: 1;
   }
 
   p {
-    color: $color-text-secondary;
+    font-size: $font-size-sm;
+    color: $color-text-muted;
+    letter-spacing: $tracking-wide;
+    margin: 0;
   }
 }
 
 // ---------------------------------------------------------------------------
-// OAuth section
+// Notices and errors
+// ---------------------------------------------------------------------------
+
+.login-page__session-notice {
+  display: flex;
+  align-items: center;
+  gap: $space-sm;
+  padding: $space-sm $space-md;
+  border-radius: $radius-md;
+  background: rgba($color-primary, 0.07);
+  border: 1px solid rgba($color-primary, 0.2);
+  color: $color-text-secondary;
+  font-size: $font-size-sm;
+  line-height: $line-height-normal;
+  margin-bottom: $space-lg;
+}
+
+.login-page__session-icon {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  color: $color-primary-light;
+}
+
+.login-page__auth-error {
+  padding: $space-sm $space-md;
+  border-radius: $radius-md;
+  background: rgba($color-error, 0.08);
+  border: 1px solid rgba($color-error, 0.22);
+  color: $color-error;
+  font-size: $font-size-sm;
+  line-height: $line-height-normal;
+  margin-bottom: $space-lg;
+}
+
+.login-page__scope-error {
+  background: rgba($color-warning, 0.07);
+  border-color: rgba($color-warning, 0.25);
+  color: $color-warning;
+}
+
+// ---------------------------------------------------------------------------
+// Google OAuth — clean, centred, no badge
 // ---------------------------------------------------------------------------
 
 .login-page__oauth {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: $space-sm;
   margin-bottom: $space-lg;
 }
 
@@ -49,9 +121,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: $space-md;
-  padding: $space-md $space-lg;
-  background-color: #ffffff;
+  gap: $space-sm;
+  padding: 11px $space-lg;
+  background: #ffffff;
   color: #3c4043;
   border: 1px solid #dadce0;
   border-radius: $radius-md;
@@ -59,39 +131,26 @@
   font-weight: $font-weight-semibold;
   font-family: inherit;
   cursor: pointer;
-  transition: background-color $transition-base, box-shadow $transition-base;
   min-height: $size-md;
+  transition: background $transition-base, box-shadow $transition-base;
 
   &:hover {
-    background-color: #f8f9fa;
-    box-shadow: $shadow-sm;
+    background: #f8f9fa;
+    box-shadow: 0 1px 6px rgba(0, 0, 0, 0.16);
   }
 
   &:focus-visible {
-    outline: 2px solid $color-primary;
-    outline-offset: 2px;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba($color-primary, 0.3);
   }
 
-  // Disabled state preserved for cases where the button may be conditionally
-  // disabled (e.g. while a form submission is in progress)
-  &:disabled {
-    cursor: not-allowed;
-    opacity: 0.55;
-    pointer-events: none;
-  }
+  &:disabled { opacity: 0.5; cursor: not-allowed; pointer-events: none; }
 }
 
 .login-page__google-icon {
   width: 18px;
   height: 18px;
   flex-shrink: 0;
-}
-
-.login-page__google-note {
-  font-size: $font-size-xs;
-  color: $color-text-muted;
-  text-align: center;
-  margin: 0;
 }
 
 // ---------------------------------------------------------------------------
@@ -104,12 +163,11 @@
   gap: $space-md;
   margin-bottom: $space-lg;
 
-  &::before,
-  &::after {
+  &::before, &::after {
     content: '';
     flex: 1;
     height: 1px;
-    background-color: $color-border;
+    background: $border-card;
   }
 
   span {
@@ -117,23 +175,8 @@
     color: $color-text-muted;
     white-space: nowrap;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
+    letter-spacing: $tracking-wider;
   }
-}
-
-// ---------------------------------------------------------------------------
-// Server auth error banner
-// ---------------------------------------------------------------------------
-
-.login-page__auth-error {
-  padding: $space-md;
-  border-radius: $radius-md;
-  background-color: rgba($color-error, 0.08);
-  border: 1px solid rgba($color-error, 0.25);
-  color: $color-error;
-  font-size: $font-size-sm;
-  line-height: $line-height-normal;
-  margin-bottom: $space-lg;
 }
 
 // ---------------------------------------------------------------------------
@@ -143,85 +186,93 @@
 .login-page__form {
   display: flex;
   flex-direction: column;
-  gap: $space-lg;
+  gap: $space-md;
 }
 
 .login-page__field {
   display: flex;
   flex-direction: column;
-  gap: $space-sm;
+  gap: 5px;
 }
 
 .login-page__label {
-  font-size: $font-size-sm;
+  font-size: $font-size-xs;
   font-weight: $font-weight-semibold;
-  color: $color-text-primary;
+  color: $color-text-secondary;
+  letter-spacing: $tracking-wider;
+  text-transform: uppercase;
 }
 
 .login-page__error {
   font-size: $font-size-xs;
   color: $color-error;
+  letter-spacing: $tracking-wide;
 }
 
 .login-page__submit {
   width: 100%;
-  margin-top: $space-md;
+  margin-top: $space-sm;
+  justify-content: center;
+  gap: $space-sm;
+}
+
+// Submit spinner — shown while isSubmitting
+.login-page__btn-spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(#fff, 0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: login-btn-spin 0.75s linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes login-btn-spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .login-page__btn-spinner { animation: none; opacity: 0.6; }
 }
 
 // ---------------------------------------------------------------------------
-// Footer
+// Footer link
 // ---------------------------------------------------------------------------
 
 .login-page__footer {
-  margin-top: $space-xl;
+  margin-top: $space-lg;
   text-align: center;
   font-size: $font-size-sm;
 
-  p {
-    color: $color-text-secondary;
-  }
+  p { color: $color-text-muted; margin: 0; }
 
   a {
-    color: $color-primary;
+    color: $color-primary-light;
     font-weight: $font-weight-semibold;
+    letter-spacing: $tracking-snug;
 
-    &:hover {
-      text-decoration: underline;
-    }
+    &:hover { text-decoration: underline; }
   }
 }
 
 // ---------------------------------------------------------------------------
-// Input error state
-// ---------------------------------------------------------------------------
-
-input.error {
-  border-color: $color-error;
-  background-color: rgba($color-error, 0.05);
-
-  &:focus {
-    border-color: $color-error;
-  }
-}
-
-// ---------------------------------------------------------------------------
-// Scope error variant (platform account blocked)
-// ---------------------------------------------------------------------------
-
-.login-page__scope-error {
-  background-color: rgba($color-warning, 0.08);
-  border-color: rgba($color-warning, 0.3);
-  color: $color-warning;
-}
-
-// ---------------------------------------------------------------------------
-// Demo credentials section
+// Demo credentials — improved visual hierarchy
 // ---------------------------------------------------------------------------
 
 .login-page__demo {
   margin-top: $space-xl;
-  padding-top: $space-xl;
-  border-top: 1px solid $color-border;
+  padding-top: $space-lg;
+  border-top: 1px solid $border-card;
+  display: flex;
+  flex-direction: column;
+  gap: $space-sm;
+}
+
+.login-page__demo-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $space-sm;
 }
 
 .login-page__demo-label {
@@ -229,70 +280,122 @@ input.error {
   font-weight: $font-weight-semibold;
   color: $color-text-muted;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
-  text-align: center;
-  margin-bottom: $space-xs;
+  letter-spacing: $tracking-widest;
 }
 
-.login-page__demo-hint {
+.login-page__demo-status {
+  font-size: 10px;
+  font-weight: $font-weight-semibold;
+  color: $color-warning;
+  background: rgba($color-warning, 0.08);
+  border: 1px solid rgba($color-warning, 0.2);
+  border-radius: 999px;
+  padding: 1px 7px;
+  letter-spacing: $tracking-wide;
+  white-space: nowrap;
+}
+
+.login-page__demo-tenant {
   font-size: $font-size-xs;
   color: $color-text-muted;
-  text-align: center;
-  margin-bottom: $space-md;
+  margin: 0;
 
   code {
     font-family: 'Courier New', monospace;
-    background-color: $color-surface-elevated;
+    font-size: 0.9em;
+    background: $surface-raised;
+    border: 1px solid $border-raised;
     border-radius: $radius-sm;
-    padding: 1px 4px;
-    font-size: 0.85em;
+    padding: 1px 5px;
+    color: $color-text-secondary;
   }
 }
 
 .login-page__demo-grid {
   display: flex;
   flex-direction: column;
-  gap: $space-sm;
+  gap: 6px;
 }
 
 .login-page__demo-btn {
-  width: 100%;
-  display: flex;
+  display: grid;
+  // Fixed-width role pill | flex email area
+  grid-template-columns: 76px 1fr;
   align-items: center;
-  justify-content: space-between;
-  padding: $space-sm $space-md;
-  background-color: $color-surface-bg;
-  border: 1px solid $color-border;
+  gap: $space-sm;
+  width: 100%;
+  padding: 8px $space-md;
+  background: rgba($surface-raised, 0.5);
+  border: 1px solid $border-card;
   border-radius: $radius-md;
   cursor: pointer;
-  transition: all $transition-base;
   font-family: inherit;
   text-align: left;
+  transition: border-color $transition-base, background $transition-base;
 
   &:hover:not(:disabled) {
-    border-color: rgba($color-primary, 0.5);
-    background-color: rgba($color-primary, 0.06);
+    border-color: rgba($color-primary, 0.38);
+    background: rgba($color-primary, 0.06);
   }
 
   &:focus-visible {
-    outline: 2px solid $color-primary;
-    outline-offset: 2px;
+    outline: none;
+    box-shadow: $shadow-focus;
   }
 
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
+  &:disabled { opacity: 0.4; cursor: not-allowed; }
 }
 
-.login-page__demo-role {
-  font-size: $font-size-sm;
-  font-weight: $font-weight-semibold;
-  color: $color-text-primary;
+// Role pill — color-coded per role
+.login-page__demo-role-pill {
+  font-size: 10px;
+  font-weight: $font-weight-bold;
+  letter-spacing: $tracking-wider;
+  text-transform: uppercase;
+  border-radius: 999px;
+  padding: 2px 8px;
+  flex-shrink: 0;
+  border: 1px solid transparent;
+
+  &--primary {
+    background: rgba($color-primary, 0.12);
+    color: $color-primary-light;
+    border-color: rgba($color-primary, 0.2);
+  }
+
+  &--warning {
+    background: rgba($color-warning, 0.1);
+    color: #d97706;
+    border-color: rgba($color-warning, 0.22);
+  }
+
+  &--success {
+    background: rgba($color-success, 0.1);
+    color: $color-success;
+    border-color: rgba($color-success, 0.2);
+  }
 }
 
 .login-page__demo-email {
-  font-size: $font-size-xs;
+  font-size: 11px;
   color: $color-text-muted;
   font-family: 'Courier New', monospace;
+  letter-spacing: 0.01em;
+  // Allow wrap rather than hard truncation — the email is important demo info
+  word-break: break-all;
+  line-height: 1.35;
+}
+
+// ---------------------------------------------------------------------------
+// Global input error state — applies to both login and signup
+// ---------------------------------------------------------------------------
+
+input.error {
+  border-color: rgba($color-error, 0.6);
+  background: rgba($color-error, 0.04);
+
+  &:focus {
+    border-color: rgba($color-error, 0.8);
+    box-shadow: 0 0 0 3px rgba($color-error, 0.14);
+  }
 }

@@ -1,8 +1,99 @@
 @use '@/styles/variables' as *;
 
-/* Recharts styling */
-.recharts-text,
-.recharts-label {
+// ---------------------------------------------------------------------------
+// Charts — Phase 2: glass-tooltip, elevated chart card surface.
+// Chart containers are solid surfaces — NO glass on charts themselves.
+// ---------------------------------------------------------------------------
+
+// ---------------------------------------------------------------------------
+// Custom tooltip — glass-menu surface (floats above chart)
+// ---------------------------------------------------------------------------
+
+.chart-tooltip {
+  background-color: $glass-bg-tooltip;
+  border: 1px solid $border-overlay;
+  border-radius: $radius-md;
+  padding: $space-sm $space-md;
+  box-shadow: $shadow-lg;
+  font-size: $font-size-xs;
+  min-width: 148px;
+
+  // Top-edge luminosity highlight
+  position: relative;
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(#8ba4e7, 0.35) 35%,
+      rgba(#8ba4e7, 0.5)  50%,
+      rgba(#8ba4e7, 0.35) 65%,
+      transparent 100%
+    );
+    border-radius: $radius-md $radius-md 0 0;
+    pointer-events: none;
+  }
+
+  // Backdrop blur where supported — tooltip floats above chart area
+  @supports (backdrop-filter: blur(1px)) {
+    backdrop-filter: blur($glass-blur-sm);
+    background-color: rgba(#1a2740, 0.92);
+  }
+}
+
+.chart-tooltip__label {
+  font-size: $font-size-xs;
+  font-weight: $font-weight-semibold;
+  color: $color-text-muted;
+  text-transform: uppercase;
+  letter-spacing: $tracking-widest;
+  margin-bottom: $space-sm;
+  padding-bottom: $space-xs;
+  border-bottom: 1px solid $border-card;
+}
+
+.chart-tooltip__row {
+  display: flex;
+  align-items: center;
+  gap: $space-sm;
+  padding: 2px 0;
+}
+
+.chart-tooltip__dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.chart-tooltip__name {
+  flex: 1;
+  color: $color-text-secondary;
+  font-size: 11px;
+}
+
+.chart-tooltip__value {
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  font-size: $font-size-xs;
+  letter-spacing: $tracking-snug;
+}
+
+// ---------------------------------------------------------------------------
+// Recharts global overrides — kept minimal
+// ---------------------------------------------------------------------------
+
+.recharts-cartesian-axis-tick-value {
+  fill: $color-text-muted;
+  font-size: 11px;
+  letter-spacing: $tracking-wide;
+}
+
+.recharts-legend-wrapper {
+  font-size: $font-size-xs;
   color: $color-text-secondary;
 }
 
@@ -10,9 +101,6 @@
   outline: none;
 }
 
-.recharts-default-tooltip {
-  background-color: $color-surface-card !important;
-  border: 1px solid $color-border !important;
-  border-radius: $radius-md !important;
-  box-shadow: $shadow-lg;
+.recharts-surface {
+  overflow: visible;
 }

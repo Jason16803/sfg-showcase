@@ -34,6 +34,20 @@
   padding: 1px 8px;
 }
 
+.team-page__role-notice {
+  padding: $space-sm $space-md;
+  background-color: rgba($color-warning, 0.06);
+  border: 1px solid rgba($color-warning, 0.2);
+  border-radius: $radius-md;
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+  margin-bottom: $space-lg;
+  line-height: $line-height-normal;
+
+  strong { color: $color-text-primary; }
+  em { font-style: normal; color: $color-primary-light; }
+}
+
 // Member list
 .team-page__list {
   list-style: none;

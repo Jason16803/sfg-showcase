@@ -37,13 +37,20 @@ function roleLabel(role: string): string {
   return role.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())
 }
 
+// Role enforcement — mirrors backend ROLE_HIERARCHY.
+// GET /api/v1/team requires general_manager+.
+// Lower roles receive a 403 → hook falls back to mock data.
+const ROLE_LEVEL: Record<string, number> = {
+  owner: 4, general_manager: 3, assistant_manager: 2, employee: 1,
+}
+const TEAM_REQUIRED_LEVEL = ROLE_LEVEL['general_manager'] ?? 3
+
 export function TeamPage() {
   const { data: members, isLoading, isMock } = useTeam()
   const { user: currentUser } = useAuthStore()
 
-  // BACKEND ENFORCEMENT: GET /api/v1/team requires general_manager+.
-  // Roles below that threshold will receive mock data (403 triggers fallback).
-  // Frontend sidebar hides this section for employees.
+  const isRoleRestricted =
+    isMock && (ROLE_LEVEL[currentUser?.role ?? ''] ?? 0) < TEAM_REQUIRED_LEVEL
 
   return (
     <main className="team-page">
@@ -57,6 +64,15 @@ export function TeamPage() {
             </p>
           </div>
         </div>
+
+        {/* Role restriction notice — shown when role insufficient for real data */}
+        {isRoleRestricted && (
+          <div className="team-page__role-notice" role="note">
+            <strong>Viewing demo data.</strong>{' '}
+            Your role (<em>{currentUser?.role?.replace(/_/g, ' ')}</em>) does not have API access to team records.
+            {' '}Real team data requires <strong>General Manager</strong> or higher.
+          </div>
+        )}
 
         {isLoading ? (
           <div className="team-page__loading">

@@ -1,132 +1,205 @@
 @use '@/styles/variables' as *;
 
+// ---------------------------------------------------------------------------
+// DashboardMetricCard — Phase 2: solid elevated surface, NO glass.
+// Trend accent bars now match the new luminosity border system.
+// ---------------------------------------------------------------------------
+
+@keyframes metric-card-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0);    }
+}
+
+// ---------------------------------------------------------------------------
+// Card base
+// ---------------------------------------------------------------------------
+
 .metric-card {
-  background-color: $color-surface-card;
-  border: 1px solid $color-border;
+  background-color: $surface-card;
+  border: 1px solid $border-card;
   border-radius: $radius-lg;
   padding: $space-lg;
-  transition: all $transition-base;
   position: relative;
   overflow: hidden;
+  cursor: default;
+  box-shadow: $shadow-sm, $shadow-inset-glow;
+  animation: metric-card-in 0.35s ease both;
+  transition:
+    border-color $transition-base,
+    box-shadow   $transition-base;
 
-  &:hover {
-    border-color: $color-border-light;
-    box-shadow: $shadow-md;
-    transform: translateY(-2px);
-  }
+  // Stagger children in the metrics grid
+  &:nth-child(1) { animation-delay: 0.05s; }
+  &:nth-child(2) { animation-delay: 0.10s; }
+  &:nth-child(3) { animation-delay: 0.15s; }
+  &:nth-child(4) { animation-delay: 0.20s; }
 
+  // Default accent — indigo line at top edge
   &::before {
     content: '';
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 3px;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    border-radius: $radius-lg $radius-lg 0 0;
     background: linear-gradient(90deg, $color-primary, $color-primary-light);
-    opacity: 0;
+    opacity: 0.45;
     transition: opacity $transition-base;
   }
 
-  &:hover::before {
-    opacity: 0.5;
+  &:hover {
+    border-color: $border-raised;
+    box-shadow: $shadow-md, $shadow-inset-glow;
+
+    &::before { opacity: 0.75; }
+  }
+
+  // Trend-specific top accents
+  &--trend-up::before {
+    background: linear-gradient(90deg, $color-success, $color-success-light);
+  }
+
+  &--trend-down::before {
+    background: linear-gradient(90deg, $color-error, $color-error-light);
+  }
+
+  &--trend-stable::before {
+    background: linear-gradient(90deg, $color-warning, $color-warning-light);
   }
 }
+
+// ---------------------------------------------------------------------------
+// Header row
+// ---------------------------------------------------------------------------
 
 .metric-card__header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
   margin-bottom: $space-md;
+  gap: $space-sm;
 }
 
 .metric-card__title {
-  font-size: $font-size-sm;
+  font-size: $font-size-xs;
   color: $color-text-muted;
   font-weight: $font-weight-semibold;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: $tracking-widest;
+  line-height: 1.3;
+  flex: 1;
 }
 
+// Icon container — Phase 5 will replace emoji with Lucide icons
 .metric-card__icon {
-  width: 40px;
-  height: 40px;
+  width: 34px;
+  height: 34px;
   display: flex;
   align-items: center;
   justify-content: center;
   background-color: rgba($color-primary, 0.1);
+  border: 1px solid rgba($color-primary, 0.15);
   border-radius: $radius-md;
   color: $color-primary;
-  font-size: $font-size-2xl;
+  font-size: $font-size-lg;
+  flex-shrink: 0;
+  transition: background-color $transition-base, border-color $transition-base;
+
+  .metric-card:hover & {
+    background-color: rgba($color-primary, 0.16);
+    border-color: rgba($color-primary, 0.25);
+  }
 }
+
+// ---------------------------------------------------------------------------
+// Value
+// ---------------------------------------------------------------------------
 
 .metric-card__content {
   display: flex;
   flex-direction: column;
-  gap: $space-md;
+  gap: $space-sm;
 }
 
 .metric-card__value {
   display: flex;
   align-items: baseline;
-  gap: $space-sm;
+  gap: $space-xs;
+  line-height: 1;
+  flex-wrap: wrap;
 }
 
 .metric-card__number {
-  font-size: $font-size-4xl;
+  font-size: clamp(1.6rem, 3.2vw, $font-size-4xl);
   font-weight: $font-weight-bold;
   color: $color-text-primary;
+  letter-spacing: $tracking-tight;
+  line-height: 1;
 }
 
 .metric-card__unit {
-  font-size: $font-size-sm;
+  font-size: $font-size-xs;
   color: $color-text-muted;
-  font-weight: $font-weight-semibold;
+  font-weight: $font-weight-medium;
+  text-transform: lowercase;
 }
 
+// ---------------------------------------------------------------------------
+// Change pill
+// ---------------------------------------------------------------------------
+
 .metric-card__change {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: $space-sm;
+  gap: 4px;
   font-size: $font-size-xs;
-  padding: $space-sm;
-  border-radius: $radius-md;
-  background-color: rgba($color-text-muted, 0.05);
+  font-weight: $font-weight-semibold;
+  padding: 2px 9px;
+  border-radius: 999px;
+  width: fit-content;
+  letter-spacing: $tracking-wide;
 
   &--positive {
+    background-color: rgba($color-success, 0.12);
     color: $color-success;
-    background-color: rgba($color-success, 0.05);
+    border: 1px solid rgba($color-success, 0.22);
   }
 
   &--negative {
+    background-color: rgba($color-error, 0.1);
     color: $color-error;
-    background-color: rgba($color-error, 0.05);
+    border: 1px solid rgba($color-error, 0.2);
   }
 }
 
 .metric-card__trend {
-  font-size: $font-size-lg;
+  font-size: 10px;
   font-weight: $font-weight-bold;
+  line-height: 1;
 }
 
+// ---------------------------------------------------------------------------
+// Bottom accent bar — shows trend direction at bottom edge
+// ---------------------------------------------------------------------------
+
 .metric-card__trend-indicator {
-  margin-top: $space-md;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  border-radius: 0 0 $radius-lg $radius-lg;
+  overflow: hidden;
+  opacity: 0.25;
+  transition: opacity $transition-base;
+
+  .metric-card:hover & { opacity: 0.5; }
 }
 
 .metric-card__trend-bar {
-  height: 4px;
-  border-radius: $radius-sm;
-  overflow: hidden;
-  background-color: $color-border;
+  height: 100%;
+  width: 100%;
 
-  &--up {
-    background-color: $color-success;
-  }
-
-  &--down {
-    background-color: $color-error;
-  }
-
-  &--stable {
-    background-color: $color-warning;
-  }
+  &--up     { background: linear-gradient(90deg, $color-success,      rgba($color-success,      0.4)); }
+  &--down   { background: linear-gradient(90deg, $color-error,        rgba($color-error,        0.4)); }
+  &--stable { background: linear-gradient(90deg, $color-warning,      rgba($color-warning,      0.4)); }
 }

@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import '@/styles/global.scss'
 import { AppRouter } from '@/router'
 import { hydrateAuth } from '@/auth/service'
+import { ErrorBoundary } from '@/components'
 
 export default function App() {
   useEffect(() => {
@@ -11,5 +12,9 @@ export default function App() {
     hydrateAuth()
   }, [])
 
-  return <AppRouter />
+  return (
+    <ErrorBoundary>
+      <AppRouter />
+    </ErrorBoundary>
+  )
 }

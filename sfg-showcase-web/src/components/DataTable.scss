@@ -1,23 +1,69 @@
 @use '@/styles/variables' as *;
+@use '@/styles/utilities' as *;
+
+// ---------------------------------------------------------------------------
+// DataTable — Phase 2: elevated surface system, teal row hover, NO glass.
+// Data-dense surface — blur is never applied here.
+// ---------------------------------------------------------------------------
+
+@keyframes data-table-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0);   }
+}
+
+// ---------------------------------------------------------------------------
+// Container
+// ---------------------------------------------------------------------------
 
 .data-table {
-  background-color: $color-surface-card;
-  border: 1px solid $color-border;
+  background-color: $surface-card;
+  border: 1px solid $border-card;
   border-radius: $radius-lg;
   overflow: hidden;
+  box-shadow: $shadow-sm, $shadow-inset-glow;
+  animation: data-table-in 0.3s ease both;
+}
+
+// ---------------------------------------------------------------------------
+// Card header (title + count badge)
+// ---------------------------------------------------------------------------
+
+.data-table__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $space-sm;
+  padding: $space-md $space-lg;
+  border-bottom: 1px solid $border-card;
+  background-color: $surface-card;
 }
 
 .data-table__title {
-  padding: $space-lg;
-  border-bottom: 1px solid $color-border;
-  font-size: $font-size-lg;
-  color: $color-text-primary;
+  font-size: $font-size-sm;
   font-weight: $font-weight-semibold;
+  color: $color-text-primary;
   margin: 0;
+  letter-spacing: $tracking-snug;
 }
+
+.data-table__count {
+  font-size: $font-size-xs;
+  color: $color-text-muted;
+  background: $surface-raised;
+  border: 1px solid $border-raised;
+  border-radius: 999px;
+  padding: 1px 9px;
+  font-weight: $font-weight-semibold;
+  letter-spacing: $tracking-wide;
+}
+
+// ---------------------------------------------------------------------------
+// Table scroll wrapper
+// ---------------------------------------------------------------------------
 
 .data-table__wrapper {
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .data-table__table {
@@ -26,27 +72,37 @@
   font-size: $font-size-sm;
 }
 
+// ---------------------------------------------------------------------------
+// Column headers
+// ---------------------------------------------------------------------------
+
 .data-table__header-row {
-  background-color: $color-surface-elevated;
-  border-bottom: 1px solid $color-border;
+  background-color: $surface-raised;
+  border-bottom: 1px solid $border-raised;
 }
 
 .data-table__header-cell {
-  padding: $space-md $space-lg;
+  padding: $space-sm $space-lg;
   text-align: left;
   font-weight: $font-weight-semibold;
   color: $color-text-muted;
   text-transform: uppercase;
   font-size: $font-size-xs;
-  letter-spacing: 0.5px;
+  letter-spacing: $tracking-widest;
+  white-space: nowrap;
 }
 
+// ---------------------------------------------------------------------------
+// Body rows — teal-tinted hover (operational, directional)
+// ---------------------------------------------------------------------------
+
 .data-table__row {
-  border-bottom: 1px solid $color-border;
-  transition: background-color $transition-base;
+  border-bottom: 1px solid $border-card;
+  transition: background-color $transition-fast;
 
   &:hover {
-    background-color: rgba($color-primary, 0.05);
+    // Subtle teal tint — matches the info/teal operational color story
+    background-color: rgba($color-info, 0.04);
   }
 
   &:last-child {
@@ -55,14 +111,34 @@
 }
 
 .data-table__cell {
-  padding: $space-md $space-lg;
+  padding: $space-sm $space-lg;
   color: $color-text-secondary;
   vertical-align: middle;
+  line-height: 1.4;
+
+  // First column — primary emphasis
+  &--first {
+    color: $color-text-primary;
+    font-weight: $font-weight-medium;
+  }
 }
 
+// ---------------------------------------------------------------------------
+// Empty state
+// ---------------------------------------------------------------------------
+
 .data-table__empty {
+  padding: $space-2xl $space-md;
   text-align: center;
-  padding: $space-xl;
   color: $color-text-muted;
-  font-style: italic;
+  font-size: $font-size-sm;
+  display: table-cell;
+}
+
+.data-table__empty-icon {
+  display: block;
+  font-size: $font-size-3xl;
+  opacity: 0.25;
+  margin-bottom: $space-sm;
+  line-height: 1;
 }

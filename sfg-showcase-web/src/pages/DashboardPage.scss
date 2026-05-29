@@ -1,12 +1,41 @@
 @use '@/styles/variables' as *;
+@use '@/styles/utilities' as *;
 
 // ---------------------------------------------------------------------------
-// Page wrapper
+// DashboardPage — Phase 2: elevated chart cards, consolidated shimmer,
+// improved section headers, subtle page atmosphere.
+// Data surfaces (tables, activity feed) are handled by their own components.
 // ---------------------------------------------------------------------------
+
+// ---------------------------------------------------------------------------
+// Shimmer mixin — references canonical shimmer-sweep from global.scss
+// ---------------------------------------------------------------------------
+
+@mixin shimmer-base {
+  background: linear-gradient(
+    90deg,
+    $surface-raised     25%,
+    rgba(#4d7fa8, 0.14) 50%,   // steel-blue sweep — was stale #6b84c7
+    $surface-raised     75%
+  );
+  background-size: 600px 100%;
+  animation: shimmer-sweep 1.5s ease-in-out infinite;
+  border-radius: $radius-sm;
+}
+
+// ---------------------------------------------------------------------------
+// Page wrapper — subtle teal atmosphere in one corner
+// ---------------------------------------------------------------------------
+
+// Combined height of demo strip (32px) + header (~68px) + small buffer.
+// Used as scroll-margin-top on sections so anchor links land below chrome.
+$dashboard-chrome-h: 116px;
 
 .dashboard-page {
   flex: 1;
   padding: $space-lg $space-md;
+  background:
+    radial-gradient(ellipse 40% 35% at 95% 95%, rgba($color-info, 0.04) 0%, transparent 60%);
 
   @media (min-width: $breakpoint-lg) {
     padding: $space-xl;
@@ -14,38 +43,79 @@
 }
 
 // ---------------------------------------------------------------------------
-// Header
+// Section structure
 // ---------------------------------------------------------------------------
 
-.dashboard-page__header {
-  margin-bottom: $space-2xl;
+.dashboard-page__section {
+  margin-bottom: $section-gap;
 
-  h1 {
-    font-size: $font-size-3xl;
-    margin-bottom: $space-sm;
-  }
-
-  p {
-    color: $color-text-secondary;
-    font-size: $font-size-sm;
-    margin: 0;
+  &--last {
+    margin-bottom: 0;
+    padding-bottom: $section-gap;
   }
 }
 
-// Inline badge shown when dashboard is running on mock data (no auth/API)
+.dashboard-page__section-title {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  margin-bottom: $space-md;
+  display: flex;
+  align-items: baseline;
+  gap: $space-md;
+  letter-spacing: $tracking-snug;
+}
+
+.dashboard-page__section-sub {
+  font-size: $font-size-xs;
+  font-weight: $font-weight-regular;
+  color: $color-text-muted;
+  text-transform: uppercase;
+  letter-spacing: $tracking-widest;
+}
+
+// ---------------------------------------------------------------------------
+// Page header
+// ---------------------------------------------------------------------------
+
+.dashboard-page__header {
+  margin-bottom: $space-xl;
+
+  h1 {
+    font-size: $font-size-2xl;
+    font-weight: $font-weight-bold;
+    color: $color-text-primary;
+    margin-bottom: $space-xs;
+    letter-spacing: $tracking-snug;
+
+    @media (min-width: $breakpoint-lg) {
+      font-size: $font-size-page-title;
+    }
+  }
+
+  p {
+    color: $color-text-muted;
+    font-size: $font-size-sm;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: $space-sm;
+    flex-wrap: wrap;
+    letter-spacing: $tracking-wide;
+  }
+}
+
 .dashboard-page__demo-badge {
   display: inline-flex;
   align-items: center;
   font-size: $font-size-xs;
   font-weight: $font-weight-semibold;
   color: $color-warning;
-  background-color: rgba($color-warning, 0.1);
-  border: 1px solid rgba($color-warning, 0.25);
+  background-color: rgba($color-warning, 0.09);
+  border: 1px solid rgba($color-warning, 0.22);
   border-radius: 999px;
-  padding: 1px 8px;
-  margin-left: $space-sm;
-  letter-spacing: 0.02em;
-  vertical-align: middle;
+  padding: 2px 8px;
+  letter-spacing: $tracking-wide;
 }
 
 // ---------------------------------------------------------------------------
@@ -54,57 +124,88 @@
 
 .dashboard-page__metrics {
   display: grid;
-  gap: $space-lg;
-  grid-template-columns: 1fr;
-  margin-bottom: $space-2xl;
-
-  @media (min-width: $breakpoint-md) {
-    grid-template-columns: repeat(2, 1fr);
-  }
+  gap: $space-md;
+  grid-template-columns: 1fr 1fr;
+  margin-bottom: $space-xl;
 
   @media (min-width: $breakpoint-lg) {
     grid-template-columns: repeat(4, 1fr);
+    gap: $card-gap;
   }
 }
 
 // ---------------------------------------------------------------------------
-// Skeleton loading pulse (used while hooks are fetching)
+// Status strip
 // ---------------------------------------------------------------------------
 
-@keyframes dashboard-skeleton-pulse {
-  0%, 100% { opacity: 1; }
-  50%       { opacity: 0.4; }
-}
-
-.dashboard-page__skeleton-card {
-  background-color: $color-surface-card;
-  border: 1px solid $color-border;
-  border-radius: $radius-lg;
-  padding: $space-lg;
+.status-strip {
   display: flex;
-  flex-direction: column;
-  gap: $space-md;
-  animation: dashboard-skeleton-pulse 1.6s ease-in-out infinite;
+  gap: $space-sm;
+  margin-bottom: $space-xl;
+  flex-wrap: wrap;
+  align-items: center;
 }
 
-.dashboard-page__skeleton-line {
-  border-radius: $radius-sm;
-  background-color: $color-surface-elevated;
+.status-strip__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-semibold;
+  border: 1px solid transparent;
+  transition: box-shadow $transition-fast, transform $transition-fast;
+  cursor: default;
+  letter-spacing: $tracking-wide;
 
-  &--title {
-    height: 12px;
-    width: 55%;
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
   }
 
-  &--value {
-    height: 28px;
-    width: 70%;
+  &--inprogress {
+    background: rgba($color-primary, 0.12);
+    color: $color-primary-light;
+    border-color: rgba($color-primary, 0.22);
   }
 
-  &--sub {
-    height: 10px;
-    width: 40%;
+  &--scheduled {
+    background: rgba($color-info, 0.1);   // was hardcoded #06b6d4
+    color: $color-info;
+    border-color: rgba($color-info, 0.2);
   }
+
+  &--new {
+    background: rgba($color-warning, 0.1);
+    color: #d97706;
+    border-color: rgba($color-warning, 0.2);
+  }
+
+  &--completed {
+    background: rgba($color-success, 0.1);
+    color: $color-success;
+    border-color: rgba($color-success, 0.2);
+  }
+
+  &--canceled {
+    background: rgba($color-error, 0.07);
+    color: $color-error;
+    border-color: rgba($color-error, 0.15);
+  }
+}
+
+.status-strip__count {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-bold;
+  letter-spacing: $tracking-tight;
+  line-height: 1;
+}
+
+.status-strip__label {
+  font-size: $font-size-xs;
+  font-weight: $font-weight-medium;
+  opacity: 0.85;
 }
 
 // ---------------------------------------------------------------------------
@@ -113,62 +214,101 @@
 
 .dashboard-page__charts {
   display: grid;
-  gap: $space-lg;
+  gap: $card-gap;
   grid-template-columns: 1fr;
-  margin-bottom: $space-2xl;
+  margin-bottom: 0;
 
-  @media (min-width: $breakpoint-lg) {
-    grid-template-columns: repeat(3, 1fr);
+  @media (min-width: $breakpoint-md) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (min-width: $breakpoint-xl) {
+    grid-template-columns: 2fr 1fr 1fr;
   }
 }
 
+// Chart card — solid elevated surface (NO glass — chart surfaces must be solid)
 .dashboard-page__chart-card {
-  background-color: $color-surface-card;
-  border: 1px solid $color-border;
+  background-color: $surface-card;
+  border: 1px solid $border-card;
   border-radius: $radius-lg;
   padding: $space-lg;
+  box-shadow: $shadow-sm, $shadow-inset-glow;
   transition: border-color $transition-base, box-shadow $transition-base;
 
-  h3 {
-    font-size: $font-size-base;
-    font-weight: $font-weight-semibold;
-    margin-bottom: $space-lg;
-    color: $color-text-primary;
+  &:hover {
+    border-color: $border-raised;
+    box-shadow: $shadow-md, $shadow-inset-glow;
   }
 
-  &:hover {
-    border-color: $color-border-light;
-    box-shadow: $shadow-md;
+  h3 {
+    font-size: $font-size-sm;
+    font-weight: $font-weight-semibold;
+    color: $color-text-primary;
+    margin-bottom: 2px;
+    letter-spacing: $tracking-snug;
   }
+
+  // Primary chart spans both cols at mid breakpoint
+  @media (min-width: $breakpoint-md) and (max-width: 1279px) {
+    &--primary { grid-column: span 2; }
+  }
+}
+
+.dashboard-page__chart-sub {
+  font-size: $font-size-xs;
+  color: $color-text-muted;
+  margin: 0 0 $space-md;
+  letter-spacing: $tracking-wide;
 }
 
 // ---------------------------------------------------------------------------
-// Content grid: tables + activity feed
+// Skeleton loading
+// ---------------------------------------------------------------------------
+
+.dashboard-page__skeleton-card {
+  background-color: $surface-card;
+  border: 1px solid $border-card;
+  border-radius: $radius-lg;
+  padding: $space-lg;
+  display: flex;
+  flex-direction: column;
+  gap: $space-md;
+  min-height: 110px;
+  box-shadow: $shadow-sm, $shadow-inset-glow;
+}
+
+.dashboard-page__skeleton-chart {
+  @include shimmer-base;
+  height: 240px;
+  width: 100%;
+  margin-top: $space-sm;
+  border-radius: $radius-md;
+}
+
+.dashboard-page__skeleton-line {
+  @include shimmer-base;
+
+  &--title       { height: 11px; width: 50%; }
+  &--value       { height: 32px; width: 60%; }
+  &--sub         { height: 9px;  width: 35%; }
+  &--chart-title { height: 12px; width: 45%; margin-bottom: $space-xs; }
+}
+
+// ---------------------------------------------------------------------------
+// Content grid: jobs + activity
 // ---------------------------------------------------------------------------
 
 .dashboard-page__content {
   display: grid;
-  gap: $space-lg;
+  gap: $card-gap;
   grid-template-columns: 1fr;
-  margin-bottom: $space-2xl;
 
   @media (min-width: $breakpoint-lg) {
     grid-template-columns: 2fr 1fr;
+    align-items: start;
   }
 }
 
-.dashboard-page__main {
-  min-width: 0;
-}
-
-.dashboard-page__sidebar {
-  min-width: 0;
-}
-
-// ---------------------------------------------------------------------------
-// Footer: customer table
-// ---------------------------------------------------------------------------
-
-.dashboard-page__footer {
-  margin-bottom: $space-2xl;
-}
+.dashboard-page__main    { min-width: 0; }
+.dashboard-page__sidebar { min-width: 0; }

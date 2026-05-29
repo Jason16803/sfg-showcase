@@ -1,28 +1,46 @@
 @use '@/styles/variables' as *;
 
+// ---------------------------------------------------------------------------
+// Hero section — Phase 3: deeper atmosphere, premium presentation.
+// ---------------------------------------------------------------------------
+
 .demo-banner {
   padding: $space-3xl $space-md;
-  background: linear-gradient(
-    135deg,
-    rgba($color-primary, 0.05) 0%,
-    rgba(6, 182, 212, 0.05) 100%
-  );
+  position: relative;
+  overflow: hidden;
+  border-bottom: 1px solid $border-card;
+
+  // Deep navy → indigo sweep with teal bloom (Phase 2 direction)
+  background:
+    radial-gradient(ellipse 60% 55% at 8%  30%, rgba($color-primary, 0.10) 0%, transparent 60%),
+    radial-gradient(ellipse 45% 40% at 92% 75%, rgba($color-info,    0.07) 0%, transparent 55%),
+    $color-surface-bg;
 
   @media (min-width: $breakpoint-lg) {
-    padding: $space-3xl $space-xl;
+    padding: 5.5rem $space-xl;
   }
 }
+
+// ---------------------------------------------------------------------------
+// Layout
+// ---------------------------------------------------------------------------
 
 .demo-banner__content {
   display: grid;
   gap: $space-3xl;
   align-items: center;
   grid-template-columns: 1fr;
+  position: relative;
 
   @media (min-width: $breakpoint-lg) {
     grid-template-columns: 1fr 1fr;
+    gap: 4.5rem;
   }
 }
+
+// ---------------------------------------------------------------------------
+// Text column
+// ---------------------------------------------------------------------------
 
 .demo-banner__text {
   display: flex;
@@ -30,34 +48,107 @@
   gap: $space-lg;
 }
 
+.demo-banner__eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: $space-sm;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-semibold;
+  letter-spacing: $tracking-wider;
+  text-transform: uppercase;
+  color: $color-primary-light;
+  background: rgba($color-primary, 0.1);
+  border: 1px solid rgba($color-primary, 0.22);
+  border-radius: 999px;
+  padding: 4px 13px;
+  width: fit-content;
+}
+
+.demo-banner__eyebrow-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: $color-success;
+  box-shadow: 0 0 6px rgba($color-success, 0.6);
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.6; transform: scale(0.8); }
+}
+
 .demo-banner__title {
-  font-size: $font-size-3xl;
+  font-size: clamp(2.25rem, 5vw, $font-size-display-sm);
   color: $color-text-primary;
   font-weight: $font-weight-bold;
-  line-height: $line-height-tight;
+  line-height: 1.08;
+  letter-spacing: $tracking-snug;
+  margin: 0;
+}
 
-  @media (min-width: $breakpoint-md) {
-    font-size: $font-size-4xl;
-  }
+.demo-banner__title-accent {
+  background: linear-gradient(135deg, $color-primary-light 0%, $color-info 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .demo-banner__description {
   font-size: $font-size-lg;
   color: $color-text-secondary;
   line-height: $line-height-relaxed;
-  max-width: 600px;
+  max-width: 520px;
+  margin: 0;
+}
+
+.demo-banner__proof-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $space-lg;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+
+  li {
+    font-size: $font-size-sm;
+    color: $color-text-muted;
+    display: flex;
+    align-items: center;
+    gap: $space-xs;
+
+    // Separator dot between items
+    &:not(:last-child)::after {
+      content: '·';
+      margin-left: $space-lg;
+      color: $color-text-muted;
+      opacity: 0.5;
+    }
+  }
+
+  strong {
+    color: $color-text-primary;
+    font-weight: $font-weight-bold;
+    letter-spacing: $tracking-snug;
+  }
 }
 
 .demo-banner__actions {
   display: flex;
   flex-wrap: wrap;
   gap: $space-md;
-  margin-top: $space-md;
-
-  @media (min-width: $breakpoint-md) {
-    gap: $space-lg;
-  }
 }
+
+.demo-banner__hint {
+  font-size: $font-size-xs;
+  color: $color-text-muted;
+  margin: 0;
+  letter-spacing: $tracking-wide;
+}
+
+// ---------------------------------------------------------------------------
+// Visual column — product preview
+// ---------------------------------------------------------------------------
 
 .demo-banner__visual {
   display: flex;
@@ -68,104 +159,186 @@
 .demo-banner__dashboard-preview {
   width: 100%;
   max-width: 500px;
-  border: 1px solid $color-border;
+  background: $surface-card;
+  border: 1px solid $border-raised;
   border-radius: $radius-lg;
   overflow: hidden;
-  background: linear-gradient(135deg, $color-surface-card 0%, rgba($color-primary, 0.05) 100%);
-  box-shadow: $shadow-xl;
+  box-shadow: $shadow-xl, $shadow-inset-glow;
+  // Subtle ambient glow around the preview card
+  filter: drop-shadow(0 0 32px rgba($color-primary, 0.10));
 }
 
+// Window chrome bar
+.demo-banner__window-chrome {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: $space-sm $space-md;
+  border-bottom: 1px solid $border-card;
+  background: $surface-raised;
+
+  span {
+    display: block;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    flex-shrink: 0;
+
+    &:nth-child(1) { background: #ef4444; opacity: 0.75; }
+    &:nth-child(2) { background: $color-warning; opacity: 0.75; }
+    &:nth-child(3) { background: $color-success; opacity: 0.75; }
+  }
+}
+
+.demo-banner__window-title {
+  font-size: 11px;
+  color: $color-text-muted;
+  margin-left: $space-sm;
+  letter-spacing: $tracking-wide;
+  flex: 1;
+  text-align: center;
+  padding-right: 48px; // balance the three dots
+}
+
+// Header row
 .demo-banner__preview-header {
-  padding: $space-md $space-lg;
-  border-bottom: 1px solid $color-border;
+  padding: $space-sm $space-md;
+  border-bottom: 1px solid $border-card;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: $space-md;
 }
 
 .demo-banner__preview-title {
-  font-size: $font-size-base;
+  font-size: $font-size-sm;
   font-weight: $font-weight-semibold;
   color: $color-text-primary;
+  letter-spacing: $tracking-snug;
 }
 
 .demo-banner__preview-nav {
   display: flex;
   gap: $space-lg;
   font-size: $font-size-xs;
+
+  span {
+    color: $color-text-muted;
+    letter-spacing: $tracking-wide;
+  }
+
+  &-active {
+    color: $color-primary-light !important;
+    font-weight: $font-weight-semibold;
+    position: relative;
+
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: -9px;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, $color-primary, $color-primary-light);
+      border-radius: 1px;
+    }
+  }
 }
 
-.demo-banner__preview-nav-item {
-  color: $color-text-muted;
-  opacity: 0.6;
-}
-
+// Metric cards 2×2
 .demo-banner__preview-metrics {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: $space-md;
-  padding: $space-lg;
-  border-bottom: 1px solid $color-border;
+  gap: $space-sm;
+  padding: $space-md;
+  border-bottom: 1px solid $border-card;
 }
 
 .demo-banner__metric {
-  padding: $space-md;
-  background-color: rgba($color-primary, 0.05);
-  border-radius: $radius-md;
+  padding: $space-sm $space-md;
+  background-color: rgba($color-primary, 0.055);
   border: 1px solid rgba($color-primary, 0.1);
+  border-radius: $radius-md;
 }
 
 .demo-banner__metric-label {
-  font-size: $font-size-xs;
+  font-size: 10px;
   color: $color-text-muted;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-bottom: $space-xs;
+  letter-spacing: $tracking-widest;
+  margin-bottom: 2px;
 }
 
 .demo-banner__metric-value {
   font-size: $font-size-lg;
   font-weight: $font-weight-bold;
-  color: $color-primary;
+  color: $color-text-primary;
+  letter-spacing: $tracking-snug;
+  line-height: 1;
 }
 
+.demo-banner__metric-trend {
+  font-size: 10px;
+  font-weight: $font-weight-semibold;
+  margin-top: 2px;
+  letter-spacing: $tracking-wide;
+
+  &--up   { color: $color-success; }
+  &--down { color: $color-error; }
+}
+
+// SVG area chart
 .demo-banner__preview-chart {
-  padding: $space-lg;
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-around;
-  gap: $space-md;
-  height: 100px;
+  padding: $space-md $space-md $space-sm;
+  border-bottom: 1px solid $border-card;
 }
 
-.demo-banner__chart-bar {
-  width: 8%;
-  min-width: 12px;
-  background: linear-gradient(180deg, $color-primary 0%, $color-primary-light 100%);
-  border-radius: $radius-sm $radius-sm 0 0;
-  opacity: 0.7;
+.demo-banner__chart-label {
+  font-size: 10px;
+  color: $color-text-muted;
+  text-transform: uppercase;
+  letter-spacing: $tracking-widest;
+  margin-bottom: $space-xs;
+}
 
-  &:nth-child(1) {
-    opacity: 0.5;
-  }
+.demo-banner__chart-svg {
+  width: 100%;
+  height: 56px;
+  display: block;
+}
 
-  &:nth-child(2) {
-    opacity: 0.6;
-  }
+// Status row
+.demo-banner__preview-status {
+  padding: $space-sm $space-md;
+  display: flex;
+  align-items: center;
+  gap: $space-sm;
+  font-size: 11px;
+  color: $color-text-muted;
+  letter-spacing: $tracking-wide;
+}
 
-  &:nth-child(3) {
-    opacity: 0.75;
-  }
+.demo-banner__status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
 
-  &:nth-child(4) {
-    opacity: 0.65;
-  }
+  &--green { background: $color-success; box-shadow: 0 0 5px rgba($color-success, 0.5); }
+  &--amber { background: $color-warning; margin-left: $space-sm; }
+}
 
-  &:nth-child(5) {
-    opacity: 0.85;
-  }
+.demo-banner__preview-status-spacer {
+  flex: 1;
+}
 
-  &:nth-child(6) {
-    opacity: 0.9;
-  }
+.demo-banner__preview-badge {
+  font-size: 10px;
+  font-weight: $font-weight-bold;
+  letter-spacing: $tracking-wider;
+  color: $color-success;
+  background: rgba($color-success, 0.1);
+  border: 1px solid rgba($color-success, 0.22);
+  border-radius: 999px;
+  padding: 1px 7px;
 }
