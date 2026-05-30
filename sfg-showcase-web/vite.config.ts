@@ -39,6 +39,13 @@ export default defineConfig({
         /**
          * manualChunks — splits vendor libraries into separate cache-busted files.
          *
+         * Written as a function (not an object) to satisfy Rollup's strict
+         * ManualChunksFunction type under Vite 8 / TypeScript 6.
+         *
+         * The object-literal form is accepted at runtime but the Rollup type
+         * definition expects either a function or undefined for the `output`
+         * variant used here, causing a tsc type error on the object literal.
+         *
          * Benefits:
          *   - Returning users only re-download chunks that actually changed.
          *   - App code changes don't bust the vendor cache.
@@ -47,17 +54,41 @@ export default defineConfig({
          * Strategy:
          *   vendor-react   — stable React runtime (changes rarely)
          *   vendor-state   — Zustand + Axios (changes rarely)
-         *   vendor-form    — react-hook-form + zod (changes rarely)
+         *   vendor-form    — react-hook-form + zod + resolvers (changes rarely)
          *   vendor-charts  — recharts (~120 KB gzipped; separated for independent caching)
          *   vendor-motion  — framer-motion (~60 KB gzipped; separated for independent caching)
-         *   [app code]     — everything else (changes on every deploy)
+         *   [default]      — everything else (app code; changes on every deploy)
          */
-        manualChunks: {
-          'vendor-react':  ['react', 'react-dom', 'react-router-dom'],
-          'vendor-state':  ['zustand', 'axios'],
-          'vendor-form':   ['react-hook-form', '@hookform/resolvers', 'zod'],
-          'vendor-charts': ['recharts'],
-          'vendor-motion': ['framer-motion'],
+        manualChunks(id: string): string | undefined {
+          if (
+            id.includes('node_modules/react/') ||
+            id.includes('node_modules/react-dom/') ||
+            id.includes('node_modules/react-router-dom/') ||
+            id.includes('node_modules/react-router/')
+          ) {
+            return 'vendor-react'
+          }
+          if (
+            id.includes('node_modules/zustand/') ||
+            id.includes('node_modules/axios/')
+          ) {
+            return 'vendor-state'
+          }
+          if (
+            id.includes('node_modules/react-hook-form/') ||
+            id.includes('node_modules/@hookform/') ||
+            id.includes('node_modules/zod/')
+          ) {
+            return 'vendor-form'
+          }
+          if (id.includes('node_modules/recharts/')) {
+            return 'vendor-charts'
+          }
+          if (id.includes('node_modules/framer-motion/')) {
+            return 'vendor-motion'
+          }
+          // Everything else (app code + unlisted deps) uses Rollup's default chunking
+          return undefined
         },
       },
     },
