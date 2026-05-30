@@ -52,12 +52,26 @@ export default defineConfig({
          *   vendor-motion  — framer-motion (~60 KB gzipped; separated for independent caching)
          *   [app code]     — everything else (changes on every deploy)
          */
-        manualChunks: {
-          'vendor-react':  ['react', 'react-dom', 'react-router-dom'],
-          'vendor-state':  ['zustand', 'axios'],
-          'vendor-form':   ['react-hook-form', '@hookform/resolvers', 'zod'],
-          'vendor-charts': ['recharts'],
-          'vendor-motion': ['framer-motion'],
+        manualChunks(id) {
+          if (!id.includes('node_modules')) return undefined
+
+          if (/node_modules\/(react|react-dom|react-router-dom)\//.test(id)) {
+            return 'vendor-react'
+          }
+          if (/node_modules\/zustand\//.test(id)) {
+            return 'vendor-state'
+          }
+          if (/node_modules\/(react-hook-form|zod|@hookform\/resolvers)\//.test(id)) {
+            return 'vendor-form'
+          }
+          if (/node_modules\/recharts\//.test(id)) {
+            return 'vendor-charts'
+          }
+          if (/node_modules\/framer-motion\//.test(id)) {
+            return 'vendor-motion'
+          }
+
+          return undefined
         },
       },
     },
