@@ -161,13 +161,13 @@
   padding: 0 6px;
   border-radius: $radius-sm;
   cursor: pointer;
-  border: 1px solid $color-border;
+  border: 1px solid $border-card;
   background: none;
   color: $color-text-secondary;
   margin: 0 1px;
   transition: all $transition-fast;
 
-  &:hover { color: $color-text-primary; border-color: $color-border-light; }
+  &:hover { color: $color-text-primary; border-color: $border-raised; }
 
   &--yes {
     color: $color-warning;
@@ -239,11 +239,12 @@
 // ---------------------------------------------------------------------------
 
 .customers-page__add-form {
-  background-color: $color-surface-card;
+  background-color: $surface-card;
   border: 1px solid rgba($color-primary, 0.25);
   border-radius: $radius-lg;
   padding: $space-lg;
   margin-bottom: $space-lg;
+  box-shadow: $shadow-sm, $shadow-inset-glow;
 }
 
 .customers-page__add-form-title {
@@ -281,8 +282,8 @@
 
 .customers-page__add-form-input {
   padding: $space-sm $space-md;
-  background-color: $color-surface-elevated;
-  border: 1px solid $color-border;
+  background-color: $surface-raised;
+  border: 1px solid $border-raised;
   border-radius: $radius-md;
   color: $color-text-primary;
   font-size: $font-size-sm;
@@ -292,10 +293,10 @@
   &:focus {
     outline: none;
     border-color: $color-primary;
-    box-shadow: 0 0 0 2px rgba($color-primary, 0.2);
+    box-shadow: 0 0 0 3px rgba($color-primary, 0.18);
   }
 
-  option { background-color: $color-surface-card; }
+  option { background-color: $surface-card; }
 }
 
 .customers-page__add-form-actions {
@@ -322,7 +323,7 @@
 .customers-page__add-form-cancel {
   padding: $space-sm $space-lg;
   background-color: transparent;
-  border: 1px solid $color-border;
+  border: 1px solid $border-card;
   border-radius: $radius-md;
   color: $color-text-secondary;
   font-size: $font-size-sm;
@@ -332,7 +333,7 @@
   transition: all $transition-base;
 
   &:hover {
-    border-color: $color-border-light;
+    border-color: $border-raised;
     color: $color-text-primary;
   }
 }

@@ -60,7 +60,7 @@ const STATS = [
 
 export function AboutPage() {
   return (
-    <main className="about-page">
+    <div className="about-page">
 
       {/* Hero */}
       <section className="about-hero">
@@ -166,6 +166,6 @@ export function AboutPage() {
         </Container>
       </section>
 
-    </main>
+    </div>
   )
 }

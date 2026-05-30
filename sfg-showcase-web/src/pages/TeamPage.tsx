@@ -53,7 +53,7 @@ export function TeamPage() {
     isMock && (ROLE_LEVEL[currentUser?.role ?? ''] ?? 0) < TEAM_REQUIRED_LEVEL
 
   return (
-    <main className="team-page">
+    <div className="team-page">
       <Container>
         <div className="team-page__header">
           <div>
@@ -124,6 +124,6 @@ export function TeamPage() {
           </div>
         )}
       </Container>
-    </main>
+    </div>
   )
 }

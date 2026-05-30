@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react'
 import './ActivityFeed.scss'
 
 export interface Activity {
@@ -28,12 +29,18 @@ function formatTime(date: Date): string {
   return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
 }
 
-// Consistent icon set — single emoji per activity type
-const TYPE_ICONS: Record<string, string> = {
-  job:      '🔧',
-  customer: '👤',
-  team:     '👥',
-  system:   '⚡',
+// Inline SVG icons — no emoji, no OS-dependent rendering
+function IconWrench()   { return <svg viewBox="0 0 20 20" fill="none" aria-hidden="true" width="18" height="18"><path d="M12.5 3.5a4 4 0 00-4.9 4.9L3 13a1.5 1.5 0 002 2l4.6-4.6a4 4 0 004.9-4.9l-2.5 2.5-1.5-1.5 2.5-2.5z" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round"/></svg> }
+function IconPerson()   { return <svg viewBox="0 0 20 20" fill="none" aria-hidden="true" width="18" height="18"><circle cx="10" cy="6" r="3" stroke="currentColor" strokeWidth="1.4"/><path d="M3 17c0-3.3 3.1-6 7-6s7 2.7 7 6" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/></svg> }
+function IconPeople()   { return <svg viewBox="0 0 20 20" fill="none" aria-hidden="true" width="18" height="18"><circle cx="7" cy="6" r="2.5" stroke="currentColor" strokeWidth="1.4"/><path d="M1 16c0-2.8 2.7-5 6-5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/><circle cx="13" cy="6" r="2.5" stroke="currentColor" strokeWidth="1.4"/><path d="M19 16c0-2.8-2.7-5-6-5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/><path d="M7 16c0-2.8 2.7-5 6-5s6 2.2 6 5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/></svg> }
+function IconBolt()     { return <svg viewBox="0 0 20 20" fill="none" aria-hidden="true" width="18" height="18"><path d="M11 2L4 11h6l-1 7 7-9h-6l1-7z" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round"/></svg> }
+function IconClipboard(){ return <svg viewBox="0 0 20 20" fill="none" aria-hidden="true" width="18" height="18"><rect x="5" y="4" width="10" height="13" rx="1.5" stroke="currentColor" strokeWidth="1.4"/><path d="M8 4V3h4v1" stroke="currentColor" strokeWidth="1.4"/><path d="M7 9h6M7 12h4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/></svg> }
+
+const TYPE_ICON_NODES: Record<string, ReactNode> = {
+  job:      <IconWrench />,
+  customer: <IconPerson />,
+  team:     <IconPeople />,
+  system:   <IconBolt />,
 }
 
 export function ActivityFeed({ activities, isLoading = false }: ActivityFeedProps) {
@@ -72,7 +79,7 @@ export function ActivityFeed({ activities, isLoading = false }: ActivityFeedProp
                 className={`activity-feed__icon activity-feed__icon--${activity.color}`}
                 aria-hidden="true"
               >
-                {TYPE_ICONS[activity.type] ?? activity.icon}
+                {TYPE_ICON_NODES[activity.type] ?? <IconClipboard />}
               </div>
               <div className="activity-feed__content">
                 <h4 className="activity-feed__activity-title">{activity.title}</h4>

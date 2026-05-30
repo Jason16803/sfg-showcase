@@ -14,21 +14,27 @@
 }
 
 .reports-page__coming-soon {
-  background-color: $color-surface-card;
-  border: 1px solid $color-border;
+  background-color: $surface-card;
+  border: 1px solid $border-card;
   border-radius: $radius-lg;
   padding: $space-2xl $space-xl;
   text-align: center;
   margin-bottom: $space-2xl;
+  box-shadow: $shadow-sm, $shadow-inset-glow;
 
   h2 { font-size: $font-size-2xl; margin-bottom: $space-md; }
   p  { font-size: $font-size-base; color: $color-text-secondary; max-width: 480px; margin: 0 auto; line-height: $line-height-relaxed; }
 }
 
 .reports-page__icon {
-  font-size: 3rem;
-  margin-bottom: $space-lg;
-  display: block;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  margin: 0 auto $space-lg;
+  color: $color-primary-light;
+  opacity: 0.7;
 }
 
 .reports-page__planned {
@@ -54,16 +60,24 @@
   align-items: flex-start;
   gap: $space-md;
   padding: $space-lg;
-  background-color: $color-surface-card;
-  border: 1px dashed $color-border;
+  background-color: $surface-card;
+  border: 1px dashed $border-raised;
   border-radius: $radius-lg;
-  opacity: 0.8;
+  opacity: 0.85;
 }
 
 .reports-page__planned-icon {
-  font-size: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
   flex-shrink: 0;
   margin-top: 2px;
+  background: rgba($color-primary, 0.1);
+  border: 1px solid rgba($color-primary, 0.18);
+  border-radius: $radius-md;
+  color: $color-primary-light;
 }
 
 .reports-page__planned-title {

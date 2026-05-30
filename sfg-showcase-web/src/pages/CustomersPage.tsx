@@ -192,7 +192,7 @@ export function CustomersPage() {
   }
 
   return (
-    <main className="customers-page">
+    <div className="customers-page">
       <Container>
         <div className="customers-page__header">
           <div>
@@ -298,6 +298,6 @@ export function CustomersPage() {
           </p>
         )}
       </Container>
-    </main>
+    </div>
   )
 }

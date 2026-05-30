@@ -63,7 +63,13 @@ export class ErrorBoundary extends Component<Props, State> {
       return (
         <div className="error-boundary" role="alert">
           <div className="error-boundary__card">
-            <div className="error-boundary__icon" aria-hidden="true">⚠️</div>
+            <div className="error-boundary__icon" aria-hidden="true">
+            <svg viewBox="0 0 48 48" fill="none" width="48" height="48">
+              <path d="M24 6L4 42h40L24 6z" stroke="currentColor" strokeWidth="2.5" strokeLinejoin="round"/>
+              <path d="M24 20v10" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"/>
+              <circle cx="24" cy="35" r="1.5" fill="currentColor"/>
+            </svg>
+          </div>
             <h1 className="error-boundary__title">Something went wrong</h1>
             <p className="error-boundary__body">
               An unexpected error occurred in this part of the application.

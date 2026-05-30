@@ -1,10 +1,11 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import type { ReactNode } from 'react'
 import { ProtectedRoute } from './ProtectedRoute'
-import { PublicLayout } from '@/layouts/PublicLayout'
+import { ScrollToTop }    from './ScrollToTop'
+import { PublicLayout }   from '@/layouts/PublicLayout'
 import { DashboardLayout } from '@/layouts/DashboardLayout'
 import {
-  HomePage, LoginPage, SignupPage, OAuthCallbackPage,
+  HomePage, LoginPage, SignupPage, OAuthCallbackPage, NotFoundPage,
   DashboardPage, CustomersPage, JobsPage, TeamPage, SettingsPage, ReportsPage,
   AboutPage, ContactPage,
 } from '@/pages'
@@ -20,6 +21,7 @@ function RedirectIfAuthed({ children }: { children: ReactNode }) {
 export function AppRouter() {
   return (
     <BrowserRouter>
+      <ScrollToTop />
       <Routes>
 
         {/* ── Marketing / public pages — inside PublicLayout (nav + footer) ── */}
@@ -49,7 +51,10 @@ export function AppRouter() {
             </RedirectIfAuthed>
           }
         />
-        {/* OAuth callback uses its own full-page layout (glass card + atmosphere) */}
+
+        {/* OAuth callback — standalone with AuthShell, owns its own atmosphere.
+            Must remain at this exact path — SFO Core backend is configured to
+            redirect here after the Google OAuth exchange completes.            */}
         <Route path="/oauth/callback" element={<OAuthCallbackPage />} />
 
         {/* ── Protected dashboard routes ──────────────────────────────────── */}
@@ -62,8 +67,10 @@ export function AppRouter() {
           <Route path="/reports"   element={<ReportsPage />}     />
         </Route>
 
-        {/* ── Fallback ───────────────────────────────────────────────────── */}
-        <Route path="*" element={<Navigate to="/" replace />} />
+        {/* ── 404 — wildcard catches all unmatched paths ──────────────────── */}
+        {/* Renders NotFoundPage instead of silently redirecting to /.
+            NotFoundPage is auth-aware: shows Dashboard link if authenticated. */}
+        <Route path="*" element={<NotFoundPage />} />
 
       </Routes>
     </BrowserRouter>

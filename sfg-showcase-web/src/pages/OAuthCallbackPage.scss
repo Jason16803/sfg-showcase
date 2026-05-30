@@ -1,33 +1,20 @@
 @use '@/styles/variables' as *;
 
 // ---------------------------------------------------------------------------
-// OAuthCallbackPage — Phase 4: Phase 2 tokens, glass card, AuthShell-matched atmosphere.
+// OAuthCallbackPage — AuthShell handles atmosphere, dot-grid, entrance anim.
+// This file covers the card interior: processing state + error state.
 // ---------------------------------------------------------------------------
 
-.oauth-callback {
-  flex: 1;
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: $space-xl $space-md;
-  background:
-    radial-gradient(ellipse 55% 50% at 15% 18%, rgba($color-primary, 0.13) 0%, transparent 60%),
-    radial-gradient(ellipse 45% 40% at 85% 82%, rgba($color-info,    0.09) 0%, transparent 58%),
-    $color-surface-bg;
-}
-
-// ── Card — glass surface matching login/signup ─────────────────────────────
+// ── Shared card ────────────────────────────────────────────────────────────
 
 .oauth-callback__card {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
   gap: $space-lg;
-  max-width: 420px;
   width: 100%;
-  position: relative;
 
   background: $glass-bg-auth;
   border: 1px solid $border-modal;
@@ -55,42 +42,37 @@
 
   @supports (backdrop-filter: blur(1px)) {
     backdrop-filter: blur($glass-blur-lg);
-    background: rgba(#192232, 0.82);   // cold slate — was indigo
+    background: rgba(#192232, 0.82);
   }
 
-  // Error variant — amber highlight
+  // Error variant — amber top edge
   &--error {
-    border-color: rgba($color-warning, 0.32);
+    border-color: rgba($color-warning, 0.28);
 
     &::before {
       background: linear-gradient(
         90deg,
         transparent 5%,
-        rgba($color-warning, 0.2) 30%,
-        rgba($color-warning, 0.4) 50%,
-        rgba($color-warning, 0.2) 70%,
+        rgba($color-warning, 0.16) 30%,
+        rgba($color-warning, 0.32) 50%,
+        rgba($color-warning, 0.16) 70%,
         transparent 95%
       );
     }
   }
 }
 
-// ── Spinner ────────────────────────────────────────────────────────────────
-
-.oauth-callback__spinner {
-  width: 48px;
-  height: 48px;
-  flex-shrink: 0;
-}
+// ── Processing — spinner ───────────────────────────────────────────────────
 
 .oauth-callback__spinner-ring {
   display: block;
-  width: 100%;
-  height: 100%;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   border: 2.5px solid $border-raised;
   border-top-color: $color-primary-light;
   animation: oauth-spin 0.85s linear infinite;
+  flex-shrink: 0;
 }
 
 @keyframes oauth-spin {
@@ -98,23 +80,40 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .oauth-callback__spinner-ring { animation: none; border-top-color: $color-primary; }
+  .oauth-callback__spinner-ring {
+    animation: none;
+    border-top-color: $color-primary;
+    opacity: 0.7;
+  }
 }
 
-// ── Error icon ─────────────────────────────────────────────────────────────
+// ── Error icons ────────────────────────────────────────────────────────────
 
-.oauth-callback__error-icon {
+.oauth-callback__icon-wrap {
   color: $color-warning;
-  filter: drop-shadow(0 0 8px rgba($color-warning, 0.3));
+  filter: drop-shadow(0 0 10px rgba($color-warning, 0.25));
+  flex-shrink: 0;
 }
 
 .oauth-callback__error-svg {
   width: 48px;
   height: 48px;
   flex-shrink: 0;
+
+  // Muted variant for "user cancelled" — less alarming
+  &--muted {
+    color: $color-text-muted;
+    filter: none;
+  }
 }
 
 // ── Text ───────────────────────────────────────────────────────────────────
+
+.oauth-callback__text {
+  display: flex;
+  flex-direction: column;
+  gap: $space-sm;
+}
 
 .oauth-callback__title {
   font-size: $font-size-xl;
@@ -130,25 +129,95 @@
   color: $color-text-secondary;
   line-height: $line-height-relaxed;
   margin: 0;
-  max-width: 320px;
+  max-width: 340px;
 }
 
-// ── Actions ────────────────────────────────────────────────────────────────
+// ── Recovery actions ───────────────────────────────────────────────────────
 
 .oauth-callback__actions {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: $space-md;
-  margin-top: $space-sm;
+  width: 100%;
+  margin-top: $space-xs;
 }
 
-.oauth-callback__back {
+.oauth-callback__actions-primary {
+  display: flex;
+  flex-direction: column;
+  gap: $space-sm;
+  width: 100%;
+}
+
+.oauth-callback__actions-secondary {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: $space-md;
+  padding-top: $space-xs;
+  border-top: 1px solid rgba($border-card, 0.6);
+  width: 100%;
+}
+
+// Primary button — solid ice blue
+.oauth-callback__btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 11px $space-lg;
+  border-radius: $radius-md;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  font-family: inherit;
+  letter-spacing: $tracking-snug;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all $transition-base;
+  min-height: $size-md;
+
+  &--primary {
+    background: $color-primary;
+    color: #ffffff;
+    border: 1px solid transparent;
+
+    &:hover {
+      background: $color-primary-dark;
+      box-shadow: 0 2px 12px rgba($color-primary, 0.35);
+    }
+
+    &:focus-visible {
+      outline: none;
+      box-shadow: $shadow-focus;
+    }
+  }
+
+  &--secondary {
+    background: rgba($color-primary, 0.1);
+    color: $color-primary-light;
+    border: 1px solid rgba($color-primary, 0.28);
+
+    &:hover {
+      background: rgba($color-primary, 0.16);
+      border-color: rgba($color-primary, 0.44);
+    }
+
+    &:focus-visible {
+      outline: none;
+      box-shadow: $shadow-focus;
+    }
+  }
+}
+
+// Text link actions
+.oauth-callback__link {
   font-size: $font-size-sm;
   font-weight: $font-weight-semibold;
   color: $color-primary-light;
   text-decoration: none;
   letter-spacing: $tracking-snug;
+  transition: color $transition-base;
 
   &:hover { text-decoration: underline; }
 
@@ -157,45 +226,11 @@
     box-shadow: $shadow-focus;
     border-radius: $radius-sm;
   }
-}
 
-.oauth-callback__signup-link {
-  font-size: $font-size-sm;
-  font-weight: $font-weight-semibold;
-  color: $color-text-secondary;
-  text-decoration: none;
-  padding: $space-xs $space-md;
-  border: 1px solid $border-card;
-  border-radius: $radius-md;
-  transition: all $transition-base;
+  // "Contact support" is visually secondary to "Back to Sign In"
+  &--muted {
+    color: $color-text-muted;
 
-  &:hover {
-    color: $color-text-primary;
-    border-color: $border-raised;
-    background: rgba($surface-raised, 0.5);
-  }
-
-  &:focus-visible {
-    outline: none;
-    box-shadow: $shadow-focus;
-  }
-}
-
-// ── Legacy note ────────────────────────────────────────────────────────────
-
-.oauth-callback__note {
-  font-size: $font-size-xs;
-  color: $color-text-muted;
-  line-height: $line-height-relaxed;
-  margin: 0;
-
-  code {
-    font-family: 'SFMono-Regular', 'Consolas', monospace;
-    font-size: $font-size-xs;
-    background: $surface-raised;
-    border: 1px solid $border-raised;
-    border-radius: $radius-sm;
-    padding: 1px 5px;
-    color: $color-primary-light;
+    &:hover { color: $color-text-secondary; }
   }
 }

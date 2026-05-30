@@ -3,7 +3,8 @@ import { useNavigate, Link } from 'react-router-dom'
 import { authService } from '@/auth/service'
 import { useAuthStore } from '@/store/authStore'
 import { parseOAuthCallback, oauthErrorInfo } from '@/utils/oauth.utils'
-import type { OAuthErrorInfo } from '@/utils/oauth.utils'
+import type { OAuthErrorInfo, RecoveryAction } from '@/utils/oauth.utils'
+import { AuthShell } from '@/components'
 import './OAuthCallbackPage.scss'
 
 /**
@@ -11,44 +12,119 @@ import './OAuthCallbackPage.scss'
  *
  * Landing page after SFO Core completes the Google OAuth exchange.
  *
- * ── Flow ─────────────────────────────────────────────────────────────────
+ * ── Happy-path flow ───────────────────────────────────────────────────────
  *
- * 1. User clicks "Continue with Google" on /login
- *    → browser redirects to: GET ${VITE_API_URL}/auth/google
+ * 1. User clicks "Continue with Google" on /login or /signup
+ *    → browser redirects to GET ${VITE_API_URL}/auth/google
  *
- * 2. SFO Core redirects browser to Google's consent screen
+ * 2. SFO Core redirects to Google consent screen
  *    (backend owns the redirect_uri pointing to its own callback route)
  *
  * 3. Google redirects to SFO Core's server callback
- *    SFO Core: exchanges code → finds user → issues JWT → redirects to frontend
+ *    SFO Core: exchanges code → finds user → issues JWT → redirects to frontend:
+ *      ${FRONTEND_ORIGIN}/oauth/callback?accessToken=xxx&refreshToken=yyy
  *
- * 4. Browser arrives here at: /oauth/callback?accessToken=xxx&refreshToken=yyy
- *    (or ?error=access_denied / ?error=unauthorized / etc.)
- *
- * 5. This page:
+ * 4. This page runs:
  *    a. Reads tokens from URL (parseOAuthCallback)
  *    b. Stores accessToken + refreshToken via authStore
- *    c. Cleans tokens from URL bar (history.replaceState)
- *    d. Calls GET /api/v1/me to verify session + get user profile
+ *    c. Clears tokens from URL bar (history.replaceState — never logged/cached)
+ *    d. Calls GET /api/v1/me to verify session and restore user profile
  *    e. Applies platform-scope guard (same as hydrateAuth)
  *    f. Navigates to /dashboard on success
- *    g. Shows an error card on any failure
  *
- * ── Error handling ────────────────────────────────────────────────────────
+ * ── Error-path flow ───────────────────────────────────────────────────────
  *
- * access_denied        → user cancelled Google consent
- * unauthorized         → no SFG account for this Google identity
- * suspended            → account suspended
- * platform_scope       → platform account, no tenant dashboard access
- * no tokens in URL     → unexpected empty callback
- * /me failure          → token invalid or user not found
- * platform user (scope)→ tokens stored then immediately cleared
+ * Any error results in a polished error card with contextual recovery actions.
+ * Recovery actions are driven by OAuthErrorInfo.recovery[] from oauth.utils.ts.
  *
- * ── Stability note ───────────────────────────────────────────────────────
+ * Error sources:
+ *   - URL ?error=access_denied        — user cancelled Google consent
+ *   - URL ?error=unauthorized          — no SFG account for this Google identity
+ *   - URL ?error=suspended             — account suspended
+ *   - URL ?error=platform_scope        — platform account, no tenant access
+ *   - URL ?error=not_active            — account pending activation
+ *   - URL ?error=oauth_unavailable     — OAuth not configured on backend
+ *   - Internal: missing_tokens         — no tokens, no error in URL
+ *   - Internal: expired_session        — /me returned 401 after token storage
+ *
+ * ── StrictMode guard ─────────────────────────────────────────────────────
  *
  * React 18 StrictMode runs effects twice in development. The `hasRun` ref
- * guard ensures token processing fires exactly once per mount.
+ * ensures token processing fires exactly once per mount, preventing a
+ * double-store + double-redirect race on the happy path.
+ *
+ * ── Backend requirements ─────────────────────────────────────────────────
+ *
+ * See: docs/oauth-callback.md
+ * See: src/utils/oauth.utils.ts
  */
+
+// ── SVG icons — no emoji, no OS-dependent rendering ─────────────────────
+
+function IconSpinner() {
+  return (
+    <span
+      className="oauth-callback__spinner-ring"
+      role="status"
+      aria-label="Completing sign-in"
+    />
+  )
+}
+
+function IconError() {
+  return (
+    <svg
+      viewBox="0 0 48 48"
+      fill="none"
+      aria-hidden="true"
+      className="oauth-callback__error-svg"
+    >
+      <circle cx="24" cy="24" r="20" stroke="currentColor" strokeWidth="2"/>
+      <path d="M24 14v12" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"/>
+      <circle cx="24" cy="32" r="2" fill="currentColor"/>
+    </svg>
+  )
+}
+
+function IconCancelled() {
+  return (
+    <svg
+      viewBox="0 0 48 48"
+      fill="none"
+      aria-hidden="true"
+      className="oauth-callback__error-svg oauth-callback__error-svg--muted"
+    >
+      <circle cx="24" cy="24" r="20" stroke="currentColor" strokeWidth="2"/>
+      <path d="M16 16l16 16M32 16L16 32" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"/>
+    </svg>
+  )
+}
+
+function IconLocked() {
+  return (
+    <svg
+      viewBox="0 0 48 48"
+      fill="none"
+      aria-hidden="true"
+      className="oauth-callback__error-svg"
+    >
+      <rect x="10" y="22" width="28" height="22" rx="3" stroke="currentColor" strokeWidth="2"/>
+      <path d="M16 22V18a8 8 0 0116 0v4" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+      <circle cx="24" cy="33" r="2.5" fill="currentColor"/>
+    </svg>
+  )
+}
+
+// Choose icon by error type
+function errorIcon(error: string | null) {
+  if (error === 'access_denied') return <IconCancelled />
+  if (error === 'platform_scope' || error === 'suspended') return <IconLocked />
+  return <IconError />
+}
+
+// ---------------------------------------------------------------------------
+// Component
+// ---------------------------------------------------------------------------
 
 type PageState = 'processing' | 'error'
 
@@ -62,6 +138,7 @@ export function OAuthCallbackPage() {
 
   const [pageState, setPageState] = useState<PageState>('processing')
   const [errorInfo, setErrorInfo]  = useState<OAuthErrorInfo | null>(null)
+  const [errorCode, setErrorCode]  = useState<string | null>(null)
 
   // Prevents double-invocation in React 18 StrictMode
   const hasRun = useRef(false)
@@ -75,6 +152,7 @@ export function OAuthCallbackPage() {
 
       // ── 1. Error from Google or SFO Core ──────────────────────────────
       if (error) {
+        setErrorCode(error)
         setErrorInfo(oauthErrorInfo(error, errorDescription))
         setPageState('error')
         return
@@ -82,12 +160,8 @@ export function OAuthCallbackPage() {
 
       // ── 2. No tokens and no error — unexpected empty callback ─────────
       if (!tokens?.accessToken) {
-        setErrorInfo({
-          title:      'No credentials received',
-          body:       'The sign-in process did not return the expected tokens. ' +
-                      'This may be a temporary issue — please try again.',
-          showSignup: false,
-        })
+        setErrorCode('missing_tokens')
+        setErrorInfo(oauthErrorInfo('missing_tokens'))
         setPageState('error')
         return
       }
@@ -98,23 +172,25 @@ export function OAuthCallbackPage() {
         setRefreshToken(tokens.refreshToken)
       }
 
-      // Clean tokens from URL bar — they are now persisted in localStorage.
-      // After this point, tokens are stored and the URL is clean.
+      // Remove tokens from URL bar — they are now in localStorage.
+      // This prevents tokens from appearing in browser history or server logs
+      // if the user shares or bookmarks the URL.
       window.history.replaceState({}, '', '/oauth/callback')
 
-      // ── 4. Verify session — GET /api/v1/me ────────────────────────────
+      // ── 4. Verify session via GET /api/v1/me ──────────────────────────
       try {
         const user = await authService.hydrateMe()
 
-        // ── 5. Platform scope guard ──────────────────────────────────────
-        // Matches the same check in auth/service.ts hydrateAuth().
-        // Platform users pass /me but cannot enter the tenant dashboard.
+        // ── 5. Platform-scope guard ──────────────────────────────────────
+        // Mirrors the check in auth/service.ts:hydrateAuth().
+        // Platform users can pass /me but must not enter the tenant dashboard.
         if (user.scope === 'platform' || user.tenantId === null) {
           logout()
           setScopeError(
             'Platform accounts cannot access the tenant demo dashboard. ' +
             'Sign in with a demo tenant account.'
           )
+          setErrorCode('platform_scope')
           setErrorInfo(oauthErrorInfo('platform_scope'))
           setPageState('error')
           return
@@ -124,14 +200,10 @@ export function OAuthCallbackPage() {
         navigate('/dashboard', { replace: true })
 
       } catch {
-        // /me failed — the token may be malformed or the user was not found
+        // /me returned 401 — token may be malformed, expired, or revoked
         logout()
-        setErrorInfo({
-          title:      'Session verification failed',
-          body:       'Your sign-in could not be verified. The session may be invalid. ' +
-                      'Please try signing in again.',
-          showSignup: false,
-        })
+        setErrorCode('expired_session')
+        setErrorInfo(oauthErrorInfo('expired_session'))
         setPageState('error')
       }
     }
@@ -139,70 +211,131 @@ export function OAuthCallbackPage() {
     void run()
   }, [navigate, setToken, setRefreshToken, logout, setScopeError])
 
-  // ── Processing state — spinner ─────────────────────────────────────────
+  // Shared: retry Google OAuth (same URL as login/signup Google buttons)
+  const handleTryAgain = () => {
+    const apiUrl =
+      (import.meta.env.VITE_API_URL as string | undefined) ||
+      'https://sfo-core-api.fly.dev/api/v1'
+    window.location.href = `${apiUrl}/auth/google`
+  }
+
+  // ── Processing state ───────────────────────────────────────────────────
 
   if (pageState === 'processing') {
     return (
-      <main className="oauth-callback">
+      <AuthShell maxWidth={400}>
         <div className="oauth-callback__card">
-          <div
-            className="oauth-callback__spinner"
-            aria-label="Completing sign-in"
-            role="status"
-          >
-            <span className="oauth-callback__spinner-ring" />
+          <IconSpinner />
+          <div className="oauth-callback__text">
+            <h1 className="oauth-callback__title">Completing sign-in</h1>
+            <p className="oauth-callback__body">
+              Verifying your Google account with SFG.
+            </p>
           </div>
-          <h1 className="oauth-callback__title">Completing sign-in…</h1>
-          <p className="oauth-callback__body">
-            Verifying your Google account with SFG.
-          </p>
         </div>
-      </main>
+      </AuthShell>
     )
   }
 
   // ── Error state ────────────────────────────────────────────────────────
 
+  const info = errorInfo ?? oauthErrorInfo('unknown_error')
+
   return (
-    <main className="oauth-callback">
+    <AuthShell maxWidth={460}>
       <div className="oauth-callback__card oauth-callback__card--error">
-        <div className="oauth-callback__error-icon" aria-hidden="true">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            className="oauth-callback__error-svg"
-          >
-            <circle cx="12" cy="12" r="10" />
-            <line x1="12" y1="8" x2="12" y2="12" />
-            <circle cx="12" cy="16" r="0.5" fill="currentColor" />
-          </svg>
+
+        {/* Icon */}
+        <div className="oauth-callback__icon-wrap">
+          {errorIcon(errorCode)}
         </div>
 
-        <h1 className="oauth-callback__title">
-          {errorInfo?.title ?? 'Sign-in failed'}
-        </h1>
-
-        <p className="oauth-callback__body">
-          {errorInfo?.body ?? 'An unexpected error occurred. Please try again.'}
-        </p>
-
-        <div className="oauth-callback__actions">
-          <Link to="/login" className="oauth-callback__back">
-            ← Return to Sign In
-          </Link>
-
-          {errorInfo?.showSignup && (
-            <Link to="/signup" className="oauth-callback__signup-link">
-              Request access →
-            </Link>
-          )}
+        {/* Copy */}
+        <div className="oauth-callback__text">
+          <h1 className="oauth-callback__title">{info.title}</h1>
+          <p className="oauth-callback__body">{info.body}</p>
         </div>
+
+        {/* Recovery actions */}
+        <RecoveryActions recovery={info.recovery} onTryAgain={handleTryAgain} />
+
       </div>
-    </main>
+    </AuthShell>
+  )
+}
+
+// ---------------------------------------------------------------------------
+// RecoveryActions — renders the contextual action set for a given error
+// ---------------------------------------------------------------------------
+
+interface RecoveryActionsProps {
+  recovery:   RecoveryAction[]
+  onTryAgain: () => void
+}
+
+function RecoveryActions({ recovery, onTryAgain }: RecoveryActionsProps) {
+  if (recovery.length === 0) return null
+
+  // Split into primary buttons (first 1–2) and secondary text links (rest)
+  const primaries   = recovery.filter(a => a === 'try_again' || a === 'request_access')
+  const secondaries = recovery.filter(a => a === 'back_to_login' || a === 'contact_support')
+
+  return (
+    <div className="oauth-callback__actions">
+      {/* Primary button(s) */}
+      {primaries.length > 0 && (
+        <div className="oauth-callback__actions-primary">
+          {primaries.map(action => {
+            if (action === 'try_again') {
+              return (
+                <button
+                  key="try_again"
+                  type="button"
+                  className="oauth-callback__btn oauth-callback__btn--primary"
+                  onClick={onTryAgain}
+                >
+                  Try again with Google
+                </button>
+              )
+            }
+            if (action === 'request_access') {
+              return (
+                <Link
+                  key="request_access"
+                  to="/signup"
+                  className="oauth-callback__btn oauth-callback__btn--secondary"
+                >
+                  Request access
+                </Link>
+              )
+            }
+            return null
+          })}
+        </div>
+      )}
+
+      {/* Secondary text links */}
+      {secondaries.length > 0 && (
+        <div className="oauth-callback__actions-secondary">
+          {secondaries.map(action => {
+            if (action === 'back_to_login') {
+              return (
+                <Link key="back_to_login" to="/login" className="oauth-callback__link">
+                  Back to Sign In
+                </Link>
+              )
+            }
+            if (action === 'contact_support') {
+              return (
+                <Link key="contact_support" to="/contact" className="oauth-callback__link oauth-callback__link--muted">
+                  Contact support
+                </Link>
+              )
+            }
+            return null
+          })}
+        </div>
+      )}
+    </div>
   )
 }

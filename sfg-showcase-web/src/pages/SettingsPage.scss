@@ -18,9 +18,11 @@
 .settings-page__section {
   margin-bottom: $space-xl;
 
+  // M2 fix: was opacity:0.85 on the whole element which caused border/child
+  // transparency artifacts. Use a darker surface color instead.
   &--muted {
-    opacity: 0.85;
-    background-color: rgba($color-surface-card, 0.7);
+    background-color: $color-surface-bg;
+    border-color: $border-base;
   }
 }
 
@@ -113,8 +115,8 @@
 .settings-page__mono {
   font-family: 'SFMono-Regular', 'Consolas', 'Liberation Mono', monospace;
   font-size: $font-size-xs;
-  background-color: $color-surface-elevated;
-  border: 1px solid $color-border;
+  background-color: $surface-raised;
+  border: 1px solid $border-raised;
   border-radius: $radius-sm;
   padding: 2px 6px;
 }
@@ -127,7 +129,10 @@
 
 // Input error state
 input.error {
-  border-color: $color-error;
+  border-color: rgba($color-error, 0.6);
   background-color: rgba($color-error, 0.05);
-  &:focus { border-color: $color-error; }
+  &:focus {
+    border-color: rgba($color-error, 0.8);
+    box-shadow: 0 0 0 3px rgba($color-error, 0.14);
+  }
 }

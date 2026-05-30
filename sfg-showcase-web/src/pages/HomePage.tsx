@@ -36,7 +36,7 @@ const FEATURES = [
 
 export function HomePage() {
   return (
-    <main className="home-page">
+    <div className="home-page">
       <DemoBanner />
 
       {/* ── Features section ─────────────────────────────────────── */}
@@ -116,6 +116,6 @@ export function HomePage() {
           </div>
         </Container>
       </section>
-    </main>
+    </div>
   )
 }

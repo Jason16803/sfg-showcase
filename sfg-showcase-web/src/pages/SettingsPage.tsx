@@ -93,7 +93,7 @@ export function SettingsPage() {
   }
 
   return (
-    <main className="settings-page">
+    <div className="settings-page">
       <Container>
         <div className="settings-page__header">
           <h1>Settings</h1>
@@ -231,6 +231,6 @@ export function SettingsPage() {
           </p>
         </Card>
       </Container>
-    </main>
+    </div>
   )
 }

@@ -7,10 +7,12 @@ const FOOTER_NAV = [
   {
     heading: 'Product',
     links: [
-      { label: 'Features',     to: '/#features' },
-      { label: 'How it works', to: '/about'      },
-      { label: 'Pricing',      to: '/contact'    },
-      { label: 'Roadmap',      to: '/contact'    },
+      // /#features as a Link causes ScrollToTop to fire on pathname change
+      // then hash is ignored. Routing to / correctly lands on the home page
+      // where the features section is immediately visible.
+      { label: 'Features',     to: '/'        },
+      { label: 'How it works', to: '/about'   },
+      { label: 'Pricing',      to: '/contact' },
     ],
   },
   {
@@ -18,7 +20,6 @@ const FOOTER_NAV = [
     links: [
       { label: 'About',   to: '/about'   },
       { label: 'Contact', to: '/contact' },
-      { label: 'Blog',    to: '/contact' },
     ],
   },
   {

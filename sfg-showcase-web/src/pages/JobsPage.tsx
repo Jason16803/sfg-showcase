@@ -223,7 +223,7 @@ export function JobsPage() {
   }
 
   return (
-    <main className="jobs-page">
+    <div className="jobs-page">
       <Container>
         <div className="jobs-page__header">
           <div>
@@ -314,6 +314,6 @@ export function JobsPage() {
           </p>
         )}
       </Container>
-    </main>
+    </div>
   )
 }

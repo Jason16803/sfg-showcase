@@ -125,7 +125,7 @@ export function DashboardPage() {
   const revenueMock = { value: '$42,850', change: { value: 12, isPositive: true } }
 
   return (
-    <main className="dashboard-page">
+    <div className="dashboard-page">
       <Container>
 
         {/* ── Page header ────────────────────────────────────────── */}
@@ -158,7 +158,6 @@ export function DashboardPage() {
                 unit="this month"
                 change={revenueMock.change}
                 trend="up"
-                icon="💰"
               />
               <DashboardMetricCard
                 title="Active Jobs"
@@ -166,7 +165,6 @@ export function DashboardPage() {
                 unit="open"
                 change={{ value: 3, isPositive: true }}
                 trend="up"
-                icon="🔧"
               />
               <DashboardMetricCard
                 title="Customers"
@@ -174,7 +172,6 @@ export function DashboardPage() {
                 unit="active"
                 change={{ value: 8, isPositive: true }}
                 trend="up"
-                icon="👥"
               />
               <DashboardMetricCard
                 title="Today"
@@ -182,7 +179,6 @@ export function DashboardPage() {
                 unit="scheduled"
                 change={{ value: newLeads, isPositive: newLeads > 0 }}
                 trend="stable"
-                icon="📅"
               />
             </>
           )}
@@ -279,6 +275,6 @@ export function DashboardPage() {
         </section>
 
       </Container>
-    </main>
+    </div>
   )
 }

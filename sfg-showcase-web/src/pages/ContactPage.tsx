@@ -69,7 +69,7 @@ export function ContactPage() {
 
   if (status === 'success') {
     return (
-      <main className="contact-page">
+      <div className="contact-page">
         <section className="contact-success-page">
           <Container>
             <div className="contact-success">
@@ -93,12 +93,12 @@ export function ContactPage() {
             </div>
           </Container>
         </section>
-      </main>
+      </div>
     )
   }
 
   return (
-    <main className="contact-page">
+    <div className="contact-page">
 
       {/* Hero */}
       <section className="contact-hero">
@@ -151,10 +151,11 @@ export function ContactPage() {
               <form onSubmit={handleSubmit} className="contact-form" noValidate>
                 <div className="contact-form__row">
                   <div className="contact-form__field">
-                    <label className="contact-form__label contact-form__label--required">
+                    <label htmlFor="contact-firstName" className="contact-form__label contact-form__label--required">
                       First name
                     </label>
                     <input
+                      id="contact-firstName"
                       type="text"
                       className={`contact-form__input${errors.firstName ? ' contact-form__input--error' : ''}`}
                       value={form.firstName}
@@ -167,10 +168,11 @@ export function ContactPage() {
                     )}
                   </div>
                   <div className="contact-form__field">
-                    <label className="contact-form__label contact-form__label--required">
+                    <label htmlFor="contact-lastName" className="contact-form__label contact-form__label--required">
                       Last name
                     </label>
                     <input
+                      id="contact-lastName"
                       type="text"
                       className={`contact-form__input${errors.lastName ? ' contact-form__input--error' : ''}`}
                       value={form.lastName}
@@ -185,10 +187,11 @@ export function ContactPage() {
                 </div>
 
                 <div className="contact-form__field">
-                  <label className="contact-form__label contact-form__label--required">
+                  <label htmlFor="contact-email" className="contact-form__label contact-form__label--required">
                     Work email
                   </label>
                   <input
+                    id="contact-email"
                     type="email"
                     className={`contact-form__input${errors.email ? ' contact-form__input--error' : ''}`}
                     value={form.email}
@@ -202,10 +205,11 @@ export function ContactPage() {
                 </div>
 
                 <div className="contact-form__field">
-                  <label className="contact-form__label">
+                  <label htmlFor="contact-company" className="contact-form__label">
                     Company <span className="contact-form__optional">(optional)</span>
                   </label>
                   <input
+                    id="contact-company"
                     type="text"
                     className="contact-form__input"
                     value={form.company}
@@ -216,8 +220,9 @@ export function ContactPage() {
                 </div>
 
                 <div className="contact-form__field">
-                  <label className="contact-form__label">Subject</label>
+                  <label htmlFor="contact-subject" className="contact-form__label">Subject</label>
                   <select
+                    id="contact-subject"
                     className="contact-form__input"
                     value={form.subject}
                     onChange={change('subject')}
@@ -232,10 +237,11 @@ export function ContactPage() {
                 </div>
 
                 <div className="contact-form__field">
-                  <label className="contact-form__label contact-form__label--required">
+                  <label htmlFor="contact-message" className="contact-form__label contact-form__label--required">
                     Message
                   </label>
                   <textarea
+                    id="contact-message"
                     className={`contact-form__input contact-form__textarea${errors.message ? ' contact-form__input--error' : ''}`}
                     value={form.message}
                     onChange={change('message')}
@@ -265,6 +271,6 @@ export function ContactPage() {
           </div>
         </Container>
       </section>
-    </main>
+    </div>
   )
 }
